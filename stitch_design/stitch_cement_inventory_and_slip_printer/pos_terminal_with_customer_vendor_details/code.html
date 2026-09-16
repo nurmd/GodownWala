@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "error-container": "#ffdad6", "tertiary-container": "#5faf5d", "on-surface": "#111d23", "primary-fixed": "#ffdcc6", "secondary-fixed-dim": "#b8c9d3", "primary": "#964900", "on-tertiary-fixed": "#002204", "on-secondary": "#ffffff", "on-secondary-container": "#55656d", "on-surface-variant": "#574235", "secondary-fixed": "#d4e5ef", "surface-container-highest": "#d7e4ec", "surface-container-high": "#ddeaf2", "surface-container-low": "#e9f6fd", "inverse-surface": "#263238", "surface-tint": "#964900", "on-tertiary-fixed-variant": "#005312", "inverse-primary": "#ffb786", "error": "#ba1a1a", "surface": "#f4faff", "on-tertiary-container": "#003f0b", "outline": "#8b7263", "surface-dim": "#cfdce4", "on-error": "#ffffff", "secondary": "#506169", "on-tertiary": "#ffffff", "background": "#f4faff", "on-secondary-fixed-variant": "#394951", "tertiary-fixed": "#a3f69c", "on-error-container": "#93000a", "tertiary": "#1b6d24", "primary-fixed-dim": "#ffb786", "outline-variant": "#dec1af", "primary-container": "#f57c00", "secondary-container": "#d1e2ec", "surface-container-lowest": "#ffffff", "surface-bright": "#f4faff", "on-primary-fixed-variant": "#723600", "inverse-on-surface": "#e6f3fb", "on-primary-container": "#572800", "tertiary-fixed-dim": "#88d982", "on-secondary-fixed": "#0d1e25", "on-background": "#111d23", "on-primary-fixed": "#311300", "surface-variant": "#d7e4ec", "surface-container": "#e3f0f8", "on-primary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xl": "2rem", "margin-lg": "1.5rem", "margin": "1rem", "space-sm": "0.5rem", "gutter-sm": "0.75rem", "space-md": "1rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "gutter": "1rem" }, "fontFamily": { "label-sm": ["Inter"], "body-md": ["Inter"], "body-sm": ["Inter"], "headline-md": ["Inter"], "label-md": ["Inter"], "body-lg": ["Inter"], "receipt-code": ["Space Mono"], "metric-counter": ["Inter"], "headline-lg": ["Inter"], "label-lg": ["Inter"], "headline-xl": ["Inter"], "headline-sm": ["Inter"] }, "fontSize": { "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "700"}], "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}], "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}], "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}], "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "600"}], "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}], "receipt-code": ["13px", {"lineHeight": "18px", "fontWeight": "400"}], "metric-counter": ["36px", {"lineHeight": "44px", "fontWeight": "800"}], "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}], "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}], "headline-xl": ["32px", {"lineHeight": "40px", "fontWeight": "700"}], "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .tile-active {
+      outline: 2px solid #f57c00;
+      box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.18);
+    }
+    .tap-bounce:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen">
+<!-- Header & Hardware Status -->
+<header class="fixed top-0 w-full z-40 pt-safe bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.05)] border-b border-surface-container-high">
+<div class="px-margin pt-2 pb-2 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[24px]">pallet</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">CementTrack POS</span>
+<span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-tertiary-fixed text-on-tertiary-fixed uppercase">Live Terminal</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface">
+<span class="font-headline-sm text-headline-sm font-semibold truncate">Godown #4 - Central Depot</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Counter #01</span>
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary inline-block animate-pulse"></span>Online
+          </span>
+</div>
+<img alt="Supervisor Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-surface-container-highest ring-1 ring-primary/20" src="https://lh3.googleusercontent.com/aida/AEtjO1Uddia0cBBkJ0AYpMqVPjGK6Yqd-4PFT9mtRluHQYpxlNIthqq7YvYZg9VNFwLsFX_1dkEVhu5UF0-tLr71n91ylXQdCEiAcuYrJgU4s2Mvvoc0_fB-ZssYptGHaEf3AyRCxeBlSCUKUUuugXUYEV2u57qmEoZ2KaJmXOewqSjKE3ngRW8L9-WxZVcd7bsp8yCo9EIDfiX8R7H7DuTOzrlE7IdfQ1cL_98_g76uhutfEyNOSk0rLrA1ud0"/>
+</div>
+</div>
+<!-- Bluetooth Thermal Printer Indicator -->
+<div class="flex items-center justify-between bg-surface-container-low px-2.5 py-1 rounded-lg border border-surface-container-high">
+<div class="flex items-center gap-1.5 text-on-secondary-container min-w-0">
+<span class="material-symbols-outlined text-[16px] text-tertiary shrink-0">print</span>
+<span class="font-receipt-code text-[12px] text-on-surface truncate">ESC/POS 80mm - Ready • RP-3200 (BT Connected)</span>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<span class="font-label-sm text-[10px] text-tertiary font-bold uppercase tracking-tight bg-tertiary-fixed/60 px-1.5 py-0.5 rounded">98% Paper OK</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex flex-col relative w-full pt-[108px] pb-44 bg-surface min-h-screen">
+<div class="flex flex-col w-full px-margin py-space-xs space-y-space-sm">
+<!-- Quick Category Filter Pills -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar" id="categoryTabs">
+<button class="cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-primary-container text-on-primary shadow-sm" onclick="filterCategory('all', this)">
+        All Cement (6)
+      </button>
+<button class="cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-surface-container-lowest text-on-surface-variant border border-surface-container-high hover:border-primary" onclick="filterCategory('ppc', this)">
+        PPC Blended
+      </button>
+<button class="cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-surface-container-lowest text-on-surface-variant border border-surface-container-high hover:border-primary" onclick="filterCategory('opc', this)">
+        OPC 53G
+      </button>
+<button class="cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-surface-container-lowest text-on-surface-variant border border-surface-container-high hover:border-primary" onclick="filterCategory('specialty', this)">
+        Specialty / White
+      </button>
+<button class="cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-surface-container-lowest text-on-surface-variant border border-surface-container-high hover:border-primary" onclick="filterCategory('bags50', this)">
+        Bags 50kg
+      </button>
+</div>
+<!-- Active Party & Search Mini Header -->
+<div class="bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high shadow-sm flex flex-col gap-2.5">
+<!-- Customer vs Vendor Switch & Search Action -->
+<div class="flex items-center justify-between border-b border-surface-container-high pb-2">
+<div class="flex items-center gap-1.5 p-0.5 bg-surface-container rounded-lg">
+<button class="px-2.5 py-1 rounded-md font-label-sm text-[11px] font-bold uppercase transition-colors bg-primary text-on-primary shadow-sm flex items-center gap-1" id="partyTabCustomer" onclick="switchPartyMode('customer')" type="button">
+<span class="material-symbols-outlined text-[14px]">person</span>
+<span>Customer (Dispatch)</span>
+</button>
+<button class="px-2.5 py-1 rounded-md font-label-sm text-[11px] font-bold uppercase transition-colors text-on-surface-variant hover:text-on-surface flex items-center gap-1" id="partyTabVendor" onclick="switchPartyMode('vendor')" type="button">
+<span class="material-symbols-outlined text-[14px]">factory</span>
+<span>Vendor (Inward Stock)</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="px-2 py-1 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high font-label-sm text-[11px] font-bold flex items-center gap-1 border border-surface-container-high active:scale-95 transition-transform" onclick="promptPartySwitch()" type="button">
+<span class="material-symbols-outlined text-[14px]">swap_horiz</span>
+<span>Switch</span>
+</button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm flex items-center gap-1 shrink-0 border border-surface-container-high active:scale-95 transition-transform" onclick="openCartDrawer()">
+<span class="material-symbols-outlined text-[15px] text-primary">shopping_bag</span>
+<span class="font-bold text-primary text-[12px]" id="quickCartCount">0 Bags</span>
+</button>
+</div>
+</div>
+<!-- Customer Details Card View -->
+<div class="flex flex-col gap-1.5" id="customerDetailsBlock">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-on-surface truncate" id="activePartyTitle">Sharma Infra Projects Pvt Ltd</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-primary-fixed text-on-primary-fixed font-bold uppercase">Contractor / A-Class</span>
+<span class="font-receipt-code text-[11px] text-tertiary font-bold">[ID #SH-901]</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 text-on-surface-variant text-[11px] font-receipt-code">
+<span>GST: 07AAAAA0000A1Z5</span>
+<span>•</span>
+<span>Ph: +91 98765-43210</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase">Ledger Outstanding</span>
+<span class="font-receipt-code font-bold text-[13px] text-error">₹1,20,000</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-dashed border-surface-container-high text-[11px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface">Site:</strong> Plot 42, Sector 18 Logistics Hub, Warehouse Road</span>
+</div>
+<span class="font-receipt-code text-[10px] bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded shrink-0 font-bold ml-2">Credit Limit ₹4.5L OK</span>
+</div>
+</div>
+<!-- Vendor Details Card View (Hidden by default) -->
+<div class="hidden flex flex-col gap-1.5" id="vendorDetailsBlock">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-on-surface truncate">UltraTech Cement Ltd - Plant #2</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-secondary-fixed text-secondary font-bold uppercase">Manufacturer / Direct</span>
+<span class="font-receipt-code text-[11px] text-primary font-bold">[VEND-DEL-882]</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 text-on-surface-variant text-[11px] font-receipt-code">
+<span>GST: 08AAACU3418K1ZM</span>
+<span>•</span>
+<span>Rake No: RK-904-WR</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase">PO Balance Ref</span>
+<span class="font-receipt-code font-bold text-[13px] text-tertiary">PO-2024-884</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-dashed border-surface-container-high text-[11px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">local_shipping</span>
+<span class="truncate"><strong class="text-on-surface">Transit:</strong> Rail Freight Godown Siding #3 • Freight Paid</span>
+</div>
+<span class="font-receipt-code text-[10px] bg-secondary-fixed text-on-secondary-fixed px-1.5 py-0.2 rounded shrink-0 font-bold ml-2">Net 30 Payment Terms</span>
+</div>
+</div>
+<!-- Hidden Native Select for Party Interactivity Backwards-Compatibility -->
+<select class="hidden" id="selectedParty">
+<option selected="" value="Sharma Infra Projects Ltd.">Sharma Infra Projects Ltd. [ID #SH-901]</option>
+<option value="Apex Builders &amp; Developers">Apex Builders &amp; Developers [ID #AP-412]</option>
+<option value="Kisan Krishi Bhandar (Retail)">Kisan Krishi Bhandar (Retail) [ID #KB-118]</option>
+<option value="Direct Walk-in Contractor">Direct Walk-in Contractor [CASH/UPI]</option>
+</select>
+</div>
+<!-- POS Products Grid (2 Columns) -->
+<div class="grid grid-cols-2 gap-space-sm" id="posGrid">
+<!-- Item 1: UltraTech Super PPC -->
+<div class="pos-tile bg-surface-container-lowest rounded-xl p-space-sm border border-surface-container-high shadow-sm flex flex-col justify-between relative transition-all duration-150 tap-bounce select-none" data-category="ppc bags50" data-id="ultratech" data-name="UltraTech Super PPC" data-rate="380" id="tile-ultratech">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold font-headline-sm text-[16px]">
+            UT
+          </div>
+<span class="hidden px-2 py-0.5 rounded-full text-[10px] font-label-sm bg-primary-container text-on-primary font-bold" id="badge-ultratech">0 in cart</span>
+</div>
+<div class="mt-2">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-[10px] px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed rounded font-bold uppercase">PPC 50kg</span>
+<span class="font-receipt-code text-[10px] text-on-surface-variant">Bay A1-A4</span>
+</div>
+<h3 class="font-headline-sm text-[14px] leading-tight text-on-surface font-bold mt-1">UltraTech Super PPC</h3>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-[17px] font-extrabold text-primary">₹380<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">6,200 Stock</span>
+</div>
+</div>
+<!-- Quick increment buttons (direct chips) -->
+<div class="mt-2.5 pt-2 border-t border-surface-container-high grid grid-cols-3 gap-1">
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('ultratech', 1)">
+            +1
+          </button>
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('ultratech', 10)">
+            +10
+          </button>
+<button class="h-8 rounded bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('ultratech', 50)">
+            +50
+          </button>
+</div>
+</div>
+<!-- Item 2: Ambuja OPC 53 Grade -->
+<div class="pos-tile bg-surface-container-lowest rounded-xl p-space-sm border border-surface-container-high shadow-sm flex flex-col justify-between relative transition-all duration-150 tap-bounce select-none" data-category="opc bags50" data-id="ambuja" data-name="Ambuja OPC 53 Grade" data-rate="410" id="tile-ambuja">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center font-bold font-headline-sm text-[16px]">
+            AM
+          </div>
+<span class="hidden px-2 py-0.5 rounded-full text-[10px] font-label-sm bg-primary-container text-on-primary font-bold" id="badge-ambuja">0 in cart</span>
+</div>
+<div class="mt-2">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-[10px] px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed rounded font-bold uppercase">OPC 53G</span>
+<span class="font-receipt-code text-[10px] text-on-surface-variant">Bay B1-B3</span>
+</div>
+<h3 class="font-headline-sm text-[14px] leading-tight text-on-surface font-bold mt-1">Ambuja OPC 53 Grade</h3>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-[17px] font-extrabold text-primary">₹410<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">4,100 Stock</span>
+</div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-surface-container-high grid grid-cols-3 gap-1">
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('ambuja', 1)">
+            +1
+          </button>
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('ambuja', 10)">
+            +10
+          </button>
+<button class="h-8 rounded bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('ambuja', 50)">
+            +50
+          </button>
+</div>
+</div>
+<!-- Item 3: ACC Suraksha Power -->
+<div class="pos-tile bg-surface-container-lowest rounded-xl p-space-sm border border-surface-container-high shadow-sm flex flex-col justify-between relative transition-all duration-150 tap-bounce select-none" data-category="ppc bags50" data-id="acc" data-name="ACC Suraksha Power" data-rate="395" id="tile-acc">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-primary-container/20 text-primary-container flex items-center justify-center font-bold font-headline-sm text-[16px]">
+            ACC
+          </div>
+<span class="hidden px-2 py-0.5 rounded-full text-[10px] font-label-sm bg-primary-container text-on-primary font-bold" id="badge-acc">0 in cart</span>
+</div>
+<div class="mt-2">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-[10px] px-1 py-0.2 bg-primary-fixed text-on-primary-fixed rounded font-bold uppercase">PPC 50kg</span>
+<span class="font-receipt-code text-[10px] text-on-surface-variant">Bay C1-C2</span>
+</div>
+<h3 class="font-headline-sm text-[14px] leading-tight text-on-surface font-bold mt-1">ACC Suraksha Power</h3>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-[17px] font-extrabold text-primary">₹395<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">3,350 Stock</span>
+</div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-surface-container-high grid grid-cols-3 gap-1">
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('acc', 1)">
+            +1
+          </button>
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('acc', 10)">
+            +10
+          </button>
+<button class="h-8 rounded bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('acc', 50)">
+            +50
+          </button>
+</div>
+</div>
+<!-- Item 4: JK White Cement -->
+<div class="pos-tile bg-surface-container-lowest rounded-xl p-space-sm border border-surface-container-high shadow-sm flex flex-col justify-between relative transition-all duration-150 tap-bounce select-none" data-category="specialty" data-id="jkwhite" data-name="JK White Cement" data-rate="540" id="tile-jkwhite">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface flex items-center justify-center font-bold font-headline-sm text-[16px] border border-outline-variant">
+            JK
+          </div>
+<span class="hidden px-2 py-0.5 rounded-full text-[10px] font-label-sm bg-primary-container text-on-primary font-bold" id="badge-jkwhite">0 in cart</span>
+</div>
+<div class="mt-2">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-[10px] px-1 py-0.2 bg-error-container text-on-error-container rounded font-bold uppercase">White 25/50k</span>
+<span class="font-receipt-code text-[10px] text-on-surface-variant">Bay D1 Secure</span>
+</div>
+<h3 class="font-headline-sm text-[14px] leading-tight text-on-surface font-bold mt-1">JK White Cement</h3>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-[17px] font-extrabold text-primary">₹540<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
+<span class="font-receipt-code text-[11px] text-error font-bold">1,200 Low</span>
+</div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-surface-container-high grid grid-cols-3 gap-1">
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('jkwhite', 1)">
+            +1
+          </button>
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('jkwhite', 10)">
+            +10
+          </button>
+<button class="h-8 rounded bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('jkwhite', 50)">
+            +50
+          </button>
+</div>
+</div>
+<!-- Item 5: Birla A1 Strong -->
+<div class="pos-tile bg-surface-container-lowest rounded-xl p-space-sm border border-surface-container-high shadow-sm flex flex-col justify-between relative transition-all duration-150 tap-bounce select-none" data-category="ppc bags50" data-id="birla" data-name="Birla A1 Strong" data-rate="375" id="tile-birla">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-tertiary/10 text-tertiary flex items-center justify-center font-bold font-headline-sm text-[16px]">
+            BA
+          </div>
+<span class="hidden px-2 py-0.5 rounded-full text-[10px] font-label-sm bg-primary-container text-on-primary font-bold" id="badge-birla">0 in cart</span>
+</div>
+<div class="mt-2">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-[10px] px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed rounded font-bold uppercase">PPC 50kg</span>
+<span class="font-receipt-code text-[10px] text-on-surface-variant">Bay A5</span>
+</div>
+<h3 class="font-headline-sm text-[14px] leading-tight text-on-surface font-bold mt-1">Birla A1 Strong</h3>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-[17px] font-extrabold text-primary">₹375<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">2,800 Stock</span>
+</div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-surface-container-high grid grid-cols-3 gap-1">
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('birla', 1)">
+            +1
+          </button>
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('birla', 10)">
+            +10
+          </button>
+<button class="h-8 rounded bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('birla', 50)">
+            +50
+          </button>
+</div>
+</div>
+<!-- Item 6: Dalmia DSP Concrete -->
+<div class="pos-tile bg-surface-container-lowest rounded-xl p-space-sm border border-surface-container-high shadow-sm flex flex-col justify-between relative transition-all duration-150 tap-bounce select-none" data-category="opc bags50" data-id="dalmia" data-name="Dalmia DSP Concrete" data-rate="425" id="tile-dalmia">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center font-bold font-headline-sm text-[16px]">
+            DL
+          </div>
+<span class="hidden px-2 py-0.5 rounded-full text-[10px] font-label-sm bg-primary-container text-on-primary font-bold" id="badge-dalmia">0 in cart</span>
+</div>
+<div class="mt-2">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-[10px] px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed rounded font-bold uppercase">OPC Grade</span>
+<span class="font-receipt-code text-[10px] text-on-surface-variant">Bay B4 High-Strength</span>
+</div>
+<h3 class="font-headline-sm text-[14px] leading-tight text-on-surface font-bold mt-1">Dalmia DSP Concrete</h3>
+<div class="flex items-baseline justify-between mt-1">
+<span class="font-headline-md text-[17px] font-extrabold text-primary">₹425<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">1,950 Stock</span>
+</div>
+</div>
+<div class="mt-2.5 pt-2 border-t border-surface-container-high grid grid-cols-3 gap-1">
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('dalmia', 1)">
+            +1
+          </button>
+<button class="h-8 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('dalmia', 10)">
+            +10
+          </button>
+<button class="h-8 rounded bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold active:scale-90 transition-transform flex items-center justify-center" onclick="event.stopPropagation(); addItem('dalmia', 50)">
+            +50
+          </button>
+</div>
+</div>
+</div>
+<!-- Quick Godown Dispatch Presets Strip -->
+<div class="bg-surface-container-low rounded-xl p-space-sm flex items-center justify-between border border-surface-container-high">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-secondary">local_shipping</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-[11px] text-on-surface font-bold uppercase">Vehicle Bay Ready</span>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">Truck RJ-14-GA-8821 (Max 20 MT)</span>
+</div>
+</div>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-sm font-bold border border-primary/30 active:scale-95 transition-transform" onclick="fillPreset(200, 'ultratech')">
+        +200 Bags PPC
+      </button>
+</div>
+</div>
+<!-- Live Sticky Floating POS Order Footer Summary -->
+<div class="fixed bottom-20 left-0 right-0 px-margin pb-2 z-40" id="cartSummaryBar">
+<div class="bg-inverse-surface text-inverse-on-surface rounded-xl p-3 shadow-2xl border border-secondary/30 flex items-center justify-between transition-all">
+<div class="flex items-center gap-3 cursor-pointer" onclick="openCartDrawer()">
+<div class="relative">
+<div class="w-11 h-11 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold shadow-md">
+<span class="material-symbols-outlined text-[22px]">shopping_cart</span>
+</div>
+<span class="absolute -top-1.5 -right-1.5 bg-error text-on-error font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-inverse-surface" id="summaryBadge">0</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-md text-[18px] font-extrabold text-white" id="summaryBags">0 Bags</span>
+<span class="text-secondary-fixed-dim text-[12px]">•</span>
+<span class="font-receipt-code text-[12px] text-tertiary-fixed" id="summaryTonnage">0.00 MT</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-[15px] font-bold text-primary-fixed" id="summaryAmount">₹0</span>
+<span class="font-body-sm text-[11px] text-secondary-fixed-dim">(Tap to review)</span>
+</div>
+</div>
+</div>
+<button class="h-11 px-4 rounded-lg bg-primary-container text-on-primary font-label-lg uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all" onclick="openCartDrawer()">
+<span>Cart</span>
+<span class="material-symbols-outlined text-[18px]">expand_less</span>
+</button>
+</div>
+</div>
+<!-- Cart Drawer & Checkout Confirmation Overlay -->
+<div class="fixed inset-0 bg-black/60 z-50 hidden opacity-0 transition-opacity duration-200" id="cartDrawerBackdrop" onclick="closeCartDrawer()"></div>
+<div class="fixed bottom-0 left-0 right-0 bg-surface-container-lowest rounded-t-2xl z-50 max-h-[85vh] flex flex-col shadow-2xl transform translate-y-full transition-transform duration-200 ease-out border-t border-surface-container-high" id="cartDrawer">
+<!-- Drawer Header -->
+<div class="p-4 border-b border-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[24px] text-primary">receipt_long</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Dispatch Order Cart</h2>
+<span class="font-receipt-code text-[11px] text-on-surface-variant">Gate Pass Generator • 50kg Standard Pallets</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-95" onclick="closeCartDrawer()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Drawer Body / Itemized Table -->
+<div class="bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high shadow-sm flex flex-col gap-2.5">
+<!-- Customer vs Vendor Switch & Search Action -->
+<div class="flex items-center justify-between border-b border-surface-container-high pb-2">
+<div class="flex items-center gap-1.5 p-0.5 bg-surface-container rounded-lg">
+<button class="px-2.5 py-1 rounded-md font-label-sm text-[11px] font-bold uppercase transition-colors bg-primary text-on-primary shadow-sm flex items-center gap-1" id="partyTabCustomer" onclick="switchPartyMode('customer')" type="button">
+<span class="material-symbols-outlined text-[14px]">person</span>
+<span>Customer (Dispatch)</span>
+</button>
+<button class="px-2.5 py-1 rounded-md font-label-sm text-[11px] font-bold uppercase transition-colors text-on-surface-variant hover:text-on-surface flex items-center gap-1" id="partyTabVendor" onclick="switchPartyMode('vendor')" type="button">
+<span class="material-symbols-outlined text-[14px]">factory</span>
+<span>Vendor (Inward Stock)</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="px-2 py-1 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high font-label-sm text-[11px] font-bold flex items-center gap-1 border border-surface-container-high active:scale-95 transition-transform" onclick="promptPartySwitch()" type="button">
+<span class="material-symbols-outlined text-[14px]">swap_horiz</span>
+<span>Switch</span>
+</button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm flex items-center gap-1 shrink-0 border border-surface-container-high active:scale-95 transition-transform" onclick="openCartDrawer()">
+<span class="material-symbols-outlined text-[15px] text-primary">shopping_bag</span>
+<span class="font-bold text-primary text-[12px]" id="quickCartCount">0 Bags</span>
+</button>
+</div>
+</div>
+<!-- Customer Details Card View -->
+<div class="flex flex-col gap-1.5" id="customerDetailsBlock">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-on-surface truncate" id="activePartyTitle">Sharma Infra Projects Pvt Ltd</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-primary-fixed text-on-primary-fixed font-bold uppercase">Contractor / A-Class</span>
+<span class="font-receipt-code text-[11px] text-tertiary font-bold">[ID #SH-901]</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 text-on-surface-variant text-[11px] font-receipt-code">
+<span>GST: 07AAAAA0000A1Z5</span>
+<span>•</span>
+<span>Ph: +91 98765-43210</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase">Ledger Outstanding</span>
+<span class="font-receipt-code font-bold text-[13px] text-error">₹1,20,000</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-dashed border-surface-container-high text-[11px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface">Site:</strong> Plot 42, Sector 18 Logistics Hub, Warehouse Road</span>
+</div>
+<span class="font-receipt-code text-[10px] bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded shrink-0 font-bold ml-2">Credit Limit ₹4.5L OK</span>
+</div>
+</div>
+<!-- Vendor Details Card View (Hidden by default) -->
+<div class="hidden flex flex-col gap-1.5" id="vendorDetailsBlock">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-on-surface truncate">UltraTech Cement Ltd - Plant #2</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-secondary-fixed text-secondary font-bold uppercase">Manufacturer / Direct</span>
+<span class="font-receipt-code text-[11px] text-primary font-bold">[VEND-DEL-882]</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 text-on-surface-variant text-[11px] font-receipt-code">
+<span>GST: 08AAACU3418K1ZM</span>
+<span>•</span>
+<span>Rake No: RK-904-WR</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase">PO Balance Ref</span>
+<span class="font-receipt-code font-bold text-[13px] text-tertiary">PO-2024-884</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-dashed border-surface-container-high text-[11px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">local_shipping</span>
+<span class="truncate"><strong class="text-on-surface">Transit:</strong> Rail Freight Godown Siding #3 • Freight Paid</span>
+</div>
+<span class="font-receipt-code text-[10px] bg-secondary-fixed text-on-secondary-fixed px-1.5 py-0.2 rounded shrink-0 font-bold ml-2">Net 30 Payment Terms</span>
+</div>
+</div>
+<!-- Hidden Native Select for Party Interactivity Backwards-Compatibility -->
+<select class="hidden" id="selectedParty">
+<option selected="" value="Sharma Infra Projects Ltd.">Sharma Infra Projects Ltd. [ID #SH-901]</option>
+<option value="Apex Builders &amp; Developers">Apex Builders &amp; Developers [ID #AP-412]</option>
+<option value="Kisan Krishi Bhandar (Retail)">Kisan Krishi Bhandar (Retail) [ID #KB-118]</option>
+<option value="Direct Walk-in Contractor">Direct Walk-in Contractor [CASH/UPI]</option>
+</select>
+</div>
+</div>
+<!-- Print Toast / Notification -->
+<div class="fixed top-24 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-3 hidden transition-all" id="printSuccessToast">
+<span class="material-symbols-outlined text-tertiary-fixed text-[24px]">check_circle</span>
+<div class="bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high shadow-sm flex flex-col gap-2.5">
+<!-- Customer vs Vendor Switch & Search Action -->
+<div class="flex items-center justify-between border-b border-surface-container-high pb-2">
+<div class="flex items-center gap-1.5 p-0.5 bg-surface-container rounded-lg">
+<button class="px-2.5 py-1 rounded-md font-label-sm text-[11px] font-bold uppercase transition-colors bg-primary text-on-primary shadow-sm flex items-center gap-1" id="partyTabCustomer" onclick="switchPartyMode('customer')" type="button">
+<span class="material-symbols-outlined text-[14px]">person</span>
+<span>Customer (Dispatch)</span>
+</button>
+<button class="px-2.5 py-1 rounded-md font-label-sm text-[11px] font-bold uppercase transition-colors text-on-surface-variant hover:text-on-surface flex items-center gap-1" id="partyTabVendor" onclick="switchPartyMode('vendor')" type="button">
+<span class="material-symbols-outlined text-[14px]">factory</span>
+<span>Vendor (Inward Stock)</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="px-2 py-1 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high font-label-sm text-[11px] font-bold flex items-center gap-1 border border-surface-container-high active:scale-95 transition-transform" onclick="promptPartySwitch()" type="button">
+<span class="material-symbols-outlined text-[14px]">swap_horiz</span>
+<span>Switch</span>
+</button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface font-label-sm flex items-center gap-1 shrink-0 border border-surface-container-high active:scale-95 transition-transform" onclick="openCartDrawer()">
+<span class="material-symbols-outlined text-[15px] text-primary">shopping_bag</span>
+<span class="font-bold text-primary text-[12px]" id="quickCartCount">0 Bags</span>
+</button>
+</div>
+</div>
+<!-- Customer Details Card View -->
+<div class="flex flex-col gap-1.5" id="customerDetailsBlock">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-on-surface truncate" id="activePartyTitle">Sharma Infra Projects Pvt Ltd</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-primary-fixed text-on-primary-fixed font-bold uppercase">Contractor / A-Class</span>
+<span class="font-receipt-code text-[11px] text-tertiary font-bold">[ID #SH-901]</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 text-on-surface-variant text-[11px] font-receipt-code">
+<span>GST: 07AAAAA0000A1Z5</span>
+<span>•</span>
+<span>Ph: +91 98765-43210</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase">Ledger Outstanding</span>
+<span class="font-receipt-code font-bold text-[13px] text-error">₹1,20,000</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-dashed border-surface-container-high text-[11px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface">Site:</strong> Plot 42, Sector 18 Logistics Hub, Warehouse Road</span>
+</div>
+<span class="font-receipt-code text-[10px] bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded shrink-0 font-bold ml-2">Credit Limit ₹4.5L OK</span>
+</div>
+</div>
+<!-- Vendor Details Card View (Hidden by default) -->
+<div class="hidden flex flex-col gap-1.5" id="vendorDetailsBlock">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-on-surface truncate">UltraTech Cement Ltd - Plant #2</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-label-sm bg-secondary-fixed text-secondary font-bold uppercase">Manufacturer / Direct</span>
+<span class="font-receipt-code text-[11px] text-primary font-bold">[VEND-DEL-882]</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 text-on-surface-variant text-[11px] font-receipt-code">
+<span>GST: 08AAACU3418K1ZM</span>
+<span>•</span>
+<span>Rake No: RK-904-WR</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="block font-label-sm text-[10px] text-on-surface-variant uppercase">PO Balance Ref</span>
+<span class="font-receipt-code font-bold text-[13px] text-tertiary">PO-2024-884</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-dashed border-surface-container-high text-[11px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">local_shipping</span>
+<span class="truncate"><strong class="text-on-surface">Transit:</strong> Rail Freight Godown Siding #3 • Freight Paid</span>
+</div>
+<span class="font-receipt-code text-[10px] bg-secondary-fixed text-on-secondary-fixed px-1.5 py-0.2 rounded shrink-0 font-bold ml-2">Net 30 Payment Terms</span>
+</div>
+</div>
+<!-- Hidden Native Select for Party Interactivity Backwards-Compatibility -->
+<select class="hidden" id="selectedParty">
+<option selected="" value="Sharma Infra Projects Ltd.">Sharma Infra Projects Ltd. [ID #SH-901]</option>
+<option value="Apex Builders &amp; Developers">Apex Builders &amp; Developers [ID #AP-412]</option>
+<option value="Kisan Krishi Bhandar (Retail)">Kisan Krishi Bhandar (Retail) [ID #KB-118]</option>
+<option value="Direct Walk-in Contractor">Direct Walk-in Contractor [CASH/UPI]</option>
+</select>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.06)] border-t border-surface-container-high" data-active-classes="text-primary-container font-label-lg">
+<div class="flex justify-around items-center h-20 px-space-xs">
+<a aria-current="page" class="flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-space-xs py-1 transition-colors text-primary-container font-label-lg" data-path="dashboard" href="#">
+<span class="material-symbols-outlined text-[24px]">warehouse</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-space-xs py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="new-dispatch" href="#" onclick="openCartDrawer(); return false;">
+<span class="material-symbols-outlined text-[24px]">local_shipping</span>
+<span class="font-label-sm text-label-sm">New Dispatch</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-space-xs py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="thermal-print" href="#" onclick="openCartDrawer(); return false;">
+<span class="material-symbols-outlined text-[24px]">receipt_long</span>
+<span class="font-label-sm text-label-sm">Thermal Print</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-space-xs py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="stock-ledger" href="#">
+<span class="material-symbols-outlined text-[24px]">inventory_2</span>
+<span class="font-label-sm text-label-sm">Stock Ledger</span>
+</a>
+</div>
+</nav>
+<!-- POS Logic & Reactive State -->
+<script>
+  // Product Catalog
+  const products = {
+    'ultratech': { id: 'ultratech', name: 'UltraTech Super PPC', rate: 380, weight: 0.05, bay: 'Bay A1-A4', stock: 6200 },
+    'ambuja': { id: 'ambuja', name: 'Ambuja OPC 53 Grade', rate: 410, weight: 0.05, bay: 'Bay B1-B3', stock: 4100 },
+    'acc': { id: 'acc', name: 'ACC Suraksha Power', rate: 395, weight: 0.05, bay: 'Bay C1-C2', stock: 3350 },
+    'jkwhite': { id: 'jkwhite', name: 'JK White Cement', rate: 540, weight: 0.05, bay: 'Bay D1', stock: 1200 },
+    'birla': { id: 'birla', name: 'Birla A1 Strong', rate: 375, weight: 0.05, bay: 'Bay A5', stock: 2800 },
+    'dalmia': { id: 'dalmia', name: 'Dalmia DSP Concrete', rate: 425, weight: 0.05, bay: 'Bay B4', stock: 1950 }
+  };
+
+  // State
+  let cart = {
+    'ultratech': 0,
+    'ambuja': 0,
+    'acc': 0,
+    'jkwhite': 0,
+    'birla': 0,
+    'dalmia': 0
+  };
+
+  // Click entire tile adds 1 bag
+  document.querySelectorAll('.pos-tile').forEach(tile => {
+    tile.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      addItem(id, 1);
+    });
+  });
+
+  function vibrateHaptic() {
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(30);
+    }
+  }
+
+  function addItem(id, qty) {
+    vibrateHaptic();
+    cart[id] = (cart[id] || 0) + qty;
+    if (cart[id] < 0) cart[id] = 0;
+    updateUI();
+  }
+
+  function setQuantity(id, qty) {
+    vibrateHaptic();
+    cart[id] = Math.max(0, qty);
+    updateUI();
+  }
+
+  function fillPreset(qty, id) {
+    vibrateHaptic();
+    cart[id] = (cart[id] || 0) + qty;
+    updateUI();
+  }
+
+  function addPresetBulk(qty) {
+    vibrateHaptic();
+    // Adds to active or first item
+    cart['ultratech'] = (cart['ultratech'] || 0) + qty;
+    updateUI();
+  }
+
+  function clearCart() {
+    vibrateHaptic();
+    Object.keys(cart).forEach(k => cart[k] = 0);
+    updateUI();
+  }
+
+  function updateUI() {
+    let totalBags = 0;
+    let totalAmount = 0;
+
+    Object.keys(products).forEach(id => {
+      const count = cart[id] || 0;
+      totalBags += count;
+      totalAmount += count * products[id].rate;
+
+      const tile = document.getElementById('tile-' + id);
+      const badge = document.getElementById('badge-' + id);
+
+      if (count > 0) {
+        if (tile) tile.classList.add('tile-active');
+        if (badge) {
+          badge.classList.remove('hidden');
+          badge.textContent = count + ' bags in cart';
+        }
+      } else {
+        if (tile) tile.classList.remove('tile-active');
+        if (badge) badge.classList.add('hidden');
+      }
+    });
+
+    const totalWeightMT = (totalBags * 0.05).toFixed(2);
+
+    // Update Bottom Sticky Summary
+    document.getElementById('summaryBadge').textContent = totalBags;
+    document.getElementById('summaryBags').textContent = totalBags + ' Bags';
+    document.getElementById('summaryTonnage').textContent = totalWeightMT + ' MT';
+    document.getElementById('summaryAmount').textContent = '₹' + totalAmount.toLocaleString('en-IN');
+    document.getElementById('quickCartCount').textContent = totalBags + ' Bags';
+
+    // Update Drawer Elements
+    document.getElementById('drawerTotalBags').textContent = totalBags + ' Bags';
+    document.getElementById('drawerTotalWeight').textContent = totalWeightMT + ' MT (' + (totalBags * 50).toLocaleString('en-IN') + ' Kgs)';
+    document.getElementById('drawerTotalAmount').textContent = '₹' + totalAmount.toLocaleString('en-IN');
+
+    renderCartItems();
+  }
+
+  function renderCartItems() {
+    const list = document.getElementById('cartItemsList');
+    if (!list) return;
+
+    const activeItems = Object.keys(cart).filter(id => cart[id] > 0);
+
+    if (activeItems.length === 0) {
+      list.innerHTML = `
+        <div class="p-6 text-center text-on-surface-variant bg-surface-container-low rounded-xl">
+          <span class="material-symbols-outlined text-[36px] text-secondary">production_quantity_limits</span>
+          <p class="font-label-md mt-1">Order cart is currently empty</p>
+          <span class="font-body-sm text-[12px]">Tap cement tiles above to add pallets for loading</span>
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = activeItems.map(id => {
+      const p = products[id];
+      const count = cart[id];
+      const lineTotal = count * p.rate;
+      return `
+        <div class="bg-surface-container-lowest p-3 rounded-xl border border-surface-container-high shadow-sm flex items-center justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <span class="font-label-md font-bold text-on-surface truncate">${p.name}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-0.5 text-on-surface-variant font-receipt-code text-[11px]">
+              <span>₹${p.rate}/bag</span>
+              <span>•</span>
+              <span class="text-tertiary">${(count * 0.05).toFixed(2)} MT</span>
+            </div>
+            <div class="font-headline-sm text-primary font-bold text-[14px] mt-0.5">
+              ₹${lineTotal.toLocaleString('en-IN')}
+            </div>
+          </div>
+          <!-- Controls -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="addItem('${id}', -1)" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center font-bold active:scale-90 transition-transform">
+              <span class="material-symbols-outlined text-[18px]">remove</span>
+            </button>
+            <span class="w-10 text-center font-headline-sm text-[15px] font-bold text-on-surface">${count}</span>
+            <button onclick="addItem('${id}', 1)" class="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold active:scale-90 transition-transform">
+              <span class="material-symbols-outlined text-[18px]">add</span>
+            </button>
+            <button onclick="addItem('${id}', 10)" class="px-2 h-8 rounded-lg bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform">
+              +10
+            </button>
+            <button onclick="setQuantity('${id}', 0)" class="w-8 h-8 rounded-lg text-error hover:bg-error-container flex items-center justify-center active:scale-90 transition-transform ml-1">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openCartDrawer() {
+    vibrateHaptic();
+    const partySel = document.getElementById('selectedParty');
+    const drawerParty = document.getElementById('drawerPartyName');
+    if (partySel && drawerParty) {
+      drawerParty.textContent = partySel.options[partySel.selectedIndex].text;
+    }
+    const backdrop = document.getElementById('cartDrawerBackdrop');
+    const drawer = document.getElementById('cartDrawer');
+    backdrop.classList.remove('hidden');
+    setTimeout(() => {
+      backdrop.classList.remove('opacity-0');
+      drawer.classList.remove('translate-y-full');
+    }, 10);
+  }
+
+  function closeCartDrawer() {
+    vibrateHaptic();
+    const backdrop = document.getElementById('cartDrawerBackdrop');
+    const drawer = document.getElementById('cartDrawer');
+    backdrop.classList.add('opacity-0');
+    drawer.classList.add('translate-y-full');
+    setTimeout(() => {
+      backdrop.classList.add('hidden');
+    }, 200);
+  }
+
+  function filterCategory(category, btn) {
+    vibrateHaptic();
+    document.querySelectorAll('.cat-pill').forEach(el => {
+      el.className = 'cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-surface-container-lowest text-on-surface-variant border border-surface-container-high hover:border-primary';
+    });
+    btn.className = 'cat-pill px-3 py-1.5 rounded-full text-label-sm font-label-sm uppercase shrink-0 transition-colors bg-primary-container text-on-primary shadow-sm';
+
+    const tiles = document.querySelectorAll('.pos-tile');
+    tiles.forEach(tile => {
+      if (category === 'all') {
+        tile.style.display = 'flex';
+      } else {
+        const catData = tile.getAttribute('data-category') || '';
+        if (catData.includes(category)) {
+          tile.style.display = 'flex';
+        } else {
+          tile.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  function printDispatchGatePass() {
+    vibrateHaptic();
+    let totalBags = Object.values(cart).reduce((a, b) => a + b, 0);
+    if (totalBags === 0) {
+      alert('Please add at least 1 cement item to print dispatch pass.');
+      return;
+    }
+
+    closeCartDrawer();
+
+    const toast = document.getElementById('printSuccessToast');
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hidden');
+      clearCart();
+    }, 3200);
+  }
+
+  // Initialize with UltraTech 50 bags for immediate warehouse feedback
+  addItem('ultratech', 50);
+</script>
+</body></html>
