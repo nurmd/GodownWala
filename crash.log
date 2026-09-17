@@ -1,0 +1,832 @@
+--------- beginning of main
+09-17 18:17:22.185 23295 23338 I dymv    : (REDACTED) Listener was null, %s is not propagated
+09-17 18:17:22.185  2689  2689 D TaskThumbnailView: [TaskThumbnailView@e9b9860] taskId: 433 - uiState changed from: SnapshotSplash(snapshot=Snapshot(bitmap=android.graphics.Bitmap@2433f40, thumbnailRotation=0, backgroundColor=-328966), splash=null) to: SnapshotSplash(snapshot=Snapshot(bitmap=android.graphics.Bitmap@2433f40, thumbnailRotation=0, backgroundColor=-328966), splash=com.android.launcher3.icons.FastBitmapDrawable@3795c6e)
+09-17 18:17:22.185  1672 14489 I adbd    : [server]: Starting adbwifi tls handshake
+09-17 18:17:22.193  2689  5757 D b/417220811: Current thumbnail: null, replacing with android.graphics.Bitmap@d6949a5
+09-17 18:17:22.196  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (5061.734 >= 799.7584 && true ))
+09-17 18:17:22.197  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+--------- beginning of system
+09-17 18:17:22.197  2393  2415 V ShellRecents: [45359365] RecentsController.setInputConsumerEnabled: set focus to recents
+09-17 18:17:22.203  2689  2689 D LauncherStateManager: StateManager.cancelAnimation: animation ongoing: false, partial trace:
+09-17 18:17:22.203  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentAnimation(StateManager.java:547)
+09-17 18:17:22.203  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentAnimation(StateManager.java:508)
+09-17 18:17:22.203  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentUserControlledAnimation(StateManager.java:502)
+09-17 18:17:22.203 14468 14496 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
+09-17 18:17:22.204  2689  2689 D b/417220811: Task id: 431, thumbnailData: null, isLocked: false
+09-17 18:17:22.205  2689  2689 D b/417220811: Task id: 430, thumbnailData: null, isLocked: false
+09-17 18:17:22.205  2689  5757 D b/417220811: Current thumbnail: null, replacing with android.graphics.Bitmap@d5dfa94
+09-17 18:17:22.205  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (5781.263 >= 799.7584 && true ))
+09-17 18:17:22.205  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.206 14468 14468 I deyy    : Initializing GMS Compliance Client Library...
+09-17 18:17:22.206 14468 14468 I deyy    : Checking for device compliance...
+09-17 18:17:22.206 14468 14468 I deyy    : Completed library init.
+09-17 18:17:22.207  2689  2689 D TaskThumbnailView: [TaskThumbnailView@b698145] taskId: 431 - uiState changed from: BackgroundOnly(backgroundColor=-328966) to: SnapshotSplash(snapshot=Snapshot(bitmap=android.graphics.Bitmap@d5dfa94, thumbnailRotation=0, backgroundColor=-328966), splash=com.android.launcher3.icons.FastBitmapDrawable@4c094da)
+09-17 18:17:22.208  2689  5757 D b/417220811: Current thumbnail: null, replacing with android.graphics.Bitmap@e9cec39
+09-17 18:17:22.209  2689  2689 D TaskThumbnailView: [TaskThumbnailView@18f9dcb] taskId: 430 - uiState changed from: BackgroundOnly(backgroundColor=-67585) to: SnapshotSplash(snapshot=Snapshot(bitmap=android.graphics.Bitmap@e9cec39, thumbnailRotation=0, backgroundColor=-67585), splash=com.android.launcher3.icons.FastBitmapDrawable@df5fd0b)
+09-17 18:17:22.210 14468 14500 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+09-17 18:17:22.213  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:22.213  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6433.0303 >= 799.7584 && true ))
+09-17 18:17:22.213  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.214  8806  8806 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.gmscompliance.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentBoundBrokerService }
+09-17 18:17:22.216  8806  8806 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.gmscompliance.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentBoundBrokerService }
+09-17 18:17:22.216 14468 14468 D DesktopExperienceFlags: Toggle override initialized to: false
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: QUALCOMM build                   : ee3f1da111, Ie1e5aac4cc
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Build Date                       : 01/11/24
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: EV031.35.01.12
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Local Branch                     : 
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.UM.9.14.11.00.00.571.148
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Remote Branch                    : NONE
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Build Config                     : S P 10.0.7 AArch64
+09-17 18:17:22.219 14468 14500 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-17 18:17:22.220 14468 14468 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+09-17 18:17:22.222  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6939.4883 >= 799.7584 && true ))
+09-17 18:17:22.222  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.224 14468 14500 I AdrenoGLES-0: PFP: 0x016dc094, ME: 0x00000000
+09-17 18:17:22.225 14468 14468 I fxla    : (REDACTED) Scoped context discovery schemas: %s.
+09-17 18:17:22.229   737   737 I hwservicemanager: getTransport: Cannot find entry vendor.qti.qspmhal@1.0::IQspmhal/default in either framework or device VINTF manifest.
+09-17 18:17:22.229 14468 14500 W Adreno-AppProfiles: Could not find QSPM HAL service. Skipping adreno profile processing.
+09-17 18:17:22.230  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7043.8374 >= 799.7584 && true ))
+09-17 18:17:22.230  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.237 14468 14468 I deyy    : Checking for device compliance...
+09-17 18:17:22.238  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7043.8374 >= 799.7584 && true ))
+09-17 18:17:22.238  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.243 14468 14468 D nativeloader: Load /data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk!/lib/arm64-v8a/libmappedcountercacheversionjni.so using class loader ns clns-10 (caller=/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk!classes2.dex): ok
+09-17 18:17:22.255  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7124.3555 >= 799.7584 && true ))
+09-17 18:17:22.255  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.263  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7124.3555 >= 799.7584 && true ))
+09-17 18:17:22.263  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.284  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:22.286 14468 14468 I fezh    : Validating WorkManager process
+09-17 18:17:22.287 14468 14492 I fezh    : (REDACTED) Processes: %s, %s, %s, %s
+09-17 18:17:22.287 14468 14468 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+09-17 18:17:22.287 14468 14468 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-17 18:17:22.287 14468 14492 D WM-ForceStopRunnable: Is default app process = false
+09-17 18:17:22.288  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7191.0806 >= 799.7584 && true ))
+09-17 18:17:22.288  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.291  8806  8806 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.icing.LIGHTWEIGHT_INDEX_SERVICE xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:22.291  8806  8806 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.icing.LIGHTWEIGHT_INDEX_SERVICE xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:22.296  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7194.823 >= 799.7584 && true ))
+09-17 18:17:22.296  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.304  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7144.775 >= 799.7584 && true ))
+09-17 18:17:22.304  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.313  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6958.467 >= 799.7584 && true ))
+09-17 18:17:22.313  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.322  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6789.2354 >= 799.7584 && true ))
+09-17 18:17:22.322  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.325  1589  6767 I WifiService: getVerboseLoggingLevel uid=10111
+09-17 18:17:22.326 14468 14497 D nativeloader: Load /data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk!/lib/arm64-v8a/libelements.so using class loader ns clns-10 (caller=/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk!classes2.dex): ok
+09-17 18:17:22.330  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6589.929 >= 799.7584 && true ))
+09-17 18:17:22.330  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.331 14468 14492 I cn_HttpFlagsLoader: HTTP flags log line (API): Using live production flag values from Google
+09-17 18:17:22.333 14468 14492 I cn_HttpEngBuilderWrap: NetworkQualityEstimator is unsupported when HttpEngineNativeProvider is used
+09-17 18:17:22.336 14468 14506 D HttpFlagsLoader: Found application exporting HTTP flags: com.google.android.gms
+09-17 18:17:22.336 14468 14506 D HttpFlagsLoader: HTTP flags file path: /data/user_de/0/com.google.android.gms/app_httpflags/flags.binarypb
+09-17 18:17:22.338  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6359.469 >= 799.7584 && true ))
+09-17 18:17:22.338  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: Successfully loaded HTTP flags: # android.net.connectivity.org.chromium.net.httpflags.Flags@5f205c30
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_EnableZstdV2"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_CronetEnableDnsPlatform"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_OverrideConnectionOptions"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_InitializeBuildInfoOnStartup"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.gms"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android.vending"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       bool_value: false
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "135.0.7011.0"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_CronetUmaAllowList"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_OverrideClientConnectionOptions_PARAM_ForceOff"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_enable_adaptive_network_hosts"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_OverrideConnectionOptions_PARAM_ForceOn"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_adaptive_network_dev_toast"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_log_me"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       string_value: "Using live production flag values from Google"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_CronetInitialDelayForBrokenAlternativeService"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_enable_adaptive_network_for_all"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_enable_adaptive_network_paths"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_UseScoreBasedProviderSelection"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.gms"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android.vending"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.apps.googlevoice"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       bool_value: false
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "147.0.7695.0"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.gms"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android.vending"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google."
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       bool_value: true
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "147.0.7695.0"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android."
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       bool_value: true
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "147.0.7695.0"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_ForceHttpEngineInFallback"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_override_network_thread_priority"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.gms"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android.vending"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       int_value: 0
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "126.0.6465.0"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_CronetEnableDnsPlatform_PARAM_no_system"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_CronetMigrateSessionsEarlyV2EnableRetryOnAlternateNetworkBeforeHandshake"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_OverrideNativeCronetWithHttpEngine"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_UseLockFreeX509Verification"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_UpdateNetworkStateOnlyOnceOnStartup"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.gms"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android.vending"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       bool_value: true
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "134.0.6948.0"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_fast_idempotent_paths"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_QuicUseReadMultiple"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_OverrideWithHttpEngine"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.gms"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.android.vending"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     constrained_values {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       app_id: "com.google.android.apps.googlevoice"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       bool_value: false
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:       min_version: "139.0.7205.3"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:     }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_kQuicRegisterConnectionClosePayloadV2"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_OverrideConnectionOptions_PARAM_ForceOff"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "Cronet_enable_adaptive_network"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_OverrideClientConnectionOptions_PARAM_ForceOn"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_OverrideClientConnectionOptions"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: flags {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   key: "ChromiumBaseFeature_CronetInitialDelayForBrokenAlternativeService_PARAM_delay_seconds"
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   value {
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader:   }
+09-17 18:17:22.344 14468 14506 D HttpFlagsLoader: }
+09-17 18:17:22.345 14468 14506 I HttpFlagsLoader: HTTP flags log line (Impl): Using live production flag values from Google
+09-17 18:17:22.346  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6317.695 >= 799.7584 && true ))
+09-17 18:17:22.346  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.349 14468 14492 I cn_CronetLibraryLoader: Cronet version: 141.0.7340.3, arch: aarch64
+09-17 18:17:22.351  1589  4082 D ConnectivityService: requestNetwork for uid/pid:10111/14468 activeRequest: null callbackRequest: 1442 [NetworkRequest [ REQUEST id=1443, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|LP
+09-17 18:17:22.352  1589  2296 D ConnectivityService: NetReassign [1443 : null → 119] [c 0] [a 0] [i 0]
+09-17 18:17:22.352  1589  2288 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=1443, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.353  1589  2288 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=1443, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.353  1589  2288 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1443, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.353  1589  2288 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1443, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.353  1589  2288 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1443, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.353 14468 14468 I eomr    : (REDACTED) Silk Capabilities Header: %s
+09-17 18:17:22.356  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (6477.215 >= 799.7584 && true ))
+09-17 18:17:22.356  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.359  1589  2296 D ConnectivityService: NetReassign [no changes] [c 1] [a 0] [i 0]
+09-17 18:17:22.364  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (7276.513 >= 799.7584 && true ))
+09-17 18:17:22.364  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.372  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (9308.341 >= 799.7584 && true ))
+09-17 18:17:22.372  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.380  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (13685.086 >= 799.7584 && true ))
+09-17 18:17:22.380  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.381  8806  8806 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.facs.cache.service.START xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:22.381  8806  8806 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.facs.cache.service.START xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:22.383  2689  2689 D LauncherStateManager: StateManager.cancelAnimation: animation ongoing: false, partial trace:
+09-17 18:17:22.383  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentAnimation(StateManager.java:547)
+09-17 18:17:22.383  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentAnimation(StateManager.java:508)
+09-17 18:17:22.383  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentUserControlledAnimation(StateManager.java:502)
+09-17 18:17:22.383  1589  2264 E HandwritingModeController: Cannot get requestId: Handwriting was not initialized.
+09-17 18:17:22.388  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (19422.162 >= 799.7584 && true ))
+09-17 18:17:22.388  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.389  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:22.389 14468 14468 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+09-17 18:17:22.391  8806  8806 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+09-17 18:17:22.395  8580  8580 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.auth.service.START xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:22.395  8580  8580 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.auth.service.START xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:22.397  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (27268.104 >= 799.7584 && true ))
+09-17 18:17:22.397  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.399  8806  8806 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+09-17 18:17:22.400 14468 14468 I ekjf    : onMoveToForeground
+09-17 18:17:22.402 14468 14487 I deyy    : (REDACTED) Device Compliance Fetch time taken = %sms
+09-17 18:17:22.402 14468 14487 I deyy    : Device is compliant!
+09-17 18:17:22.402 14468 14496 I deyy    : (REDACTED) Device Compliance Fetch time taken = %sms
+09-17 18:17:22.402 14468 14496 I deyy    : Device is compliant!
+09-17 18:17:22.403 14468 14487 I deyy    : Invoking "compliant" action...
+09-17 18:17:22.403 14468 14496 I deyy    : Invoking "compliant" action...
+09-17 18:17:22.404 14468 14492 D nativeloader: Load /data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk!/lib/arm64-v8a/libdatastore_shared_counter.so using class loader ns clns-10 (caller=/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk): ok
+09-17 18:17:22.406  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (36517.344 >= 799.7584 && true ))
+09-17 18:17:22.406  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.414 14468 14468 I cgpr    : (REDACTED) multimodalQueryOptions: %s
+09-17 18:17:22.414 14468 14468 I PromoManagerDataService: PromoManagerDataServiceImpl.getTabTypePromotion[SUGGEST]
+09-17 18:17:22.415  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (46881.26 >= 799.7584 && true ))
+09-17 18:17:22.415  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.424  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (57736.734 >= 799.7584 && true ))
+09-17 18:17:22.424  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.426 14468 14496 I WebViewFactory: Loading com.android.webview version 150.0.7871.63 (code 787106301)
+09-17 18:17:22.427 14468 14513 D MeasurementManager: AdServicesInfo.version=20
+09-17 18:17:22.427  1589  9725 D FileUtils: Rounded bytes from 5647867904 to 8000000000
+09-17 18:17:22.433 14468 14496 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=d44910e1 mResDir=null mSplitDirs=[] mOverlayDirs=[] mLibDirs=[/product/app/webview/webview.apk,/system/framework/android.test.base.jar,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v36 mCompatInfo={400dpi always-compat} mLoaders=[]}
+09-17 18:17:22.434 14468 14496 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+09-17 18:17:22.434 14468 14496 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+09-17 18:17:22.437  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (67893.0 >= 799.7584 && true ))
+09-17 18:17:22.437  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.444 14468 14468 I PromoManagerDataService: PromoManagerDataServiceImpl.getTabTypePromotion[SRP_PANE]
+09-17 18:17:22.446 14468 14468 I cham    : Native: Pause/Play in Voice Plate Disabled. Skipping TTS Silk observers.
+09-17 18:17:22.446 14468 14468 I cham    : Native: Close Voice Guide in Voice Plate Disabled. Skipping Voice Guide Silk observers.
+09-17 18:17:22.446 14468 14468 I cham    : Native: Playback Speed in Voice Plate Disabled. Skipping TTS Silk observers.
+09-17 18:17:22.446 14468 14496 D nativeloader: InitLlndkLibrariesProduct: libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libRS.so:libandroid_net.so:libapexsupport.so:libavf.so:libbinder_ndk.so:libc.so:libcgrouprc.so:libclang_rt.asan-aarch64-android.so:libclang_rt.asan-arm-android.so:libclang_rt.hwasan-aarch64-android.so:libcom.android.tethering.connectivity_native.so:libdl.so:libft2.so:liblog.so:libm.so:libmediandk.so:libnativewindow.so:libneuralnetworks.so:libselinux.so:libsync.so:libvendorsupport.so:libvndksupport.so:libvulkan.so
+09-17 18:17:22.446 14468 14496 D nativeloader: Configuring product-clns-11 for unbundled product apk /product/app/webview/webview.apk. target_sdk_version=36, uses_libraries=, library_path=/product/app/webview/lib/arm64:/product/app/webview/webview.apk!/lib/arm64-v8a:/product/lib64:/system/product/lib64, permitted_path=/data:/mnt/expand:/product/lib64:/system/product/lib64
+09-17 18:17:22.447  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (75990.586 >= 799.7584 && true ))
+09-17 18:17:22.447  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.450 14468 14496 D nativeloader: InitVndkspLibrariesProduct: VNDK is deprecated with product
+09-17 18:17:22.459  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (87670.016 >= 799.7584 && true ))
+09-17 18:17:22.459  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.465 14468 14468 I HWUI    : Using FreeType backend (prop=Auto)
+09-17 18:17:22.469  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (91314.3 >= 799.7584 && true ))
+09-17 18:17:22.469  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.470 14468 14496 I cr_WVCFactoryProvider: version=150.0.7871.63 (787106301) minSdkVersion=29 multiprocess=true packageId=2 splits=config.xxhdpi,lens_ondevice_engine_play_ml_module,tclib_native_feature_module
+09-17 18:17:22.473 14468 14496 D nativeloader: Load /product/app/webview/webview.apk!/lib/arm64-v8a/libwebviewchromium.so using class loader ns product-clns-11 (caller=/product/app/webview/webview.apk): ok
+09-17 18:17:22.474  1220  1220 D vendor.qti.vibratorOL: Vibrator on for timeoutMs: 67
+09-17 18:17:22.474 14468 14496 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using class loader ns product-clns-11 (caller=/product/app/webview/webview.apk): ok
+09-17 18:17:22.474  1220 14536 D vendor.qti.vibratorOL: Starting on on another thread
+--------- beginning of kernel
+09-17 18:17:21.154  1220  1220 I [haptic_nv]aw8622x_duration_store: duration 67 !
+09-17 18:17:21.154  1220  1220 I [haptic_nv]aw8622x_activate_store: value=1
+09-17 18:17:21.154  9731  9731 I         : [haptic_nv]aw8622x_vibrator_work_routine enter
+09-17 18:17:21.154  9731  9731 I         : [haptic_nv]aw8622x_haptic_stop enter
+09-17 18:17:21.154  9731  9731 I         : [haptic_nv]aw8622x_haptic_stop entered standby! glb_state=0x00
+09-17 18:17:22.479  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (93911.234 >= 799.7584 && true ))
+09-17 18:17:22.479  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:21.157  9731  9731 I         : [haptic_nv]aw8622x_haptic_upload_lra write f0_cali_data to trim_lra = 0x00
+09-17 18:17:21.157  9731  9731 I         : [haptic_nv]aw8622x_vibrator_work_routine index = 1
+09-17 18:17:21.157  9731  9731 I         : [haptic_nv]aw8622x_vibrator_work_routine activate_mode = 1
+09-17 18:17:21.158  9731  9731 I         : [haptic_nv]aw8622x_haptic_ram_play index = 1
+09-17 18:17:21.158  9731  9731 I         : [haptic_nv]aw8622x_haptic_play_mode enter
+09-17 18:17:21.158  9731  9731 I [haptic_nv]aw8622x_haptic_play_mode: enter ram mode
+09-17 18:17:22.484 14468 14468 I cr_LibraryLoader: Successfully loaded native library
+09-17 18:17:22.485 14468 14468 I cr_CachingUmaRecorder: Flushed 47 samples from 26 histograms, 0 samples were dropped.
+09-17 18:17:22.487 14468 14468 I cr_ChildProcLH: ScopedServiceBindingBatch.tryActivate: false
+09-17 18:17:22.490  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (96434.25 >= 799.7584 && true ))
+09-17 18:17:22.490  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.491 14468 14468 I cr_CombinedPProvider: #registerProvider() provider:WV.zf@45cd9ec isPolicyCacheEnabled:false policyProvidersSize:0
+09-17 18:17:22.491 14468 14468 I cr_PolicyProvider: #setManagerAndSource() 0
+09-17 18:17:22.492 14468 14540 I cr_policy: registerReceiver succeeded after 1ms
+09-17 18:17:22.493 14468 14468 I cr_DisplayManager: Is Display Topology available: false
+09-17 18:17:22.493  1672 14489 I adbd    : adbd_auth: loading keys from /data/misc/adb/adb_keys
+09-17 18:17:22.494  1672 14489 I adbd    : [server]: Handshake succeeded.
+09-17 18:17:22.494  1672 14489 I adbd    : adbd_wifi_secure_connect: connected host-30
+09-17 18:17:22.494  1672  1706 I adbd    : adbd_auth: marking framework writable
+09-17 18:17:22.494  1672  1706 I adbd    : adbd_auth: sending packet: WE
+09-17 18:17:22.494  1589  3163 D AdbDebuggingManager: Recv packet: WE
+09-17 18:17:22.494  1589  3163 D AdbDebuggingManager: Received WIFI TLS connected key message: QAAAAM1mkav7CR8daLoggwJs1ZR+MRSHNrISRWIsLwiZf5u19mh5/0Blmjzt/gbZ2OwBKgpV5PwSaLAbvxleBht1POuoJihNGvFdIYwjHnB3Ndc39UlYLBxiJvdCP+M/MuciOIkD+SJsTWWHhE0GA7WpPWEoHgFdLAxHVb8hbsOufw1tm/B7gQD22/JVVkY5CRfok4h+mRsE805J721+8D2t6F6mdiCgBnBWXsrsmLSYstRjcFq5ZeaqTLfuihr9eMgTGHSCs8t0eqql8Gf54zqewAWK5KCB/MleWEMQ7ckxATuabvZuS7Hb8KJX/ur3XB2kOw7ctb8w0oyjbKXQknleX05/Hhe1ZoWjcnHu1miRHXBTSqsKIpmago3CQA8mVvvWEzPH26O8ad7qtbLti1Vs/6IW1qF3/EIGaeClipXArVzb5Q1eeJpn4hWCwpyqERayboeJv98f7ce+VzhWyBH3t7jIHqRdvn3nBAI7KatWBcBebsR6+2pzyh5v5K3UTKz6LOdcoDJEpEFsOsn3q/N6TYTB8MryORg7HvqoK6Ugg0DHYenuo3vupBSOO0rbc4wlx9Wg1Ux71oMlxMgnzC0gmRj/XySQjeQcFQoSxdmU2woPBVIWMHZCWngQfa39fw/goWhSucomJZT2L9Mx4JUg3mFqDH4tbvu/QAy0G5s0hNBsPTWvPAEAAQA= u0_a293@localhost
+09-17 18:17:22.495  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:22.501 24390 26442 E cr_ChildProcessService: Service is already bound by pid 23295, cannot bind for pid 14468
+09-17 18:17:22.502  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (97391.53 >= 799.7584 && true ))
+09-17 18:17:22.502  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.502 14468 14538 W cr_SpareChildConn: Failed to warm up the spare sandbox service
+09-17 18:17:22.505 14468 14468 I cr_CombinedPProvider: #linkNativeInternal() 1
+09-17 18:17:22.505 14468 14468 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+09-17 18:17:22.505 14468 14468 I cr_PolicyProvider: #notifySettingsAvailable() 0
+09-17 18:17:22.505 14468 14468 I cr_CombinedPProvider: #onSettingsAvailable() 0
+09-17 18:17:22.505 14468 14468 I cr_CombinedPProvider: #flushPolicies()
+09-17 18:17:22.519  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (98144.66 >= 799.7584 && true ))
+09-17 18:17:22.519  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.525 14468 14504 I eomr    : (REDACTED) Silk Capabilities Header: %s
+09-17 18:17:22.530  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (98995.71 >= 799.7584 && true ))
+09-17 18:17:22.530  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.534 14468 14468 W chromium: [WARNING:android_webview/browser/network_service/net_helpers.cc:137] HTTP Cache size is: 77314432
+09-17 18:17:22.537  1589  1742 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{45003754 u0 com.google.android.googlequicksearchbox/.InternalGoogleAppActivityEntrypoint t428}
+09-17 18:17:22.541  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (100286.305 >= 799.7584 && true ))
+09-17 18:17:22.541  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.542  1220 14536 D vendor.qti.vibratorOL: Notifying on complete
+09-17 18:17:22.542  1220  1220 D vendor.qti.vibratorOL: QTI Vibrator off
+09-17 18:17:21.222  1220  1220 I [haptic_nv]aw8622x_activate_store: value=0
+09-17 18:17:21.222 14016 14016 I         : [haptic_nv]aw8622x_vibrator_work_routine enter
+09-17 18:17:21.222 14016 14016 I         : [haptic_nv]aw8622x_haptic_stop enter
+09-17 18:17:21.222 14016 14016 I         : [haptic_nv]aw8622x_haptic_stop entered standby! glb_state=0x00
+09-17 18:17:21.225 14016 14016 I         : [haptic_nv]aw8622x_haptic_upload_lra write f0_cali_data to trim_lra = 0x00
+09-17 18:17:21.226 14016 14016 I         : [haptic_nv]aw8622x_vibrator_work_routine index = 1
+09-17 18:17:21.226 14016 14016 I         : [haptic_nv]aw8622x_vibrator_work_routine activate_mode = 1
+09-17 18:17:22.554  1589  6767 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@bdc5f573 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+09-17 18:17:22.560  2557  2557 D Zygote  : Forked child process 14562
+09-17 18:17:22.562  1589  1758 I ActivityManager: Start proc 14562:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1/u0i33 for  {com.google.android.googlequicksearchbox/org.chromium.content.app.SandboxedProcessService0:1}
+09-17 18:17:22.564  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (101231.55 >= 799.7584 && true ))
+09-17 18:17:22.564  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.570 14468 14550 D AudioSystem: onNewService: media.audio_policy service obtained 0xb400006fc4224200
+09-17 18:17:22.570 14468 14550 D AudioSystem: getService: IAudioPolicyService retrieved: 0xb400006fc4224200  cached: 0xb400006fc4224200
+09-17 18:17:22.573  1589  6767 D ConnectivityService: requestNetwork for uid/pid:10111/14468 activeRequest: null callbackRequest: 1445 [NetworkRequest [ REQUEST id=1446, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|LP
+09-17 18:17:22.573 14562 14562 I Zygote  : Process 14562 created for com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1
+09-17 18:17:22.573 14562 14562 I ocessService0:1: Using CollectorTypeCMC GC.
+09-17 18:17:22.574  1589  2288 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=1446, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.574  1589  2288 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=1446, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.574  1589  2288 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1446, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.574  1589  2288 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1446, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.574  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (101797.84 >= 799.7584 && true ))
+09-17 18:17:22.574  1589  2288 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1446, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:22.574  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.574  1589  2296 D ConnectivityService: NetReassign [1446 : null → 119] [c 0] [a 1] [i 0]
+09-17 18:17:22.576 14468 14560 D vulkan  : searching for layers in '/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/lib/arm64'
+09-17 18:17:22.577 14468 14560 D vulkan  : searching for layers in '/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/base.apk!/lib/arm64-v8a'
+09-17 18:17:22.578 14562 14562 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+09-17 18:17:22.578  1589  2296 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 1]
+09-17 18:17:22.589 14562 14562 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+09-17 18:17:22.589 14562 14562 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+09-17 18:17:21.268   736   736 W servicemanager: Isolated app with UID 99033 requested 'network_management', but the service is not allowed for isolated apps.
+09-17 18:17:21.270   736   736 W servicemanager: Isolated app with UID 99033 requested 'connectivity', but the service is not allowed for isolated apps.
+09-17 18:17:22.593 14562 14562 I cr_WebViewApkApp: version=150.0.7871.63 (787106301) minSdkVersion=29 processName=com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1 splits=<none>
+09-17 18:17:22.596  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:22.598 14468 14560 D vulkan  : searching for layers in '/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/split_config.xxhdpi.apk!/lib/arm64-v8a'
+09-17 18:17:22.598 14468 14560 D vulkan  : searching for layers in '/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/split_lens_ondevice_engine_play_ml_module.apk!/lib/arm64-v8a'
+09-17 18:17:22.598 14562 14562 I cr_ChildProcessService: Creating new ChildProcessService pid=14562
+09-17 18:17:22.599 14468 14560 D vulkan  : searching for layers in '/data/app/~~H2gZg7NwW38usab6AkFcng==/com.google.android.googlequicksearchbox-cOX0MOMiJ4Ng-ILc4go65Q==/split_tclib_native_feature_module.apk!/lib/arm64-v8a'
+09-17 18:17:21.276   736   736 E SELinux : avc:  denied  { find } for pid=14562 uid=99033 name=content_capture scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:object_r:content_capture_service:s0 tclass=service_manager permissive=0
+09-17 18:17:22.604 14468 14468 W cr_SupportWebSettings: setForceDarkBehavior() is a no-op in an app with targetSdkVersion>=T
+09-17 18:17:22.605   737   737 I hwservicemanager: getTransport: Cannot find entry vendor.qti.qspmhal@1.0::IQspmhal/default in either framework or device VINTF manifest.
+09-17 18:17:22.605 14468 14560 W Adreno-AppProfiles: Could not find QSPM HAL service. Skipping adreno profile processing.
+09-17 18:17:22.606 14468 14560 I AdrenoVK-0: ===== BEGIN DUMP OF OVERRIDDEN SETTINGS =====
+09-17 18:17:22.606 14468 14560 I AdrenoVK-0: ===== END DUMP OF OVERRIDDEN SETTINGS =====
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: QUALCOMM build          : ee3f1da111, Ie1e5aac4cc
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Build Date              : 01/11/24
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Shader Compiler Version : EV031.35.01.12
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Local Branch            : 
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Remote Branch           : refs/tags/AU_LINUX_ANDROID_LA.UM.9.14.11.00.00.571.148
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Remote Branch           : NONE
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Reconstruct Branch      : NOTHING
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Build Config            : S P 10.0.7 AArch64
+09-17 18:17:22.607 14468 14560 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+09-17 18:17:22.609 14562 14575 I cr_LibraryLoader: Successfully loaded native library
+09-17 18:17:22.610 14562 14575 I cr_CachingUmaRecorder: Flushed 2 samples from 2 histograms, 0 samples were dropped.
+09-17 18:17:22.610 14562 14575 W chromium: [WARNING:content/app/android/content_main_android.cc:82] android_setCpu already initialized
+09-17 18:17:22.622 14562 14575 W chromium: [WARNING:content/child/runtime_features.cc:541] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+09-17 18:17:22.622 14562 14575 W chromium: [WARNING:content/child/runtime_features.cc:566] Topics cannot be enabled in this configuration. Use --enable-features=BrowsingTopics in addition.
+09-17 18:17:22.622 14562 14575 W chromium: [WARNING:content/child/runtime_features.cc:587] SharedStorage cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI in addition.
+09-17 18:17:22.622 14562 14575 W chromium: [WARNING:content/child/runtime_features.cc:597] AttributionReporting cannot be enabled in this configuration. Use --enable-features=ConversionMeasurement in addition.
+09-17 18:17:22.637  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (101439.43 >= 799.7584 && true ))
+09-17 18:17:22.637  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.641  8806  8837 I FontLog : Received query name=Google Sans&weight=700&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+09-17 18:17:22.641  8806  8837 I FontLog : Query [name=Google Sans&weight=700&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.641  8806  8837 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.641  8806  8837 I FontLog : Fetch {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+09-17 18:17:22.642 14562 14579 W chromium: [WARNING:base/android/library_loader/library_prefetcher.cc:194] Incorrect code ordering
+09-17 18:17:22.642 14562 14579 W chromium: [WARNING:base/android/library_loader/library_prefetcher.cc:260] Cannot prefetch the library. status = 1
+09-17 18:17:22.644  8806  8837 I FontLog : Pulling font file for id = 46, cache size = 9 [CONTEXT service_id=132 ]
+09-17 18:17:22.646  8806  8837 I FontLog : Received query name=Noto Color Emoji Compat&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+09-17 18:17:22.646  8806  8837 I FontLog : Query [name=Noto Color Emoji Compat&weight=400&besteffort=false] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.647  8806  8837 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+09-17 18:17:22.648  8806  8837 I FontLog : Pulling font file for id = 47, cache size = 10 [CONTEXT service_id=132 ]
+09-17 18:17:22.650  8806  8837 I FontLog : Received query name=Google Sans Flex&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+09-17 18:17:22.650  8806  8837 I FontLog : Query [name=Google Sans Flex&weight=400&besteffort=false] resolved to {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.650  8806  8837 I FontLog : Font PFD returned from cache for {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.650  8806  8837 I FontLog : Fetch {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+09-17 18:17:22.651  8806 14437 I SQLiteConnectionPool: The connection pool for /data/user/0/com.google.android.gms/databases/metadata.db has been closed but there are still 1 connections in use.  They will be closed as they are released back to the pool.
+09-17 18:17:22.651  8806 14518 W FontLog : Error updating last accessed time for {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false}. [CONTEXT service_id=132 ]
+09-17 18:17:22.651  8806 14518 W FontLog : java.lang.IllegalStateException: Cannot perform this operation because the connection pool has been closed.
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.throwIfClosedLocked(SQLiteConnectionPool.java:1112)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.waitForConnection(SQLiteConnectionPool.java:803)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.acquireConnection(SQLiteConnectionPool.java:402)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteSession.acquireConnection(SQLiteSession.java:931)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteSession.executeForChangedRowCount(SQLiteSession.java:789)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteStatement.executeUpdateDelete(SQLiteStatement.java:67)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteDatabase.executeSql(SQLiteDatabase.java:2233)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:2209)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at cgqu.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):57)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at bnli.d(:com.google.android.gms@263234035@26.32.34 (260400-968093310):50)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at bnli.c(:com.google.android.gms@263234035@26.32.34 (260400-968093310):6)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at bnli.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):33)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at bnri.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):8)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at java.lang.Thread.run(Thread.java:1563)
+09-17 18:17:22.651  8806 14518 W FontLog : Caused by: java.lang.Exception: SQLiteConnectionPool.close()
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.dispose(SQLiteConnectionPool.java:270)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteConnectionPool.close(SQLiteConnectionPool.java:250)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteDatabase.dispose(SQLiteDatabase.java:559)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteDatabase.onAllReferencesReleased(SQLiteDatabase.java:536)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteClosable.releaseReference(SQLiteClosable.java:92)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at android.database.sqlite.SQLiteClosable.close(SQLiteClosable.java:124)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at cgqt.c(:com.google.android.gms@263234035@26.32.34 (260400-968093310):3)
+09-17 18:17:22.651  8806 14518 W FontLog : 	at cgqu.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):62)
+09-17 18:17:22.651  8806 14518 W FontLog : 	... 7 more
+09-17 18:17:22.653  8806  8837 I FontLog : Pulling font file for id = 48, cache size = 9 [CONTEXT service_id=132 ]
+09-17 18:17:22.655  8806  8837 I FontLog : Received query name=Google Sans&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+09-17 18:17:22.655  8806  8837 I FontLog : Query [name=Google Sans&weight=400&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.655  8806  8837 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.655  8806  8837 I FontLog : Fetch {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+09-17 18:17:22.658  8806  8837 I FontLog : Pulling font file for id = 49, cache size = 10 [CONTEXT service_id=132 ]
+09-17 18:17:22.659  8806  8837 I FontLog : Received query name=Google Sans&weight=500&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+09-17 18:17:22.659  8806  8837 I FontLog : Query [name=Google Sans&weight=500&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.660  8806  8837 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+09-17 18:17:22.660  8806  8837 I FontLog : Fetch {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+09-17 18:17:22.660  8806  8927 I FontLog : Pulling font file for id = 50, cache size = 9 [CONTEXT service_id=132 ]
+09-17 18:17:22.661 14468 14468 I cdia    : (REDACTED) PromoManagerSubscriptionCallbacks: onNewData called for fragment=%s with promotion: %s
+09-17 18:17:22.663 14468 14468 I cdia    : (REDACTED) PromoManagerSubscriptionCallbacks: onNewData called for fragment=%s with promotion: %s
+09-17 18:17:22.663 14468 14513 I cggd    : (REDACTED) Accept prefix request from entrypoint %s
+09-17 18:17:22.665 14468 14503 I cgfy    : Creating global search session
+09-17 18:17:22.666 14468 14468 I cfgv    : #hideInput
+09-17 18:17:22.666 14468 14468 I cdia    : (REDACTED) PromoManagerSubscriptionCallbacks: onNewData called for fragment=%s with promotion: %s
+09-17 18:17:22.674 14468 14468 E NetworkErrorMessage: (REDACTED) Invalid connectivity state: %s
+09-17 18:17:22.677 14468 14513 I DebugExecutorService: execute() called with Runnable: copk@e49e76
+09-17 18:17:22.677 14468 14513 I DebugExecutorService: copk@e49e76 finished on thread
+09-17 18:17:22.677 14468 14496 I DebugExecutorService: execute() called with Runnable: copn@ca4d94d
+09-17 18:17:22.677 14468 14496 I DebugExecutorService: copn@ca4d94d finished on thread
+09-17 18:17:22.677 14468 14496 I CrossProfileSender: tryMakeAsyncCalls
+09-17 18:17:22.677 14468 14496 I DebugExecutorService: execute() called with Runnable: copl@2f2bd49
+09-17 18:17:22.677 14468 14496 I DebugExecutorService: copl@2f2bd49 finished on thread
+09-17 18:17:22.677 14468 14496 I CrossProfileSender: Attempting to bind
+09-17 18:17:22.679  1175  3027 I vendor.qti.bluetooth@1.0-ibs_handler: ProcessIbsCmd: Received IBS_WAKE_IND: 0xFD
+09-17 18:17:22.679 14468 14496 I CrossProfileSender: Binding attempt failed: Permission not granted
+09-17 18:17:22.679  1175  3027 D vendor.qti.bluetooth@1.0-ibs_handler: SerialClockVote: vote for UART CLK ON
+09-17 18:17:22.679 14468 14496 I DebugExecutorService: execute() called with Runnable: copo@8c8bdb0
+09-17 18:17:22.679 14468 14496 I DebugExecutorService: copo@8c8bdb0 finished on thread
+09-17 18:17:22.680 14468 14513 I cgfu    : (REDACTED) Reporting search to AppSearch with query %s and %d results
+09-17 18:17:22.680 14468 14513 I DebugExecutorService: execute() called with Runnable: copo@590cf47
+09-17 18:17:22.680 14468 14513 I DebugExecutorService: copo@590cf47 finished on thread
+09-17 18:17:22.680  1175  3027 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+09-17 18:17:22.680  1175  3027 I vendor.qti.bluetooth@1.0-ibs_handler: ProcessIbsCmd: Writing IBS_WAKE_ACK
+09-17 18:17:22.681  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: passedSlop=true ( false || (105860.83 >= 799.7584 && true ))
+09-17 18:17:22.681  2689  2689 D OtherActivityInputConsumer: ACTION_MOVE: mPassedPilferInputSlop=true
+09-17 18:17:22.681  2689  2689 D OtherActivityInputConsumer: finishTouchTracking: mPassedWindowMoveSlop=true
+09-17 18:17:22.681  2689  2689 D OtherActivityInputConsumer: finishTouchTracking: mInteractionHandler=com.android.quickstep.LauncherSwipeHandlerV2@d23a82d
+09-17 18:17:22.681  2689  2689 D OtherActivityInputConsumer: finishTouchTracking: ev=MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=359.667, y[0]=2057.1426, toolType[0]=TOOL_TYPE_FINGER, buttonState=0, classification=NONE, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=43387986, downTime=43387335, deviceId=6, source=0x1002, displayId=0, eventId=458903769 }
+09-17 18:17:22.682  2689  2689 D RecentsView: onPrepareGestureEndAnimation - endTarget: RECENTS
+09-17 18:17:22.684  1589  6767 D FileUtils: Rounded bytes from 5647867904 to 8000000000
+09-17 18:17:22.685 14468 14488 W dsrg    : (REDACTED) Error reading dmabuf proc %s
+09-17 18:17:22.685 14468 14488 W dsrg    : java.io.FileNotFoundException: /proc/14468/dmabuf_rss: open failed: ENOENT (No such file or directory)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at libcore.io.IoBridge.open(IoBridge.java:574)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at fppz.a(PG:10)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at dtbc.f(PG:43)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at dtbc.b(PG:215)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at dtat.apply(PG:19)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at fqut.c(PG:3)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at fquv.run(PG:47)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:348)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at dsrd.run(PG:12)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at java.lang.Thread.run(Thread.java:1563)
+09-17 18:17:22.685 14468 14488 W dsrg    : Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at libcore.io.Linux.open(Native Method)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at libcore.io.ForwardingOs.open(ForwardingOs.java:574)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at libcore.io.ForwardingOs.open(ForwardingOs.java:574)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at android.app.AndroidForwardingOs.open(AndroidForwardingOs.java:120)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	at libcore.io.IoBridge.open(IoBridge.java:560)
+09-17 18:17:22.685 14468 14488 W dsrg    : 	... 14 more
+09-17 18:17:21.367   736   736 I servicemanager: Caller(pid=14468,uid=10111,sid=u:r:priv_app:s0:c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+09-17 18:17:21.370   736   736 I servicemanager: Caller(pid=14468,uid=10111,sid=u:r:priv_app:s0:c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+09-17 18:17:22.702 14468 14593 I CameraManagerGlobal: Connecting to camera service
+09-17 18:17:22.705 14468 14468 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+09-17 18:17:22.705 14468 14468 I cr_PolicyProvider: #notifySettingsAvailable() 0
+09-17 18:17:22.705 14468 14468 I cr_CombinedPProvider: #onSettingsAvailable() 0
+09-17 18:17:22.705 14468 14468 I cr_CombinedPProvider: #flushPolicies()
+09-17 18:17:22.712 14562 14575 E ashmem  : readlink(/proc/self/fd/121) failed: Operation not permitted
+09-17 18:17:22.714 14468 14468 I cfgv    : #hideInput
+09-17 18:17:22.717 14468 14468 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.app.Activity$$ExternalSyntheticLambda0@dde6c83
+09-17 18:17:22.718 14468 14468 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): pir@2436639
+09-17 18:17:22.718  1589  6767 D CoreBackPreview: Window{c4f5959 u0 com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.InternalGoogleAppActivityEntrypoint}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4a32c64, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+09-17 18:17:22.718 14562 14575 E ashmem  : readlink(/proc/self/fd/122) failed: Operation not permitted
+09-17 18:17:22.718 14562 14575 E ashmem  : readlink(/proc/self/fd/124) failed: Operation not permitted
+09-17 18:17:22.718  1589  6767 D CoreBackPreview: Window{c4f5959 u0 com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.InternalGoogleAppActivityEntrypoint}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@a588ecd, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+09-17 18:17:22.719 14562 14582 E ashmem  : readlink(/proc/self/fd/123) failed: Operation not permitted
+09-17 18:17:22.720 14562 14582 E ashmem  : readlink(/proc/self/fd/125) failed: Operation not permitted
+09-17 18:17:22.720 14562 14582 E ashmem  : readlink(/proc/self/fd/126) failed: Operation not permitted
+09-17 18:17:22.720 14468 14468 D VRI[InternalGoogleAppActivityEntrypoint]: WindowInsets changed: 1080x2400 statusBars:[0,130,0,0] navigationBars:[0,0,0,60] mandatorySystemGestures:[0,160,0,80] 
+09-17 18:17:22.721  1175  3027 I vendor.qti.bluetooth@1.0-ibs_handler: ProcessIbsCmd: Received IBS_SLEEP_IND: 0xFE
+09-17 18:17:22.721  1175  3027 D vendor.qti.bluetooth@1.0-ibs_handler: SerialClockVote: vote for UART CLK OFF
+09-17 18:17:22.724 14468 14559 W VideoCapabilities: Unrecognized profile/level 0/3 for video/mpeg2
+09-17 18:17:22.725 14468 14559 W VideoCapabilities: Unsupported mime image/vnd.android.heic
+09-17 18:17:22.734 14468 14598 I Gralloc4: Adding additional valid usage bits: 0x8202000
+09-17 18:17:22.734 14468 14559 W VideoCapabilities: Unrecognized profile/level 0/3 for video/mpeg2
+09-17 18:17:22.735 14468 14559 W VideoCapabilities: Unsupported mime image/vnd.android.heic
+09-17 18:17:22.740  8580  8580 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+09-17 18:17:22.740  8580  8580 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+09-17 18:17:22.740  8806  8927 I FacsCacheGmsModule: Receiving API connection to FACS API from package 'com.google.android.googlequicksearchbox'...
+09-17 18:17:22.742  8806  8927 I FacsCacheGmsModule: API connection successful!
+09-17 18:17:22.746 14468 14559 W VideoCapabilities: Unrecognized profile/level 0/3 for video/mpeg2
+09-17 18:17:22.747 14468 14559 W VideoCapabilities: Unsupported mime image/vnd.android.heic
+09-17 18:17:22.751 14468 14559 W VideoCapabilities: Unrecognized profile/level 0/3 for video/mpeg2
+09-17 18:17:22.752 14468 14559 W VideoCapabilities: Unsupported mime image/vnd.android.heic
+09-17 18:17:22.752  8580  8580 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.facs.internal.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsInternalApiService }
+09-17 18:17:22.752  8580  8580 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.facs.internal.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsInternalApiService }
+09-17 18:17:22.765 14468 14492 I ekfa    : (REDACTED) AppFlow %s is about to be transmitted
+09-17 18:17:22.768  8580  9476 I FacsCacheGmsModule: Receiving API connection to internal FACS API...
+09-17 18:17:22.768  8580  9476 I FacsCacheGmsModule: API connection successful!
+09-17 18:17:22.769  8580  8677 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+09-17 18:17:22.770  1589  1736 I ActivityTaskManager: Displayed com.google.android.googlequicksearchbox/.InternalGoogleAppActivityEntrypoint for user 0: +957ms
+09-17 18:17:22.791  8806 13023 I FusedLocation: Population density provider result is null, falling back to default coarsening algorithm [CONTEXT service_id=6 ]
+09-17 18:17:22.796 14468 14600 I ekbq    : Updating cached location
+09-17 18:17:22.798  8580  8619 I Icing   : Using regular flags by method 2
+09-17 18:17:22.811  8580  8619 E native  : E0000 00:00:1789649242.811637    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.812  8580  8619 E native  : E0000 00:00:1789649242.812212    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.816  8580  8619 E native  : E0000 00:00:1789649242.816235    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.816  8580  8619 E native  : E0000 00:00:1789649242.816919    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.817  8580  8619 E native  : E0000 00:00:1789649242.817025    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.817  8580  8619 E native  : E0000 00:00:1789649242.817126    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.817  8580  8619 E native  : E0000 00:00:1789649242.817230    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.817  8580  8619 E native  : E0000 00:00:1789649242.817404    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.823  8580  8619 E native  : E0000 00:00:1789649242.823755    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.823  8580  8619 E native  : E0000 00:00:1789649242.823881    8619 document-store.cc:1359] Failed to update per-doc-data with usage report
+09-17 18:17:22.824  8580  8619 I Icing   : Usage reports ok 21, Failed Usage reports 10, indexed 0, rejected 0
+09-17 18:17:22.872  1175  2866 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+09-17 18:17:22.875  2689  2689 D OverviewActionsView: updateForGroupedTask() called with: isGroupedTask = [false], canSaveAppPair = [false]
+09-17 18:17:22.875  2689  2689 D OverviewActionsView: updateActionButtonsVisibility() called: showSingleTaskActions = [true], showGroupActions = [false]
+09-17 18:17:23.050  2689  2689 D b/417220811: Current thumbnail: android.graphics.Bitmap@d6949a5, replacing with android.graphics.Bitmap@91e6b90
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: StateManager.goToState: fromState: Background, toState: Overview, partial trace:
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: 	at com.android.quickstep.BaseActivityInterface$DefaultAnimationFactory.lambda$createContainerInterface$0(BaseActivityInterface.java:135)
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: 	at com.android.quickstep.BaseActivityInterface$DefaultAnimationFactory.$r8$lambda$YjjIHLZC92HUcjgpgHrF9H5a_q4(BaseActivityInterface.java:0)
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: 	at com.android.quickstep.BaseActivityInterface$DefaultAnimationFactory$$ExternalSyntheticLambda0.run(R8$$SyntheticClass:0)
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: StateManager.cancelAnimation: animation ongoing: false, partial trace:
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.goToState(StateManager.java:286)
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.goToState(StateManager.java:181)
+09-17 18:17:23.051  2689  2689 D LauncherStateManager: 	at com.android.quickstep.BaseActivityInterface$DefaultAnimationFactory.lambda$createContainerInterface$0(BaseActivityInterface.java:135)
+09-17 18:17:23.052  2689  2689 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_user_active] +[state_deferred_resumed]
+09-17 18:17:23.052  2689  2689 D StatsLog: LAUNCHER_ONRESUME
+09-17 18:17:23.052  2689  2689 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_user_active|state_transition_active] +[state_transition_active]
+09-17 18:17:23.052  2689  2689 D LauncherStateManager: StateManager.onStateTransitionStart: state: Overview
+09-17 18:17:23.052  2689  2689 D ActivityContext: hideKeyboard
+09-17 18:17:23.052  2689  2689 D ActivityContext: isImeShown: false
+09-17 18:17:23.052  2689  2689 D AllAppsTransitionController: shouldProtectHeader: false skipScrim: false state: Overview stateManager.getState(): Overview
+09-17 18:17:23.052  2689  2789 D QuickstepModelDelegate: notifyAppTargetEvent action=1 launchLocation=
+09-17 18:17:23.052  2689  2689 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_user_active] -[state_transition_active]
+09-17 18:17:23.052  2689  2689 D LauncherStateManager: StateManager.onStateTransitionEnd: state: Overview
+09-17 18:17:23.053  2689  2689 D BaseDepthController: setBaseSurfaceOverride: applying blur behind leash Surface(name=Surface(name=Task=428#3735)/@0xac4a38b_transition-leash#4152)/@0xdbab845
+09-17 18:17:23.053  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:23.053  2689  2689 D BaseDepthController: setupBlurSurface: creating Overview Blur surface Surface(name=Overview Blur#4159)/@0x703ab9a
+09-17 18:17:23.053  2689  2689 D BaseDepthController: setupBlurSurface: reparenting Surface(name=Overview Blur#4159)/@0x703ab9a to Surface(name=com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher#4149)/@0x94e21f2
+09-17 18:17:23.053  2689  2689 D BaseDepthController: setupBlurSurface: relayering to leash Surface(name=Surface(name=Task=428#3735)/@0xac4a38b_transition-leash#4152)/@0xdbab845
+09-17 18:17:23.053  2689  2689 V BaseDepthController: Applying blur: 75 to Surface(name=Overview Blur#4159)/@0x703ab9a applyImmediately: false
+09-17 18:17:23.053  2689  2689 D BaseDepthController: shouldBlurWorkspace: false targetState: Overview currentStableState: Overview mCurrentBlur: 75 mLauncher.getDepthBlurTargets(): [com.android.launcher3.Workspace{7c86043 V.ED..... .......D 0,0-1080,2400 #7f090411 app:id/workspace}, com.android.launcher3.Hotseat{47796c0 I.ED..... ......ID 0,2140-1080,2400 #7f0901b7 app:id/hotseat}]
+09-17 18:17:23.053  2689  2689 D StatsLog: LAUNCHER_OVERVIEW_GESTURE
+09-17 18:17:23.053  2689  2689 D ContextTracker: Unregistering callback: com.android.launcher3.LauncherInitListener@60b466d, reason=AbsSwipeUpHandler.invalidateHandler
+09-17 18:17:23.054  2689  2689 D OverviewActionsView: updateForGroupedTask() called with: isGroupedTask = [false], canSaveAppPair = [false]
+09-17 18:17:23.054  2689  2689 D OverviewActionsView: updateActionButtonsVisibility() called: showSingleTaskActions = [true], showGroupActions = [false]
+09-17 18:17:23.054  2689  2689 D OverviewActionsView: updateForGroupedTask() called with: isGroupedTask = [false], canSaveAppPair = [false]
+09-17 18:17:23.054  2689  2689 D OverviewActionsView: updateActionButtonsVisibility() called: showSingleTaskActions = [true], showGroupActions = [false]
+09-17 18:17:23.054  2689  2689 D RecentsView: onGestureAnimationEnd - mEnableDrawingLiveTile: true
+09-17 18:17:23.054  2393  2405 V ShellRecents: [45359365] RecentsController.detachNavigationBarFromApp
+09-17 18:17:23.056  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:23.082 14468 14468 I ccjc    : (REDACTED) Dismissing old window %s
+09-17 18:17:23.083 14468 14468 I ccjl    : (REDACTED) onDestroy: isRecreating: %s
+09-17 18:17:23.087 14468 14468 I ccjc    : (REDACTED) Created new binder managed window %s
+09-17 18:17:23.088 14468 14468 I ccjc    : (REDACTED) WindowRefsActive: %d, TouchableWindowRefsActive: %b
+09-17 18:17:23.088 14468 14468 I ccjl    : (REDACTED) MinusoneConfigDbg windowAttached config=%s
+09-17 18:17:23.088 14468 14468 I ccjl    : (REDACTED) windowAttached start logFlowId=%s, configuration=%s, acetoneState=%s, overlayWindow=%s, fragmentHost=%s, binderManagedWindow=%s, params=%s
+09-17 18:17:23.089 14468 14468 I ccjl    : (REDACTED) onDestroy: isRecreating: %s
+09-17 18:17:23.089 14468 14468 I ccjl    : (REDACTED) initWindow for %s with token %s
+09-17 18:17:23.101 14468 14468 I ccjl    : (REDACTED) windowAttached completed window=%s fragmentHost=%s
+09-17 18:17:23.101 14468 14468 I ccjl    : onStart
+09-17 18:17:23.111 14468 14468 I ccmv    : (REDACTED) shouldShowEomConsentUi: %s
+09-17 18:17:23.112 14468 14468 I ccjl    : onResume
+09-17 18:17:23.112 14468 14468 W dsrg    : missing event name
+09-17 18:17:23.122 14468 14468 I erss    : Constructor was called
+09-17 18:17:23.125  1589  2296 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 0]
+09-17 18:17:23.130 14468 14468 I erpo    : (REDACTED) init, initialized: %s
+09-17 18:17:23.131 14468 14468 I bzzz    : (REDACTED) isMinusOneV1 isMinusOne=%b
+09-17 18:17:23.131 14468 14468 I bzzz    : (REDACTED) isMinusOneV1 isPixel=%b sdk=%d isAcetoneV2Config=%b
+09-17 18:17:23.132 14468 14468 I bzzz    : No savedInstanceState.
+09-17 18:17:23.132 14468 14468 I bzzz    : makeRequest: subscribing to new source
+09-17 18:17:23.134 14468 14468 I erss    : OnCreate Was Called
+09-17 18:17:23.136 14468 14468 I PromoManagerDataService: PromoManagerDataServiceImpl.getTabTypePromotion[MINUS_ONE]
+09-17 18:17:23.139 14468 14468 I cccb    : (REDACTED) setupSearchBox for class %s
+09-17 18:17:23.144 14468 14468 I bvra    : Account disc initialised
+09-17 18:17:23.144 14468 14468 I PromoManagerDataService: PromoManagerDataServiceImpl.getAccountMenuPromotion
+09-17 18:17:23.146 14468 14516 I caiq    : (REDACTED) #enqueuePeriodicJob: running = %b
+09-17 18:17:23.147 14468 14468 I bzzz    : (REDACTED) [%s] onStart()
+09-17 18:17:23.148 14468 14516 I bzoq    : (REDACTED) loading data on surface %s.
+09-17 18:17:23.148 14468 14513 I bzbt    : #getLastSuccessfulTime
+09-17 18:17:23.149 14468 14468 E NetworkErrorMessage: (REDACTED) Invalid connectivity state: %s
+09-17 18:17:23.150 14468 14468 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): fgns@1413a47
+09-17 18:17:23.151  1589  9725 D CoreBackPreview: Window{a81088c u0 GoogleDiscoverWindow}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@99dacbc, mPriority=1000000, mIsAnimationCallback=false, mOverrideBehavior=0}
+09-17 18:17:23.151 14468 14468 I cccs    : (REDACTED) onApplyWindowInsets: systemWindowInsets=%s
+09-17 18:17:23.151 14468 14468 I cccs    : (REDACTED) onApplyWindowInsets: systemWindowInsets=%s
+09-17 18:17:23.155 14468 14503 I caia    : (REDACTED) #scheduledConfig, timestampCreated %s, scheduledOffset %s
+09-17 18:17:23.157 14468 14513 W elnj    : PersistentByteStore is not subscribed to a ByteStore before first access [CONTEXT cel_metadata="# gnfz@505eecd2\n[486185550] {\n}" ]
+09-17 18:17:23.159 14468 14468 I cccs    : (REDACTED) onApplyWindowInsets: systemWindowInsets=%s
+09-17 18:17:23.159 14468 14468 I cccs    : (REDACTED) onApplyWindowInsets: systemWindowInsets=%s
+09-17 18:17:23.169 14468 14468 I cdia    : (REDACTED) PromoManagerSubscriptionCallbacks: onNewData called for fragment=%s with promotion: %s
+09-17 18:17:23.173  1589  3662 D ConnectivityService: requestNetwork for uid/pid:10111/14468 activeRequest: null callbackRequest: 1449 [NetworkRequest [ REQUEST id=1450, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST
+09-17 18:17:23.174  8806  8806 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.auth.account.data.service.START xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:23.174  8806  8806 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.auth.account.data.service.START xflg=0x4 pkg=com.google.android.gms }
+09-17 18:17:23.175  1589  2296 D ConnectivityService: NetReassign [1450 : null → 119] [c 0] [a 0] [i 1]
+09-17 18:17:23.175 14468 14468 W bvry    : Trying to switch to the same account that's already selected
+09-17 18:17:23.176  1589  2288 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=1450, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:23.176  1589  2288 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=1450, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:23.176  1589  2288 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1450, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:23.176  1589  2288 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1450, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:23.176  1589  2288 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=1450, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10111 RequestorUid: 10111 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-17 18:17:23.177 14468 14468 I bvrx    : #accountsLoaded
+09-17 18:17:23.185 14468 14468 I A       : (REDACTED) #loadData (initialFeedReceivedTimePerClient=%s, lastFeedUpdateTimePerClient=%s, eventTimePerClient=%s)
+09-17 18:17:23.185 14468 14468 I ccmv    : (REDACTED) SearchBoxEligibility: %s
+09-17 18:17:23.187  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:23.189 14468 14468 I bzzz    : (REDACTED) feed_age onNewData data=%s
+09-17 18:17:23.193 14468 14492 I WM-GreedyScheduler: Ignoring schedule request in a secondary process
+09-17 18:17:23.200  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:23.202 14468 14492 D WM-Processor: Processor cancelling d6c0b6d6-aca1-4cd4-9a07-9cb81c04bde5
+09-17 18:17:23.202 14468 14492 D WM-Processor: WorkerWrapper could not be found for d6c0b6d6-aca1-4cd4-9a07-9cb81c04bde5
+09-17 18:17:23.203 14468 14492 D WM-SystemJobScheduler: Cancelling work ID d6c0b6d6-aca1-4cd4-9a07-9cb81c04bde5, Job ID 4860
+09-17 18:17:23.207 14468 14492 I WM-GreedyScheduler: Ignoring schedule request in non-main process
+09-17 18:17:23.219 14468 14492 D WM-SystemJobScheduler: Scheduling work ID 2b870f8e-dc39-43e9-a1eb-1f234c2ddd4f (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 4931
+09-17 18:17:23.221 14468 14492 I WM-GreedyScheduler: Ignoring schedule request in a secondary process
+09-17 18:17:23.224 14468 14516 I cakj    : (REDACTED) Created StreamSubTree successfully, items %s
+09-17 18:17:23.224 14468 14516 I bzoq    : (REDACTED) RenderableStreamDataSource#loadData - sessionStatus(%s)
+09-17 18:17:23.227  8580  8704 I MdiSyncModule: Receiving API connection from package 'com.google.android.googlequicksearchbox'...
+09-17 18:17:23.228  8580  8704 I MdiSyncModule: API connection successful!
+09-17 18:17:23.229 14468 14514 I bzoq    : RenderableStreamDataSource#loadData - cacheHit
+09-17 18:17:23.230 14468 14514 I bzoq    : (REDACTED) RenderableStreamDataSource#loadData - succeed, cache status: %s
+09-17 18:17:23.231  8580  8648 I GmsCoreXrpcWrapper: Creating a custom channel provider with trafficStatsTag=37379 trafficStatsUid=-1
+09-17 18:17:23.237 14468 14514 I fekj    : (REDACTED) GMSCore Auth returned %d accounts.
+09-17 18:17:23.238 14468 14514 I fekj    : (REDACTED) GoogleOwnersProvider returned %d accounts.
+09-17 18:17:23.239 14468 14468 I bzzz    : (REDACTED) StreamFragmentPeer#onNewData called, renderable slices %s
+09-17 18:17:23.239 14468 14468 I bxnj    : (REDACTED) Trying to load %s elementsRenderData
+09-17 18:17:23.242 14468 14468 I cabw    : (REDACTED) Clearing batch update data for stream %s
+09-17 18:17:23.243 14468 14468 I cabw    : (REDACTED) Removed set %s for stream %s
+09-17 18:17:23.243 14468 14468 I cabw    : (REDACTED) Tracking batch for content id %s and stream %s
+09-17 18:17:23.244  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:23.244  1589  2339 D BackgroundInstallControlService: Package event received: 0
+09-17 18:17:23.249  8580  8619 E jumw    : *~*~*~ Previous channel {0} was garbage collected without being shut down! ~*~*~*
+09-17 18:17:23.249  8580  8619 E jumw    :     Make sure to call shutdown()/shutdownNow()
+09-17 18:17:23.249  8580  8619 E jumw    : java.lang.RuntimeException: ManagedChannel allocation site
+09-17 18:17:23.249  8580  8619 E jumw    : 	at jumv.<init>(:com.google.android.gms@263234035@26.32.34 (260400-968093310):21)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at jumw.<init>(:com.google.android.gms@263234035@26.32.34 (260400-968093310):10)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at jumu.a(:com.google.android.gms@263234035@26.32.34 (260400-968093310):300)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at jtul.a(:com.google.android.gms@263234035@26.32.34 (260400-968093310):5)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at dixu.f(:com.google.android.gms@263234035@26.32.34 (260400-968093310):144)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at iarc.a(:com.google.android.gms@263234035@26.32.34 (260400-968093310):177)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at hnyt.a(:com.google.android.gms@263234035@26.32.34 (260400-968093310):17)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at hwyb.a(:com.google.android.gms@263234035@26.32.34 (260400-968093310):3)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at hwxc.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):19)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at hwyd.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):5)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at bnli.d(:com.google.android.gms@263234035@26.32.34 (260400-968093310):50)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at bnli.c(:com.google.android.gms@263234035@26.32.34 (260400-968093310):6)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at bnli.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):33)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at bnri.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):8)
+09-17 18:17:23.249  8580  8619 E jumw    : 	at java.lang.Thread.run(Thread.java:1563)
+09-17 18:17:23.249 14468 14468 I cabw    : (REDACTED) Tracking batch for content id %s and stream %s
+09-17 18:17:23.253 14468 14468 I cabw    : (REDACTED) Tracking batch for content id %s and stream %s
+09-17 18:17:23.253 14468 14468 I cabw    : (REDACTED) Tracking batch for content id %s and stream %s
+09-17 18:17:23.253 14468 14468 I cabw    : (REDACTED) Tracking batch for content id %s and stream %s
+09-17 18:17:23.260  8580  9443 I cn_CronetUrlRequestContext: destroyNativeStreamLocked org.chromium.net.impl.CronetBidirectionalStream@c0f652f
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: Failed to get account data. [CONTEXT service_id=315 ]
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: jtzg: UNAVAILABLE
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at juxb.b(:com.google.android.gms@263234035@26.32.34 (260400-968093310):166)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at csol.f(:com.google.android.gms@263234035@26.32.34 (260400-968093310):187)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at dgbf.fw(:com.google.android.gms@263234035@26.32.34 (260400-968093310):1)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at dgbr.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):122)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at hnyy.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):23)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at bnli.d(:com.google.android.gms@263234035@26.32.34 (260400-968093310):50)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at bnli.c(:com.google.android.gms@263234035@26.32.34 (260400-968093310):6)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at bnli.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):33)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at bnri.run(:com.google.android.gms@263234035@26.32.34 (260400-968093310):8)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at java.lang.Thread.run(Thread.java:1563)
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: Caused by: m1.hu: Exception in BidirectionalStream: net::ERR_CONNECTION_REFUSED, ErrorCode=7, InternalErrorCode=-102, Retryable=false
+09-17 18:17:23.262  8580  8648 W FetchAccountDataRespons: 	at org.chromium.net.impl.CronetBidirectionalStream.onError(:com.google.android.gms.dynamite_cronetdynamite@263234035@26.32.34 (260400-0):27)
+09-17 18:17:23.307 14468 14468 W elpv    : (REDACTED) Failed to load typeface (%s) within the allocated time.
+09-17 18:17:23.307 14468 14468 W elpv    : (REDACTED) Failed to load typeface (%s) within the allocated time.
+09-17 18:17:23.307 14468 14468 W elpv    : (REDACTED) Failed to load typeface (%s) within the allocated time.
+09-17 18:17:23.308 14468 14468 W elpv    : (REDACTED) Failed to load typeface (%s) within the allocated time.
+09-17 18:17:23.359 14468 14468 W View    : requestLayout() improperly called by android.widget.FrameLayout{db5f49b V.E...... ......ID 0,0-1080,280} during layout: running second layout pass

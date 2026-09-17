@@ -1,6 +1,5 @@
 package com.example.bhpos.data.repository
 
-import com.example.bhpos.domain.model.BrandShare
 import com.example.bhpos.domain.model.CementProduct
 import com.example.bhpos.domain.model.DashboardTelemetry
 import com.example.bhpos.domain.model.Party
@@ -21,10 +20,8 @@ class CementStockRepositoryImpl : CementStockRepository {
     private val initialProducts = listOf(
         CementProduct(
             id = "ultratech_ppc",
-            brandName = "UltraTech",
             name = "UltraTech Super PPC",
             grade = "PPC 50kg",
-            category = "ppc",
             weightPerBagKg = 50.0,
             defaultRatePerBag = 380.0,
             bayLocation = "Bay A1-A4",
@@ -33,10 +30,8 @@ class CementStockRepositoryImpl : CementStockRepository {
         ),
         CementProduct(
             id = "ambuja_opc",
-            brandName = "Ambuja",
             name = "Ambuja OPC 53 Grade",
             grade = "OPC 53G",
-            category = "opc",
             weightPerBagKg = 50.0,
             defaultRatePerBag = 410.0,
             bayLocation = "Bay B1-B2",
@@ -45,10 +40,8 @@ class CementStockRepositoryImpl : CementStockRepository {
         ),
         CementProduct(
             id = "acc_suraksha",
-            brandName = "ACC",
             name = "ACC Suraksha Power",
             grade = "PPC 50kg",
-            category = "ppc",
             weightPerBagKg = 50.0,
             defaultRatePerBag = 395.0,
             bayLocation = "Bay B3-B4",
@@ -57,10 +50,8 @@ class CementStockRepositoryImpl : CementStockRepository {
         ),
         CementProduct(
             id = "jk_white",
-            brandName = "JK Cement",
             name = "JK White Cement Max",
             grade = "Specialty 50kg",
-            category = "specialty",
             weightPerBagKg = 50.0,
             defaultRatePerBag = 580.0,
             bayLocation = "Bay C1",
@@ -69,10 +60,8 @@ class CementStockRepositoryImpl : CementStockRepository {
         ),
         CementProduct(
             id = "shree_ultra",
-            brandName = "Shree Cement",
             name = "Shree Ultra Jung Rodhak",
             grade = "PPC 50kg",
-            category = "ppc",
             weightPerBagKg = 50.0,
             defaultRatePerBag = 375.0,
             bayLocation = "Bay C2",
@@ -177,20 +166,17 @@ class CementStockRepositoryImpl : CementStockRepository {
     private val _transactions = MutableStateFlow(initialTransactions.toList())
 
     override fun getProductsFlow(): Flow<List<CementProduct>> = _products.asStateFlow()
+    override fun getCurrentProducts(): List<CementProduct> = _products.value
 
     override fun getParties(): List<Party> = initialParties
 
     override fun getTransactionsFlow(): Flow<List<StockTransaction>> = _transactions.asStateFlow()
+    override fun getCurrentTransactions(): List<StockTransaction> = _transactions.value
 
     override fun getDashboardTelemetry(): Flow<DashboardTelemetry> {
         return _products.map { products ->
             val totalBags = products.sumOf { it.currentStockBags }
             val totalMt = (totalBags * 50.0) / 1000.0
-
-            val brandShares = products.map {
-                val pct = if (totalBags > 0) (it.currentStockBags.toFloat() / totalBags.toFloat()) else 0f
-                BrandShare(brandName = it.brandName, percentage = pct)
-            }
 
             DashboardTelemetry(
                 totalStoredBags = totalBags,
@@ -200,8 +186,7 @@ class CementStockRepositoryImpl : CementStockRepository {
                 dispatchedBags = 850,
                 dispatchedMt = 42.5,
                 pendingSlipsCount = 1,
-                netTallyBags = 350,
-                brandDistribution = brandShares
+                netTallyBags = 350
             )
         }
     }
@@ -285,7 +270,7 @@ class CementStockRepositoryImpl : CementStockRepository {
                 slipNo = newSlipNo,
                 type = TransactionType.INWARD,
                 timestamp = System.currentTimeMillis(),
-                partyName = "${product.brandName} Factory Delivery",
+                partyName = "${product.name} Factory Delivery",
                 vehicleNo = "FACTORY-UNLOAD",
                 driverName = "Depot Inward",
                 driverPhone = "-",
@@ -312,6 +297,31 @@ class CementStockRepositoryImpl : CementStockRepository {
             updatedTx.add(0, newTx)
             _transactions.value = updatedTx
 
+            return Result.success(Unit)
+        }
+    }
+
+    override suspend fun updateProduct(product: CementProduct): Result<Unit> {
+        mutex.withLock {
+            val currentList = _products.value.toMutableList()
+            val index = currentList.indexOfFirst { it.id == product.id }
+            if (index == -1) {
+                return Result.failure(IllegalArgumentException("Product ID ${product.id} not found"))
+            }
+            currentList[index] = product
+            _products.value = currentList
+            return Result.success(Unit)
+        }
+    }
+
+    override suspend fun addProduct(product: CementProduct): Result<Unit> {
+        mutex.withLock {
+            val currentList = _products.value.toMutableList()
+            if (currentList.any { it.id == product.id }) {
+                return Result.failure(IllegalArgumentException("Product ID ${product.id} already exists"))
+            }
+            currentList.add(product)
+            _products.value = currentList
             return Result.success(Unit)
         }
     }

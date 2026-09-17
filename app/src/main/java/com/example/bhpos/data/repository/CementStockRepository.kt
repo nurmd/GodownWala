@@ -8,11 +8,15 @@ import kotlinx.coroutines.flow.Flow
 
 interface CementStockRepository {
     fun getProductsFlow(): Flow<List<CementProduct>>
+    fun getCurrentProducts(): List<CementProduct>
     fun getParties(): List<Party>
     fun getDashboardTelemetry(): Flow<DashboardTelemetry>
     fun getTransactionsFlow(): Flow<List<StockTransaction>>
+    fun getCurrentTransactions(): List<StockTransaction>
     suspend fun getTransactionBySlipNo(slipNo: String): StockTransaction?
     suspend fun recordDispatch(transaction: StockTransaction): Result<StockTransaction>
     suspend fun recordStockIn(productId: String, bags: Int, batchNo: String, bayLocation: String): Result<Unit>
     suspend fun getLastSlip(): StockTransaction?
+    suspend fun updateProduct(product: CementProduct): Result<Unit>
+    suspend fun addProduct(product: CementProduct): Result<Unit>
 }

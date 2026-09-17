@@ -8,15 +8,15 @@ enum class TransactionType {
 
 data class CementProduct(
     val id: String,
-    val brandName: String,
     val name: String,
     val grade: String, // e.g. PPC, OPC 53G, White
-    val category: String, // ppc, opc, specialty
     val weightPerBagKg: Double = 50.0,
     val defaultRatePerBag: Double,
     val bayLocation: String, // e.g. Bay A1-A4
     val currentStockBags: Int,
-    val batchNo: String = "UT-24-OCT-03"
+    val batchNo: String = "UT-24-OCT-03",
+    val imageUrl: String? = null,
+    val isActive: Boolean = true
 ) {
     val stockMetricTons: Double
         get() = (currentStockBags * weightPerBagKg) / 1000.0
@@ -59,11 +59,6 @@ data class StockTransaction(
     val items: List<StockTransactionItem>
 )
 
-data class BrandShare(
-    val brandName: String,
-    val percentage: Float
-)
-
 data class DashboardTelemetry(
     val totalStoredBags: Int,
     val totalMetricTons: Double,
@@ -72,6 +67,5 @@ data class DashboardTelemetry(
     val dispatchedBags: Int,
     val dispatchedMt: Double,
     val pendingSlipsCount: Int,
-    val netTallyBags: Int,
-    val brandDistribution: List<BrandShare>
+    val netTallyBags: Int
 )
