@@ -13,6 +13,10 @@ aapt2 compile --dir app/src/main/res -o build/compiled-res/
 echo "[2/5] Linking base APK..."
 aapt2 link -I /system/framework/framework-res.apk \
   --manifest app/src/main/AndroidManifest.xml \
+  --min-sdk-version 24 \
+  --target-sdk-version 35 \
+  --version-code 1 \
+  --version-name "1.0" \
   -o build/base.apk \
   build/compiled-res/*.flat \
   --java build/gen \
