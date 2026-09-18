@@ -87,7 +87,25 @@ class MainActivity : Activity() {
         private const val KEY_PRINTER_NAME = "active_printer_name"
         private const val KEY_PRINTER_ADDR = "active_printer_address"
         private const val KEY_PRINT_OPTIONS = "active_print_options"
+        private const val KEY_CLOUD_URL = "cloud_sync_url"
+        private const val KEY_CURRENT_USER = "current_user_json"
         private const val PERM_REQUEST_CODE = 2001
+    }
+
+    fun getCloudUrl(): String {
+        return getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString(KEY_CLOUD_URL, "") ?: ""
+    }
+
+    fun saveCloudUrl(url: String) {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putString(KEY_CLOUD_URL, url).apply()
+    }
+
+    fun getCurrentUser(): String {
+        return getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString(KEY_CURRENT_USER, "") ?: ""
+    }
+
+    fun saveCurrentUser(json: String) {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putString(KEY_CURRENT_USER, json).apply()
     }
 
     fun hasBluetoothPermission(): Boolean {
@@ -150,6 +168,77 @@ class MainActivity : Activity() {
     }
 
     inner class AndroidBridge {
+        private fun getCurrentUserName(): String {
+            val userStr = this@MainActivity.getCurrentUser()
+            return if (userStr.isNotBlank()) {
+                try { JSONObject(userStr).getString("name") } catch (e: Exception) { "Unknown" }
+            } else {
+                "Unknown"
+            }
+        }
+        @JavascriptInterface
+        fun getCloudUrl(): String {
+            return this@MainActivity.getCloudUrl()
+        }
+
+        @JavascriptInterface
+        fun saveCloudUrl(url: String) {
+            this@MainActivity.saveCloudUrl(url)
+        }
+
+        @JavascriptInterface
+        fun getCurrentUser(): String {
+            return this@MainActivity.getCurrentUser()
+        }
+
+        @JavascriptInterface
+        fun saveCurrentUser(json: String) {
+            this@MainActivity.saveCurrentUser(json)
+        }
+
+        @JavascriptInterface
+        fun syncCloudData(payload: String, callbackId: String) {
+            val urlStr = this@MainActivity.getCloudUrl()
+            if (urlStr.isBlank()) {
+                runOnUiThread {
+                    webView.evaluateJavascript("if(window.cloudSyncCallback) window.cloudSyncCallback('$callbackId', false, 'No URL set');", null)
+                }
+                return
+            }
+
+            Thread {
+                try {
+                    val url = java.net.URL(urlStr)
+                    val conn = url.openConnection() as java.net.HttpURLConnection
+                    conn.requestMethod = "POST"
+                    conn.setRequestProperty("Content-Type", "application/json; utf-8")
+                    conn.setRequestProperty("Accept", "application/json")
+                    conn.doOutput = true
+
+                    conn.outputStream.use { os ->
+                        val input = payload.toByteArray(Charsets.UTF_8)
+                        os.write(input, 0, input.size)
+                    }
+
+                    val code = conn.responseCode
+                    if (code in 200..299) {
+                        val response = conn.inputStream.bufferedReader().use { it.readText() }
+                        runOnUiThread {
+                            webView.evaluateJavascript("if(window.cloudSyncCallback) window.cloudSyncCallback('$callbackId', true, ${JSONObject.quote(response)});", null)
+                        }
+                    } else {
+                        val error = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "HTTP $code"
+                        runOnUiThread {
+                            webView.evaluateJavascript("if(window.cloudSyncCallback) window.cloudSyncCallback('$callbackId', false, ${JSONObject.quote(error)});", null)
+                        }
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        webView.evaluateJavascript("if(window.cloudSyncCallback) window.cloudSyncCallback('$callbackId', false, ${JSONObject.quote(e.message ?: "Network error")});", null)
+                    }
+                }
+            }.start()
+        }
 
         private val dateFormat = SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH)
         private val timeFormat = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
@@ -194,6 +283,10 @@ class MainActivity : Activity() {
                     obj.put("bayLocation", p.bayLocation)
                     obj.put("currentStockBags", p.currentStockBags)
                     obj.put("batchNo", p.batchNo)
+                    obj.put("isActive", p.isActive)
+                    if (p.imageUrl != null) {
+                        obj.put("imageUrl", p.imageUrl)
+                    }
                     array.put(obj)
                 }
                 array.toString()
@@ -321,7 +414,8 @@ class MainActivity : Activity() {
                     totalBags = bags,
                     totalMetricTons = mt,
                     totalAmount = amount,
-                    items = listOf(item)
+                    items = listOf(item),
+                    dispatchedBy = getCurrentUserName()
                 )
 
                 val result = runBlocking { repository.recordDispatch(tx) }
@@ -427,7 +521,8 @@ class MainActivity : Activity() {
                     totalBags = totalBags,
                     totalMetricTons = totalMt,
                     totalAmount = totalAmount,
-                    items = txItems
+                    items = txItems,
+                    dispatchedBy = getCurrentUserName()
                 )
 
                 val result = runBlocking { repository.recordDispatch(tx) }

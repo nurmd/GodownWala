@@ -1,0 +1,70 @@
+  <!-- Auth Overlay -->
+  <div id="authOverlay" class="fixed inset-0 z-[100] bg-surface flex flex-col items-center justify-center p-6 hidden">
+    <!-- Setup Screen -->
+    <div id="setupScreen" class="w-full max-w-sm space-y-6 hidden">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-primary text-3xl">link</span>
+        </div>
+        <h2 class="text-2xl font-bold text-on-surface">Link Business</h2>
+        <p class="text-on-surface-variant text-sm">Paste your Google Apps Script Web App URL to link this device.</p>
+      </div>
+      <div>
+        <label class="block font-bold text-on-surface-variant mb-2">Web App URL</label>
+        <textarea id="setupUrlInput" rows="4" class="w-full bg-surface-container border border-surface-container-high rounded-xl p-3 text-on-surface font-mono text-xs"></textarea>
+      </div>
+      <button onclick="handleSetupSubmit()" id="setupBtn" class="w-full bg-primary text-on-primary py-3.5 rounded-xl font-bold uppercase tracking-wider active:scale-95 transition-transform flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">sync</span>
+        Connect Device
+      </button>
+      <div id="setupError" class="text-error text-center text-sm font-bold"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="w-full max-w-sm space-y-6 hidden">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-primary text-3xl">lock</span>
+        </div>
+        <h2 class="text-2xl font-bold text-on-surface">Staff Login</h2>
+        <p class="text-on-surface-variant text-sm">Select your account and enter your PIN.</p>
+      </div>
+      
+      <div>
+        <label class="block font-bold text-on-surface-variant mb-2">Select User</label>
+        <select id="loginUserSelect" class="w-full bg-surface-container border border-surface-container-high rounded-xl p-3 text-on-surface font-bold text-lg">
+          <option value="">Loading users...</option>
+        </select>
+      </div>
+
+      <div>
+        <div class="flex gap-2 justify-center mb-6 mt-4">
+          <div class="w-12 h-14 bg-surface-container rounded-lg border border-surface-container-high flex items-center justify-center text-2xl font-bold" id="pin1"></div>
+          <div class="w-12 h-14 bg-surface-container rounded-lg border border-surface-container-high flex items-center justify-center text-2xl font-bold" id="pin2"></div>
+          <div class="w-12 h-14 bg-surface-container rounded-lg border border-surface-container-high flex items-center justify-center text-2xl font-bold" id="pin3"></div>
+          <div class="w-12 h-14 bg-surface-container rounded-lg border border-surface-container-high flex items-center justify-center text-2xl font-bold" id="pin4"></div>
+        </div>
+        <!-- Keypad -->
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="appendPin('1')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">1</button>
+          <button onclick="appendPin('2')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">2</button>
+          <button onclick="appendPin('3')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">3</button>
+          <button onclick="appendPin('4')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">4</button>
+          <button onclick="appendPin('5')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">5</button>
+          <button onclick="appendPin('6')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">6</button>
+          <button onclick="appendPin('7')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">7</button>
+          <button onclick="appendPin('8')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">8</button>
+          <button onclick="appendPin('9')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">9</button>
+          <button onclick="clearPin()" class="py-4 bg-surface-container rounded-xl font-bold text-xl active:scale-95 text-error">C</button>
+          <button onclick="appendPin('0')" class="py-4 bg-surface-container-high rounded-xl font-bold text-xl active:scale-95">0</button>
+          <button onclick="deletePin()" class="py-4 bg-surface-container rounded-xl font-bold text-xl active:scale-95 flex items-center justify-center"><span class="material-symbols-outlined">backspace</span></button>
+        </div>
+      </div>
+      
+      <div id="loginError" class="text-error text-center text-sm font-bold h-5"></div>
+      
+      <div class="text-center mt-6">
+        <button onclick="resetBusinessLink()" class="text-tertiary text-sm font-bold underline px-4 py-2">Unlink Device</button>
+      </div>
+    </div>
+  </div>

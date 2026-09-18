@@ -56,7 +56,8 @@ data class StockTransaction(
     val totalBags: Int,
     val totalMetricTons: Double,
     val totalAmount: Double,
-    val items: List<StockTransactionItem>
+    val items: List<StockTransactionItem>,
+    val dispatchedBy: String = ""
 )
 
 data class DashboardTelemetry(
