@@ -73,10 +73,9 @@ object EscPosSlipGenerator {
         // 1. Header & Contact
         if (options.showHeader) {
             sb.append(dividerEqual).append("\n")
-            sb.append(centerText("CEMENTTRACK GODOWN", width)).append("\n")
-            sb.append(centerText("CENTRAL DEPOT - GODOWN #4", width)).append("\n")
-            sb.append(centerText("Tel: 020-27491100 / 98220-44102", width)).append("\n")
-            sb.append(centerText("GSTIN: 27AAAAA0000A1Z5", width)).append("\n")
+            sb.append(centerText("GODOWN MANAGER", width)).append("\n")
+            sb.append(centerText("CENTRAL DEPOT", width)).append("\n")
+            sb.append(centerText("Tel: Support / Operations", width)).append("\n")
         }
 
         // Title Banner
@@ -125,9 +124,9 @@ object EscPosSlipGenerator {
 
         // 4. Items Table
         if (paperWidthMm == 58) {
-            sb.append(threeCol("ITEM", "BAG", "MT", width)).append("\n")
+            sb.append(threeCol("ITEM", "QTY", "WT", width)).append("\n")
         } else {
-            sb.append(threeCol("ITEM / BATCH", "BAGS", "WT(MT)", width)).append("\n")
+            sb.append(threeCol("ITEM / BATCH", "QTY", "WEIGHT", width)).append("\n")
         }
         sb.append(dividerDash).append("\n")
 
@@ -144,7 +143,7 @@ object EscPosSlipGenerator {
         sb.append(dividerDash).append("\n")
 
         // 5. Totals
-        sb.append(twoCol("TOTAL BAGS:", "${tx.totalBags} BAGS", width)).append("\n")
+        sb.append(twoCol("TOTAL QUANTITY:", "${tx.totalBags} UNITS", width)).append("\n")
         sb.append(twoCol("TOTAL NET WT:", String.format(Locale.ENGLISH, "%.2f MT", tx.totalMetricTons), width)).append("\n")
         if (options.showAmount) {
             sb.append(twoCol("TOTAL VALUE:", String.format(Locale.ENGLISH, "INR %.2f", tx.totalAmount), width)).append("\n")
@@ -201,7 +200,12 @@ object EscPosSlipGenerator {
     }
 
     @JvmOverloads
-    fun generateTestSlipText(printerName: String, macAddress: String, paperWidthMm: Int = 80): String {
+    fun generateTestSlipText(
+        printerName: String,
+        macAddress: String,
+        paperWidthMm: Int = 80,
+        isFailover: Boolean = false
+    ): String {
 
         val width = if (paperWidthMm == 58) 32 else 48
         val dividerEqual = "=".repeat(width)
@@ -212,12 +216,17 @@ object EscPosSlipGenerator {
 
         val sb = StringBuilder()
         sb.append(dividerEqual).append("\n")
-        sb.append(centerText("CEMENTTRACK GODOWN", width)).append("\n")
+        sb.append(centerText("GODOWN MANAGER", width)).append("\n")
         sb.append(centerText("BLUETOOTH PRINTER TEST", width)).append("\n")
-        sb.append(centerText("CENTRAL DEPOT - GODOWN #4", width)).append("\n")
+        sb.append(centerText("CENTRAL DEPOT", width)).append("\n")
         sb.append(dividerDash).append("\n")
         sb.append("Printer: $printerName\n")
-        sb.append("MAC    : $macAddress\n")
+        if (macAddress.isNotBlank()) {
+            sb.append("MAC    : $macAddress\n")
+        }
+        if (isFailover) {
+            sb.append("Route  : Active Online Failover\n")
+        }
         sb.append("Date   : $dateStr  $timeStr\n")
         val formatStr = if (paperWidthMm == 58) "Format : ESC/POS Direct Link\n" else "Format : ESC/POS Standard Direct Link\n"
         sb.append(formatStr)
@@ -233,14 +242,19 @@ object EscPosSlipGenerator {
     }
 
     @JvmOverloads
-    fun generateTestSlipBytes(printerName: String, macAddress: String, paperWidthMm: Int = 80): ByteArray {
+    fun generateTestSlipBytes(
+        printerName: String,
+        macAddress: String,
+        paperWidthMm: Int = 80,
+        isFailover: Boolean = false
+    ): ByteArray {
         val out = ByteArrayOutputStream()
         // ESC @: Init
         out.write(byteArrayOf(0x1B, 0x40))
         // ESC t 0: Standard character code table (PC437)
         out.write(byteArrayOf(0x1B, 0x74, 0x00))
 
-        val text = generateTestSlipText(printerName, macAddress, paperWidthMm)
+        val text = generateTestSlipText(printerName, macAddress, paperWidthMm, isFailover)
         out.write(text.toByteArray(Charsets.US_ASCII))
 
         // Feed paper past tear bar (ESC d 5 feeds 5 lines)

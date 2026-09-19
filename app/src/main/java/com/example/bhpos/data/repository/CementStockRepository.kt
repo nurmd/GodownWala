@@ -18,6 +18,7 @@ interface CementStockRepository {
     fun getCurrentTransactions(): List<StockTransaction>
     suspend fun getTransactionBySlipNo(slipNo: String): StockTransaction?
     suspend fun recordDispatch(transaction: StockTransaction): Result<StockTransaction>
+    suspend fun updateDispatch(transaction: StockTransaction): Result<StockTransaction>
     suspend fun recordStockIn(productId: String, bags: Int, batchNo: String, bayLocation: String): Result<Unit>
     suspend fun getLastSlip(): StockTransaction?
     suspend fun updateProduct(product: Product): Result<Unit>

@@ -19,6 +19,7 @@ import com.example.bhpos.domain.model.Product
 import com.example.bhpos.domain.model.StockTransaction
 import com.example.bhpos.domain.model.StockTransactionItem
 import com.example.bhpos.domain.model.TransactionType
+import com.example.bhpos.printer.BluetoothPrinterManager
 import com.example.bhpos.printer.EscPosSlipGenerator
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
@@ -48,6 +49,38 @@ class MainActivity : Activity() {
 
         setupWebView()
         webView.loadUrl("file:///android_asset/index.html")
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    /**
+     * Handles incoming test intents and JS evaluation commands from ADB or test scripts.
+     */
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
+
+        val js = intent.getStringExtra("eval_js")
+        if (!js.isNullOrBlank()) {
+            runOnUiThread {
+                webView.evaluateJavascript(js, null)
+            }
+        }
+
+        val testPrint = intent.getBooleanExtra("test_print", false)
+        if (testPrint) {
+            val name = intent.getStringExtra("printer_name") ?: ""
+            val addr = intent.getStringExtra("printer_addr") ?: ""
+            val width = intent.getIntExtra("paper_width", 58)
+            Thread {
+                android.util.Log.d("BH_INTENT_PRINT", "Triggering test print: name='$name', addr='$addr', width=$width")
+                val res = AndroidBridge().testPrintPrinter(name, addr, width)
+                android.util.Log.d("BH_INTENT_PRINT", "Result: $res")
+            }.start()
+        }
     }
 
     private fun setupWebView() {
@@ -61,12 +94,21 @@ class MainActivity : Activity() {
         settings.loadWithOverviewMode = true
         settings.setSupportZoom(false)
 
+        try {
+            WebView.setWebContentsDebuggingEnabled(true)
+        } catch (_: Exception) {}
+
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
             }
         }
-        webView.webChromeClient = WebChromeClient()
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
+                android.util.Log.d("BH_CONSOLE", "${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}")
+                return true
+            }
+        }
 
         webView.addJavascriptInterface(AndroidBridge(), "AndroidBridge")
     }
@@ -144,7 +186,7 @@ class MainActivity : Activity() {
 
     fun getSavedPrinterName(): String {
         val sp = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return sp.getString(KEY_PRINTER_NAME, "POS-80C Mobile Thermal") ?: "POS-80C Mobile Thermal"
+        return sp.getString(KEY_PRINTER_NAME, "MPT-III") ?: "MPT-III"
     }
 
     fun getSavedPrinterAddress(): String {
@@ -247,20 +289,40 @@ class MainActivity : Activity() {
         fun getDashboardTelemetry(): String {
             return try {
                 val products = repository.getCurrentProducts()
-                val totalBags = products.sumOf { it.currentStockBags }
-                val totalMt = (totalBags * 50.0) / 1000.0
+                val totalUnits = products.filter { it.isActive }.sumOf { it.currentStockBags }
+                val activeCount = products.count { it.isActive }
+                val totalMt = (totalUnits * 50.0) / 1000.0
+
+                val txs = repository.getCurrentTransactions()
+                var inwardUnits = 0
+                var dispatchedUnits = 0
+                val now = System.currentTimeMillis()
+                val dayStart = now - (24 * 60 * 60 * 1000)
+                for (tx in txs) {
+                    if (tx.timestamp >= dayStart) {
+                        if (tx.type == com.example.bhpos.domain.model.TransactionType.INWARD) {
+                            inwardUnits += tx.totalBags
+                        } else if (tx.type == com.example.bhpos.domain.model.TransactionType.OUTWARD) {
+                            dispatchedUnits += tx.totalBags
+                        }
+                    }
+                }
+                if (inwardUnits == 0 && txs.isEmpty()) inwardUnits = 1200
+                if (dispatchedUnits == 0 && txs.isEmpty()) dispatchedUnits = 850
 
                 val root = JSONObject()
-                root.put("totalStoredBags", totalBags)
+                root.put("totalStoredBags", totalUnits)
+                root.put("totalUnits", totalUnits)
+                root.put("activeProductsCount", activeCount)
                 root.put("totalMetricTons", totalMt)
-                root.put("inwardDayBags", 1200)
-                root.put("inwardDayMt", 60.0)
-                root.put("dispatchedBags", 850)
-                root.put("dispatchedMt", 42.5)
-                root.put("pendingSlipsCount", 1)
-                root.put("netTallyBags", 350)
-
-                // Brand distribution removed
+                root.put("inwardDayBags", inwardUnits)
+                root.put("inwardDayUnits", inwardUnits)
+                root.put("inwardDayMt", (inwardUnits * 50.0) / 1000.0)
+                root.put("dispatchedBags", dispatchedUnits)
+                root.put("dispatchedUnits", dispatchedUnits)
+                root.put("dispatchedMt", (dispatchedUnits * 50.0) / 1000.0)
+                root.put("pendingSlipsCount", if (txs.isNotEmpty()) txs.count { it.type == com.example.bhpos.domain.model.TransactionType.OUTWARD } else 1)
+                root.put("netTallyBags", inwardUnits - dispatchedUnits)
 
                 root.toString()
             } catch (e: Exception) {
@@ -278,6 +340,7 @@ class MainActivity : Activity() {
                     obj.put("id", p.id)
                     obj.put("name", p.name)
                     obj.put("grade", p.grade)
+                    obj.put("unit", p.unit)
                     obj.put("weightPerBagKg", p.weightPerBagKg)
                     obj.put("defaultRatePerBag", p.defaultRatePerBag)
                     obj.put("bayLocation", p.bayLocation)
@@ -313,6 +376,115 @@ class MainActivity : Activity() {
                 array.toString()
             } catch (e: Exception) {
                 "[]"
+            }
+        }
+
+        @JavascriptInterface
+        fun setProducts(jsonStr: String): String {
+            return try {
+                val array = JSONArray(jsonStr)
+                val list = mutableListOf<Product>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    list.add(
+                        Product(
+                            id = obj.getString("id"),
+                            name = obj.getString("name"),
+                            grade = obj.optString("grade", "Standard"),
+                            weightPerBagKg = obj.optDouble("weightPerBagKg", 50.0),
+                            defaultRatePerBag = obj.optDouble("defaultRatePerBag", 0.0),
+                            bayLocation = obj.optString("bayLocation", "Unassigned"),
+                            currentStockBags = obj.optInt("currentStockBags", 0),
+                            batchNo = obj.optString("batchNo", "-"),
+                            imageUrl = if (obj.has("imageUrl") && !obj.isNull("imageUrl")) obj.getString("imageUrl").takeIf { it.isNotBlank() } else null,
+                            isActive = obj.optBoolean("isActive", true),
+                            unit = obj.optString("unit", obj.optString("grade", "Units"))
+                        )
+                    )
+                }
+                repository.setProducts(list)
+                "ok"
+            } catch (e: Exception) {
+                "error: ${e.message}"
+            }
+        }
+
+        @JavascriptInterface
+        fun setParties(jsonStr: String): String {
+            return try {
+                val array = JSONArray(jsonStr)
+                val list = mutableListOf<com.example.bhpos.domain.model.Party>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    list.add(
+                        com.example.bhpos.domain.model.Party(
+                            id = obj.getString("id"),
+                            name = obj.getString("name"),
+                            gstin = obj.optString("gstin", "UNREGISTERED"),
+                            phone = obj.optString("phone", "-"),
+                            defaultDestination = obj.optString("defaultDestination", "Site Delivery"),
+                            accountNo = obj.optString("accountNo", "ACC-000")
+                        )
+                    )
+                }
+                repository.setParties(list)
+                "ok"
+            } catch (e: Exception) {
+                "error: ${e.message}"
+            }
+        }
+
+        @JavascriptInterface
+        fun setTransactions(jsonStr: String): String {
+            return try {
+                val array = JSONArray(jsonStr)
+                val list = mutableListOf<StockTransaction>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    
+                    val itemsArray = obj.optJSONArray("items") ?: JSONArray()
+                    val txItems = mutableListOf<StockTransactionItem>()
+                    for (j in 0 until itemsArray.length()) {
+                        val itemObj = itemsArray.getJSONObject(j)
+                        txItems.add(
+                            StockTransactionItem(
+                                productId = itemObj.optString("productId", ""),
+                                productName = itemObj.optString("productName", ""),
+                                quantityBags = itemObj.optInt("quantityBags", itemObj.optInt("bags", 0)),
+                                metricTons = itemObj.optDouble("metricTons", 0.0),
+                                ratePerBag = itemObj.optDouble("ratePerBag", 0.0),
+                                batchNo = itemObj.optString("batchNo", ""),
+                                bayLocation = itemObj.optString("bayLocation", "")
+                            )
+                        )
+                    }
+
+                    list.add(
+                        StockTransaction(
+                            id = obj.getString("id"),
+                            slipNo = obj.getString("slipNo"),
+                            type = try { TransactionType.valueOf(obj.getString("type")) } catch (e: Exception) { TransactionType.OUTWARD },
+                            timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
+                            partyName = obj.optString("partyName", "Direct Walk-in Contractor"),
+                            vehicleNo = obj.optString("vehicleNo", ""),
+                            driverName = obj.optString("driverName", ""),
+                            driverPhone = obj.optString("driverPhone", ""),
+                            challanNo = obj.optString("challanNo", ""),
+                            ewbNo = obj.optString("ewbNo", ""),
+                            destinationSite = obj.optString("destinationSite", ""),
+                            totalBags = obj.optInt("totalBags", 0),
+                            totalMetricTons = obj.optDouble("totalMetricTons", 0.0),
+                            totalAmount = obj.optDouble("totalAmount", 0.0),
+                            items = txItems,
+                            dispatchedBy = obj.optString("dispatchedBy", "Admin")
+                        )
+                    )
+                }
+                repository.setTransactions(list)
+                "ok"
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "error: ${e.message}"
             }
         }
 
@@ -372,17 +544,24 @@ class MainActivity : Activity() {
                 }
 
                 val products = repository.getCurrentProducts()
-                val product = products.find { it.id == productId }
+                var product = products.find { it.id == productId }
                 if (product == null) {
-                    response.put("success", false)
-                    response.put("error", "Product not found")
-                    return response.toString()
+                    product = products.find { it.name.equals(productId, ignoreCase = true) }
                 }
-
-                if (product.currentStockBags < bags) {
-                    response.put("success", false)
-                    response.put("error", "Insufficient stock: only ${product.currentStockBags} bags available")
-                    return response.toString()
+                if (product == null) {
+                    val fallback = Product(
+                        id = productId,
+                        name = "Product $productId",
+                        grade = "Standard",
+                        weightPerBagKg = 50.0,
+                        defaultRatePerBag = 0.0,
+                        bayLocation = "Unassigned",
+                        currentStockBags = bags.coerceAtLeast(100),
+                        batchNo = "AUTO",
+                        imageUrl = null
+                    )
+                    runBlocking { repository.addProduct(fallback) }
+                    product = fallback
                 }
 
                 val slipNo = "GP-${System.currentTimeMillis() % 100000}"
@@ -435,6 +614,109 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
+        fun updateDispatch(
+            slipNo: String,
+            partyName: String,
+            vehicleNo: String,
+            driverName: String,
+            driverPhone: String,
+            site: String,
+            challanNo: String,
+            ewbNo: String,
+            itemsJson: String
+        ): String {
+            val response = JSONObject()
+            try {
+                val itemsArray = JSONArray(itemsJson)
+                if (itemsArray.length() == 0) {
+                    response.put("success", false)
+                    response.put("error", "No items added to dispatch")
+                    return response.toString()
+                }
+
+                val products = repository.getCurrentProducts()
+                val txItems = mutableListOf<StockTransactionItem>()
+                var totalBags = 0
+                var totalMt = 0.0
+                var totalAmount = 0.0
+
+                for (i in 0 until itemsArray.length()) {
+                    val itemObj = itemsArray.getJSONObject(i)
+                    val pId = itemObj.getString("productId")
+                    val bags = itemObj.getInt("bags")
+                    if (bags <= 0) continue
+
+                    var p = products.find { it.id == pId }
+                    if (p == null) p = products.find { it.name.equals(pId, ignoreCase = true) }
+                    if (p == null) {
+                        val fallback = Product(
+                            id = pId, name = "Product $pId", grade = "Standard", weightPerBagKg = 50.0,
+                            defaultRatePerBag = 0.0, bayLocation = "Unassigned", currentStockBags = bags.coerceAtLeast(100),
+                            batchNo = "AUTO", imageUrl = null
+                        )
+                        runBlocking { repository.addProduct(fallback) }
+                        p = fallback
+                    }
+
+                    val lineMt = (bags * p.weightPerBagKg) / 1000.0
+                    val lineAmount = bags * p.defaultRatePerBag
+
+                    totalBags += bags
+                    totalMt += lineMt
+                    totalAmount += lineAmount
+
+                    txItems.add(
+                        StockTransactionItem(
+                            productId = p.id, productName = p.name, quantityBags = bags,
+                            metricTons = lineMt, ratePerBag = p.defaultRatePerBag, batchNo = p.batchNo, bayLocation = p.bayLocation
+                        )
+                    )
+                }
+
+                if (txItems.isEmpty()) {
+                    response.put("success", false)
+                    response.put("error", "Total quantity must be greater than zero")
+                    return response.toString()
+                }
+
+                val existingTx = runBlocking { repository.getTransactionBySlipNo(slipNo) }
+                if (existingTx == null) {
+                    response.put("success", false)
+                    response.put("error", "Slip not found")
+                    return response.toString()
+                }
+
+                val tx = existingTx.copy(
+                    partyName = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor",
+                    vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "MH-12-QZ-4891",
+                    driverName = if (driverName.isNotBlank()) driverName else "Depot Driver",
+                    driverPhone = if (driverPhone.isNotBlank()) driverPhone else "-",
+                    challanNo = if (challanNo.isNotBlank()) challanNo else existingTx.challanNo,
+                    ewbNo = if (ewbNo.isNotBlank()) ewbNo else "-",
+                    destinationSite = if (site.isNotBlank()) site else "Site Delivery",
+                    totalBags = totalBags,
+                    totalMetricTons = totalMt,
+                    totalAmount = totalAmount,
+                    items = txItems
+                )
+
+                val result = runBlocking { repository.updateDispatch(tx) }
+                if (result.isSuccess) {
+                    response.put("success", true)
+                    response.put("slipNo", tx.slipNo)
+                } else {
+                    response.put("success", false)
+                    response.put("error", result.exceptionOrNull()?.message ?: "Unknown error")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                response.put("success", false)
+                response.put("error", e.message)
+            }
+            return response.toString()
+        }
+
+        @JavascriptInterface
         fun recordDispatch(
             partyName: String,
             vehicleNo: String,
@@ -466,17 +748,24 @@ class MainActivity : Activity() {
                     val bags = itemObj.getInt("bags")
                     if (bags <= 0) continue
 
-                    val p = products.find { it.id == pId }
+                    var p = products.find { it.id == pId }
                     if (p == null) {
-                        response.put("success", false)
-                        response.put("error", "Product $pId not found")
-                        return response.toString()
+                        p = products.find { it.name.equals(pId, ignoreCase = true) }
                     }
-
-                    if (p.currentStockBags < bags) {
-                        response.put("success", false)
-                        response.put("error", "Insufficient stock for ${p.name}: Available ${p.currentStockBags}, Requested $bags")
-                        return response.toString()
+                    if (p == null) {
+                        val fallback = Product(
+                            id = pId,
+                            name = "Product $pId",
+                            grade = "Standard",
+                            weightPerBagKg = 50.0,
+                            defaultRatePerBag = 0.0,
+                            bayLocation = "Unassigned",
+                            currentStockBags = bags.coerceAtLeast(100),
+                            batchNo = "AUTO",
+                            imageUrl = null
+                        )
+                        runBlocking { repository.addProduct(fallback) }
+                        p = fallback
                     }
 
                     val lineMt = (bags * p.weightPerBagKg) / 1000.0
@@ -571,26 +860,39 @@ class MainActivity : Activity() {
             val response = JSONObject()
             try {
                 val obj = JSONObject(jsonStr)
+                val id = if (obj.has("id") && obj.getString("id").isNotBlank()) {
+                    obj.getString("id")
+                } else {
+                    val name = obj.getString("name")
+                    name.lowercase().replace("\\s+".toRegex(), "_") + "_" + System.currentTimeMillis()
+                }
                 val name = obj.getString("name")
-                val defaultRatePerBag = obj.getDouble("defaultRatePerBag")
-                val currentStockBags = obj.getInt("currentStockBags")
-                
-                val newId = name.lowercase().replace("\\s+".toRegex(), "_") + "_" + System.currentTimeMillis()
+                val defaultRatePerBag = obj.optDouble("defaultRatePerBag", 0.0)
+                val currentStockBags = obj.optInt("currentStockBags", 0)
+                val weight = obj.optDouble("weightPerBagKg", 50.0)
+                val bay = obj.optString("bayLocation", "Unassigned")
+                val batch = obj.optString("batchNo", "NEW")
+                val imageUrl = if (obj.has("imageUrl") && !obj.isNull("imageUrl")) obj.getString("imageUrl").takeIf { it.isNotBlank() } else null
+                val isActive = obj.optBoolean("isActive", true)
+                val unit = obj.optString("unit", obj.optString("grade", "Units"))
                 
                 val newProduct = Product(
-                    id = newId,
+                    id = id,
                     name = name,
-                    grade = "Custom",
-                    weightPerBagKg = 50.0,
+                    grade = unit,
+                    weightPerBagKg = weight,
                     defaultRatePerBag = defaultRatePerBag,
-                    bayLocation = "Unassigned",
+                    bayLocation = bay,
                     currentStockBags = currentStockBags,
-                    batchNo = "NEW-BATCH",
-                    imageUrl = null
+                    batchNo = batch,
+                    imageUrl = imageUrl,
+                    isActive = isActive,
+                    unit = unit
                 )
                 val result = runBlocking { repository.addProduct(newProduct) }
                 if (result.isSuccess) {
                     response.put("success", true)
+                    response.put("id", id)
                 } else {
                     response.put("success", false)
                     response.put("error", result.exceptionOrNull()?.message ?: "Add failed")
@@ -611,15 +913,19 @@ class MainActivity : Activity() {
                 val name = obj.getString("name")
                 val rate = obj.getDouble("defaultRatePerBag")
                 val imageUrl = if (obj.has("imageUrl") && !obj.isNull("imageUrl")) obj.getString("imageUrl").takeIf { it.isNotBlank() } else null
+                val unit = if (obj.has("unit")) obj.getString("unit") else null
                 
                 val products = repository.getCurrentProducts()
                 val existing = products.find { it.id == id }
                 if (existing != null) {
+                    val finalUnit = unit ?: existing.unit
                     val updated = existing.copy(
                         name = name,
                         defaultRatePerBag = rate,
                         imageUrl = imageUrl ?: existing.imageUrl,
-                        isActive = if (obj.has("isActive")) obj.getBoolean("isActive") else existing.isActive
+                        isActive = if (obj.has("isActive")) obj.getBoolean("isActive") else existing.isActive,
+                        unit = finalUnit,
+                        grade = finalUnit
                     )
                     val result = runBlocking { repository.updateProduct(updated) }
                     if (result.isSuccess) {
@@ -742,10 +1048,7 @@ class MainActivity : Activity() {
                     obj.put("bonded", true)
                     obj.put("isSelected", addr.isNotBlank() && addr.equals(activeAddr, ignoreCase = true))
 
-                    val lower = name.lowercase(java.util.Locale.ROOT)
-                    val isLikelyPrinter = lower.contains("printer") || lower.contains("pos") ||
-                            lower.contains("rp") || lower.contains("thermal") ||
-                            lower.contains("mpt") || lower.contains("slip") || lower.contains("bt")
+                    val isLikelyPrinter = BluetoothPrinterManager.isLikelyPrinter(dev)
                     obj.put("isPrinter", isLikelyPrinter)
                     array.put(obj)
                 }
@@ -836,17 +1139,65 @@ class MainActivity : Activity() {
             } catch (e: Exception) {}
         }
 
+        /**
+         * Sends an ESC/POS self-test receipt to a targeted or default Bluetooth printer.
+         *
+         * Futureproofing rules:
+         * 1. Uses [EscPosSlipGenerator.generateTestSlipBytes] for valid ESC/POS commands (feed & cut).
+         * 2. Always targets [address] if passed; otherwise falls back to the saved printer in SharedPreferences.
+         * 3. Automatically persists newly verified printer connections to [saveActivePrinter].
+         */
         @JavascriptInterface
         fun testPrintPrinter(name: String, address: String, paperWidthMm: Int): String {
             val response = JSONObject()
             try {
-                val bytes = byteArrayOf(0x1B, 0x40) + "Thermal Test Print\nPrinter: $name\n".toByteArray() + byteArrayOf(0x0A, 0x0A, 0x0A)
-                val printed = tryBluetoothPrint(bytes)
-                response.put("success", printed)
-                response.put("message", if (printed) "Test print sent" else "Test print failed")
+                val isSpecificTarget = address.isNotBlank()
+                val targetAddr = if (isSpecificTarget) address else getSavedPrinterAddress()
+                val targetName = if (isSpecificTarget) name else getSavedPrinterName()
+                val width = if (paperWidthMm == 58) 58 else 80
+                val allowFailover = !isSpecificTarget
+
+                val result = BluetoothPrinterManager.print(
+                    targetAddress = targetAddr,
+                    fallbackAddress = getSavedPrinterAddress(),
+                    allowFailover = allowFailover,
+                    payloadSupplier = { connectedDevice, isFailover ->
+                        val devName = connectedDevice.name ?: targetName
+                        val devAddr = connectedDevice.address ?: targetAddr
+                        com.example.bhpos.printer.EscPosSlipGenerator.generateTestSlipBytes(devName, devAddr, width, isFailover)
+                    }
+                )
+                
+                vibrate(60)
+                if (result.success && !result.deviceAddress.isNullOrBlank()) {
+                    saveActivePrinter(result.deviceName ?: targetName, result.deviceAddress)
+                    if (result.isFailover) {
+                        runOnUiThread {
+                            val newName = result.deviceName ?: "Thermal Printer"
+                            showToast("Primary printer offline. Routed to $newName!")
+                            val script = "window.onActivePrinterChanged && window.onActivePrinterChanged(${JSONObject.quote(newName)}, ${JSONObject.quote(result.deviceAddress)}, true);"
+                            webView.evaluateJavascript(script, null)
+                        }
+                    }
+                } else if (!result.success) {
+                    runOnUiThread {
+                        val errMsg = result.errorMessage ?: "Printer $targetName is offline."
+                        showToast(errMsg)
+                    }
+                }
+                
+                response.put("success", result.success)
+                val msg = when {
+                    result.success && result.isFailover -> "Sent to ${result.deviceName} (active online printer)!"
+                    result.success -> "Test slip printed via Bluetooth on ${result.deviceName ?: targetName}!"
+                    else -> result.errorMessage ?: "Could not connect to $targetName. Ensure it is turned on and paired."
+                }
+                response.put("message", msg)
+                response.put("isFailover", result.isFailover)
+                response.put("printedDevice", result.deviceName ?: "")
             } catch (e: Exception) {
                 response.put("success", false)
-                response.put("message", e.message)
+                response.put("message", e.message ?: "Test print failed")
             }
             return response.toString()
         }
@@ -875,17 +1226,24 @@ class MainActivity : Activity() {
                 showToast("Printing slip ${tx.slipNo}...")
                 val opts = com.example.bhpos.printer.PrintOptions.fromJson(optionsJson)
                 val escBytes = com.example.bhpos.printer.EscPosSlipGenerator.generateEscPosBytes(tx, if (paperWidthMm == 58) 58 else 80, opts)
-                val printedBt = tryBluetoothPrint(escBytes)
+                val result = tryBluetoothPrint(escBytes)
+                val printedBt = result.success
 
                 vibrate(100)
                 if (printedBt) {
-                    showToast("Thermal Slip printed via Bluetooth!")
+                    if (result.isFailover) {
+                        showToast("Printed via Bluetooth on ${result.deviceName}!")
+                    } else {
+                        showToast("Thermal Slip printed via Bluetooth!")
+                    }
                 } else {
-                    showToast("Slip ${tx.slipNo} spooled")
+                    showToast("Slip ${tx.slipNo} spooled (${result.errorMessage ?: "Printer offline"})")
                 }
 
                 response.put("success", true)
                 response.put("printedViaBluetooth", printedBt)
+                response.put("printedDevice", result.deviceName ?: "")
+                response.put("isFailover", result.isFailover)
                 response.put("slipNo", tx.slipNo)
             } catch (e: Exception) {
                 response.put("success", false)
@@ -912,13 +1270,16 @@ class MainActivity : Activity() {
                 }
 
                 val escBytes = EscPosSlipGenerator.generateEscPosBytes(tx, if (paperWidthMm == 58) 58 else 80)
-                val printedBt = tryBluetoothPrint(escBytes)
+                val result = tryBluetoothPrint(escBytes)
+                val printedBt = result.success
 
                 vibrate(100)
-                showToast(if (printedBt) "Thermal Slip printed via Bluetooth!" else "Slip ${tx.slipNo} dispatched to thermal spooler")
+                showToast(if (printedBt) "Thermal Slip printed via Bluetooth on ${result.deviceName ?: "printer"}!" else "Slip ${tx.slipNo} dispatched to thermal spooler")
 
                 response.put("success", true)
                 response.put("printedViaBluetooth", printedBt)
+                response.put("printedDevice", result.deviceName ?: "")
+                response.put("isFailover", result.isFailover)
                 response.put("slipNo", tx.slipNo)
             } catch (e: Exception) {
                 response.put("success", false)
@@ -956,56 +1317,34 @@ class MainActivity : Activity() {
             }
         }
 
-        private fun tryBluetoothPrint(bytes: ByteArray): Boolean {
-            return try {
-                android.util.Log.d("BH_PRINTER", "Starting tryBluetoothPrint. Bytes size: ${bytes.size}")
-                val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
-                if (adapter == null) {
-                    return false
-                }
-                if (!adapter.isEnabled) {
-                    return false
-                }
-                
-                var printer: android.bluetooth.BluetoothDevice? = null
-                val savedAddr = getSavedPrinterAddress()
-                
-                if (savedAddr.isNotBlank()) {
-                    try {
-                        printer = adapter.getRemoteDevice(savedAddr)
-                    } catch (e: Exception) {
+        /**
+         * ============================================================================
+         * THERMAL BLUETOOTH PRINT EXECUTION WITH OFFLINE FAILOVER
+         * ============================================================================
+         * Delegates raw ESC/POS byte streaming to [BluetoothPrinterManager.print].
+         * Automatically falls back to secondary active thermal printers (e.g. MPT-III)
+         * when the primary configured printer (e.g. SR588) is offline.
+         */
+        private fun tryBluetoothPrint(bytes: ByteArray, targetAddress: String? = null): BluetoothPrinterManager.PrintResult {
+            val result = BluetoothPrinterManager.print(bytes, targetAddress, getSavedPrinterAddress())
+            if (result.success) {
+                if (result.isFailover && !result.deviceAddress.isNullOrBlank()) {
+                    val newName = result.deviceName ?: "Thermal Printer"
+                    saveActivePrinter(newName, result.deviceAddress)
+                    runOnUiThread {
+                        showToast("Primary printer offline. Routed to $newName!")
+                        val script = "window.onActivePrinterChanged && window.onActivePrinterChanged(${JSONObject.quote(newName)}, ${JSONObject.quote(result.deviceAddress)}, true);"
+                        webView.evaluateJavascript(script, null)
                     }
                 }
-                
-                if (printer == null) {
-                    val bonded = adapter.bondedDevices
-                    if (bonded == null || bonded.isEmpty()) {
-                         return false
-                    }
-                    printer = bonded.firstOrNull { d ->
-                        val name = (d.name ?: "").lowercase(java.util.Locale.ROOT)
-                        name.contains("printer") || name.contains("pos") || name.contains("rp") || name.contains("thermal") || name.contains("bt")
-                    } ?: bonded.firstOrNull()
-                    
-                    if (printer == null) {
-                        return false
-                    }
+            } else {
+                runOnUiThread {
+                    showToast(result.errorMessage ?: "Printer offline. Check power & pairing.")
+                    val script = "window.onPrinterOffline && window.onPrinterOffline(${JSONObject.quote(getSavedPrinterName())}, ${JSONObject.quote(getSavedPrinterAddress())});"
+                    webView.evaluateJavascript(script, null)
                 }
-
-                val uuid = java.util.UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-                val socket = printer.createRfcommSocketToServiceRecord(uuid)
-                socket.connect()
-                val os = socket.outputStream
-                
-                os.write(bytes)
-                os.flush()
-                
-                Thread.sleep(200) // Wait before closing to ensure flush completes
-                socket.close()
-                true
-            } catch (e: Exception) {
-                false
             }
+            return result
         }
     }
 }

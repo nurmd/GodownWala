@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-echo "=== Building & Packaging CementTrack APK ==="
+echo "=== Building & Packaging GodownTrack POS APK ==="
 cd /data/data/com.termux/files/home/bhpos
 
 ANDROID_JAR="/data/data/com.termux/files/home/android-sdk/platforms/android-26/android.jar"
@@ -31,6 +31,7 @@ kotlinc -cp "$ANDROID_JAR:test-libs/coroutines.jar" \
   app/src/main/java/com/example/bhpos/domain/model/Models.kt \
   app/src/main/java/com/example/bhpos/data/repository/CementStockRepository.kt \
   app/src/main/java/com/example/bhpos/data/repository/CementStockRepositoryImpl.kt \
+  app/src/main/java/com/example/bhpos/printer/BluetoothPrinterManager.kt \
   app/src/main/java/com/example/bhpos/printer/EscPosSlipGenerator.kt \
   app/src/main/java/com/example/bhpos/MainActivity.kt \
   -d build/app-classes

@@ -9,14 +9,15 @@ enum class TransactionType {
 data class Product(
     val id: String,
     val name: String,
-    val grade: String, // e.g. PPC, OPC 53G, White
+    val grade: String = "Standard", // e.g. PPC, OPC 53G, or unit metadata
     val weightPerBagKg: Double = 50.0,
     val defaultRatePerBag: Double,
-    val bayLocation: String, // e.g. Bay A1-A4
+    val bayLocation: String = "Unassigned", // e.g. Bay A1-A4
     val currentStockBags: Int,
     val batchNo: String = "UT-24-OCT-03",
     val imageUrl: String? = null,
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
+    val unit: String = "Units"
 ) {
     val stockMetricTons: Double
         get() = (currentStockBags * weightPerBagKg) / 1000.0
@@ -68,5 +69,10 @@ data class DashboardTelemetry(
     val dispatchedBags: Int,
     val dispatchedMt: Double,
     val pendingSlipsCount: Int,
-    val netTallyBags: Int
+    val netTallyBags: Int,
+    val totalUnits: Int = totalStoredBags,
+    val activeProductsCount: Int = 0,
+    val inwardDayUnits: Int = inwardDayBags,
+    val dispatchedUnits: Int = dispatchedBags,
+    val brandDistribution: List<Any> = emptyList()
 )

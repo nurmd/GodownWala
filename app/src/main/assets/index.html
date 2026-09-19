@@ -120,7 +120,7 @@
       <div class="space-y-4">
         <div>
           <label class="block font-bold text-on-surface-variant mb-2">Business Name</label>
-          <input type="text" id="businessNameInput" class="w-full bg-surface-container border border-surface-container-high rounded-xl p-3 text-on-surface font-bold" placeholder="e.g. Super Cement">
+          <input type="text" id="businessNameInput" class="w-full bg-surface-container border border-surface-container-high rounded-xl p-3 text-on-surface font-bold" placeholder="e.g. Central Depot">
         </div>
         <div>
           <label class="block font-bold text-on-surface-variant mb-2">Business Password</label>
@@ -264,40 +264,40 @@
         </button>
       </div>
 
-      <!-- Realtime Godown Metrics Dashboard -->
+      <!-- Realtime Inventory Metrics Dashboard -->
       <div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm border border-surface-container-high space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-[11px] text-on-surface-variant uppercase font-bold tracking-wider">Total Stored Bags</span>
+            <span class="text-[11px] text-on-surface-variant uppercase font-bold tracking-wider">Total Inventory Stock</span>
             <div class="flex items-baseline gap-1.5 mt-0.5">
-              <span class="text-[32px] font-extrabold text-on-surface leading-none" id="metricTotalBags">16,650</span>
-              <span class="text-[14px] text-on-surface-variant font-semibold">Bags</span>
+              <span class="text-[32px] font-extrabold text-on-surface leading-none" id="metricTotalBags">0</span>
+              <span class="text-[13px] text-on-surface-variant font-semibold" id="metricStockUnitLabel">Units</span>
             </div>
           </div>
           <div class="text-right">
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-bold">
               <span class="material-symbols-outlined text-[13px]">trending_up</span> Live
             </span>
-            <p class="font-mono text-[12px] text-on-surface-variant mt-1" id="metricNetMt">Net: 832.50 MT</p>
+            <p class="font-medium text-[12px] text-on-surface-variant mt-1" id="metricNetMt">Catalog Active</p>
           </div>
         </div>
 
-        <!-- Bento Grid: Inward, Dispatched, Pending -->
+        <!-- Bento Grid: Inward, Dispatched, Slips -->
         <div class="grid grid-cols-3 gap-2 pt-1 border-t border-surface-container">
           <div class="bg-surface-container-low rounded-lg p-2 flex flex-col">
             <span class="text-[10px] font-bold uppercase text-on-surface-variant">Inward (Day)</span>
-            <span class="text-[18px] font-bold text-tertiary mt-0.5" id="metricInwardBags">1,200</span>
-            <span class="text-[10px] text-on-surface-variant">60.0 MT</span>
+            <span class="text-[18px] font-bold text-tertiary mt-0.5" id="metricInwardBags">0</span>
+            <span class="text-[10px] text-on-surface-variant">Received</span>
           </div>
           <div class="bg-surface-container-low rounded-lg p-2 flex flex-col">
             <span class="text-[10px] font-bold uppercase text-on-surface-variant">Dispatched</span>
-            <span class="text-[18px] font-bold text-primary mt-0.5" id="metricDispatchedBags">850</span>
-            <span class="text-[10px] text-on-surface-variant">42.5 MT</span>
+            <span class="text-[18px] font-bold text-primary mt-0.5" id="metricDispatchedBags">0</span>
+            <span class="text-[10px] text-on-surface-variant">Fulfilled</span>
           </div>
           <div class="bg-surface-container-low rounded-lg p-2 flex flex-col">
-            <span class="text-[10px] font-bold uppercase text-on-surface-variant">Pending</span>
-            <span class="text-[18px] font-bold text-error mt-0.5" id="metricPendingSlips">1</span>
-            <span class="text-[10px] text-on-surface-variant">Queueing</span>
+            <span class="text-[10px] font-bold uppercase text-on-surface-variant">Total Slips</span>
+            <span class="text-[18px] font-bold text-on-surface mt-0.5" id="metricPendingSlips">0</span>
+            <span class="text-[10px] text-on-surface-variant">Issued</span>
           </div>
         </div>
       </div>
@@ -330,19 +330,7 @@
 
     <!-- ==================== TAB 2: POS TERMINAL (QUICK DISPATCH) ==================== -->
     <section id="tab-pos" class="tab-page hidden px-4 py-3 space-y-3">
-
-      <!-- Party / Consignee Selector -->
-      <div class="bg-surface-container-lowest rounded-xl p-2.5 border border-surface-container-high shadow-sm flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 min-w-0 flex-1">
-          <span class="material-symbols-outlined text-[20px] text-primary shrink-0">badge</span>
-          <div class="flex flex-col min-w-0 w-full">
-            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Customer / Consignee:</span>
-            <select id="posPartySelect" onchange="handlePartyChange(this)" class="text-[13px] font-bold text-on-surface bg-transparent border-0 p-0 focus:ring-0 cursor-pointer w-full truncate"></select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cement Products Grid -->
+      <!-- Products Grid -->
       <div class="grid grid-cols-2 gap-2.5" id="posProductsGrid"></div>
     </section>
 
@@ -397,12 +385,38 @@
             </div>
           </div>
 
-          <!-- Cement Product Item & Quantity -->
-          <div class="pt-2 border-t border-surface-container">
-            <label class="block font-bold text-on-surface-variant mb-1">Select Cement Product & Bags</label>
-            <div class="grid grid-cols-[1fr_90px] gap-2">
-              <select id="dispatchProductSelect" class="bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"></select>
-              <input type="number" id="dispatchBagsInput" value="200" min="1" class="bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold text-center"/>
+          <!-- Product Items & Quantities -->
+          <div class="pt-2 border-t border-surface-container space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block font-bold text-on-surface-variant text-[12px]">Dispatch Items & Quantities</label>
+              <span class="text-[11px] font-bold text-primary" id="dispatchItemCountBadge">0 items</span>
+            </div>
+
+            <!-- List of items selected from POS or added directly -->
+            <div id="dispatchItemsList" class="space-y-1.5 min-h-[50px]"></div>
+
+            <!-- Quick Add Product selector -->
+            <div class="bg-surface-container-low/70 border border-surface-container-high rounded-xl p-2 flex items-center gap-2">
+              <div class="flex-1 min-w-0">
+                <select id="dispatchAddProductSelect" class="w-full bg-surface-container-lowest border border-surface-container-high rounded-lg px-2 py-1.5 text-[11px] text-on-surface font-semibold focus:ring-0">
+                </select>
+              </div>
+              <button type="button" onclick="addDispatchItemFromSelect()" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary font-bold text-[11px] uppercase shrink-0 active:scale-95 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[15px]">add</span>
+                <span>Add Item</span>
+              </button>
+            </div>
+
+            <!-- Dispatch Totals Summary -->
+            <div class="bg-surface-container-low rounded-xl p-2.5 border border-surface-container-high flex items-center justify-between">
+              <div>
+                <div class="text-[10px] uppercase font-bold text-on-surface-variant">Total Quantity</div>
+                <div class="text-[15px] font-black text-on-surface"><span id="dispatchTotalUnits">0</span> <span class="text-[10px] font-medium text-on-surface-variant">Units</span></div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] uppercase font-bold text-on-surface-variant">Estimated Total</div>
+                <div class="text-[15px] font-black text-primary">₹<span id="dispatchTotalAmount">0</span></div>
+              </div>
             </div>
           </div>
 
@@ -514,9 +528,14 @@
     <!-- ==================== TAB 5: STOCK LEDGER ==================== -->
     <section id="tab-ledger" class="tab-page hidden px-4 py-3 space-y-3">
       <!-- Search & Filters -->
-      <div class="bg-surface-container-lowest rounded-xl p-2.5 border border-surface-container-high shadow-sm flex items-center gap-2">
-        <span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
-        <input type="text" id="ledgerSearchInput" oninput="renderLedger()" placeholder="Search Slip #, Party, or Truck..." class="w-full bg-transparent border-0 text-[13px] font-semibold text-on-surface focus:ring-0 p-0"/>
+      <div class="flex gap-2">
+        <div class="flex-1 bg-surface-container-lowest rounded-xl p-2.5 border border-surface-container-high shadow-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+          <input type="text" id="ledgerSearchInput" oninput="renderLedger()" placeholder="Search Slip #, Party, or Truck..." class="w-full bg-transparent border-0 text-[13px] font-semibold text-on-surface focus:ring-0 p-0"/>
+        </div>
+        <button onclick="forceCloudSync()" class="bg-primary text-on-primary rounded-xl px-4 flex items-center justify-center shadow-sm active:scale-95 transition-transform" title="Manual Sync">
+          <span class="material-symbols-outlined text-[20px]">sync</span>
+        </button>
       </div>
 
       <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
@@ -545,22 +564,50 @@
         </div>
         <div>
           <div class="text-[13px] font-bold text-white leading-tight">
-            <span id="posCartTotalBags">0</span> Bags (<span id="posCartTotalMt">0.00</span> MT)
+            <span id="posCartTotalBags">0</span> Total Items in Cart
           </div>
           <div class="text-[11px] text-primary-fixed-dim font-bold">
             Total: ₹<span id="posCartTotalAmount">0</span>
           </div>
         </div>
       </div>
-      <button onclick="checkoutPosCart()" class="h-9 px-4 rounded-lg bg-primary-container text-on-primary font-bold text-[12px] uppercase tracking-wider active:scale-95 shadow-md flex items-center gap-1">
-        <span>Gate Pass</span>
+      <button onclick="forwardPosToDispatch()" class="h-9 px-4 rounded-lg bg-primary-container text-on-primary font-bold text-[12px] uppercase tracking-wider active:scale-95 shadow-md flex items-center gap-1.5">
+        <span>Proceed to Dispatch</span>
         <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
       </button>
     </div>
   </div>
 
+  <!-- Slip Preview Modal Dialog -->
+  <div id="slipPreviewModal" onclick="if(event.target===this) closeSlipPreviewModal()" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface text-on-surface w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
+      <!-- Header -->
+      <div class="bg-surface-container-low px-4 py-3 flex items-center justify-between border-b border-surface-container-high shrink-0">
+        <h2 class="text-[16px] font-bold text-on-surface" id="slipPreviewHeader">Slip Preview</h2>
+        <div class="flex items-center gap-2">
+          <button id="slipPreviewEditBtn" class="px-3 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+          </button>
+          <button onclick="closeSlipPreviewModal()" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90 transition-all cursor-pointer z-50">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+      </div>
+      <!-- Body (Thermal Preview) -->
+      <div class="p-4 overflow-y-auto bg-[#F5F5F5] text-black flex-1" id="slipPreviewContent">
+        <!-- Preview will be injected here -->
+      </div>
+      <!-- Footer Actions -->
+      <div class="p-3 bg-surface-container-lowest border-t border-surface-container-high shrink-0 flex gap-2">
+        <button id="slipPreviewPrintBtn" class="flex-1 bg-primary text-on-primary py-2.5 rounded-xl font-bold text-[13px] uppercase flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-[18px]">print</span> Print Slip
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Edit Item Modal Dialog -->
-  <div id="editItemModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div id="editItemModal" onclick="if(event.target===this) closeEditItemModal()" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
     <div class="w-full max-w-md max-h-full overflow-y-auto bg-surface rounded-2xl p-4 space-y-3 shadow-2xl border border-surface-container-high animate-in fade-in zoom-in-95">
       <div class="flex items-center justify-between border-b border-surface-container pb-2">
         <div class="flex items-center gap-2 text-primary">
@@ -580,13 +627,26 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-bold text-on-surface-variant mb-1">Rate / Bag (₹)</label>
+            <label class="block font-bold text-on-surface-variant mb-1">Rate / Unit (₹)</label>
             <input type="number" id="editItemRate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold"/>
           </div>
           <div>
-            <label class="block font-bold text-on-surface-variant mb-1">Image URL</label>
-            <input type="text" id="editItemImage" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" placeholder="https://..."/>
+            <label class="block font-bold text-on-surface-variant mb-1">Product Unit</label>
+            <select id="editItemUnit" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold">
+              <option value="Units">Units (Pcs)</option>
+              <option value="Bags">Bags</option>
+              <option value="Boxes">Boxes (Cartons)</option>
+              <option value="Kg">Kg (Kilograms)</option>
+              <option value="Tons">Tons (MT)</option>
+              <option value="Liters">Liters (L)</option>
+              <option value="Packets">Packets</option>
+              <option value="Bundles">Bundles / Rolls</option>
+            </select>
           </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Image URL</label>
+          <input type="text" id="editItemImage" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" placeholder="https://..."/>
         </div>
         <div class="grid grid-cols-2 gap-2 mt-2">
           <button onclick="saveEditItem()" class="bg-primary text-on-primary py-2.5 rounded-xl font-extrabold shadow uppercase tracking-wider text-[13px] active:scale-95 transition-transform flex items-center justify-center gap-1">
@@ -603,12 +663,12 @@
   </div>
 
   <!-- Add New Item Modal Dialog -->
-  <div id="addItemModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div id="addItemModal" onclick="if(event.target===this) closeAddItemModal()" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
     <div class="w-full max-w-md max-h-full overflow-y-auto bg-surface rounded-2xl p-4 space-y-3 shadow-2xl border border-surface-container-high animate-in fade-in zoom-in-95">
       <div class="flex items-center justify-between border-b border-surface-container pb-2">
         <div class="flex items-center gap-2 text-primary">
           <span class="material-symbols-outlined">add_box</span>
-          <h3 class="text-[15px] font-bold uppercase">Add New Cement Product</h3>
+          <h3 class="text-[15px] font-bold uppercase">Add New Product</h3>
         </div>
         <button onclick="closeAddItemModal()" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center">
           <span class="material-symbols-outlined text-[18px]">close</span>
@@ -617,20 +677,33 @@
       <div class="space-y-2.5 text-[12px]">
         <div>
           <label class="block font-bold text-on-surface-variant mb-1">Product Name</label>
-          <input type="text" id="addItemName" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold" placeholder="e.g. UltraTech Weather Plus"/>
+          <input type="text" id="addItemName" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold" placeholder="e.g. Item / Product Name"/>
         </div>
 
 
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-bold text-on-surface-variant mb-1">Rate / Bag (₹)</label>
-            <input type="number" id="addItemRate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold"/>
+            <label class="block font-bold text-on-surface-variant mb-1">Rate / Unit (₹)</label>
+            <input type="number" id="addItemRate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" placeholder="0.00"/>
           </div>
           <div>
-            <label class="block font-bold text-on-surface-variant mb-1">Initial Stock Bags</label>
-            <input type="number" id="addItemStock" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" value="0"/>
+            <label class="block font-bold text-on-surface-variant mb-1">Product Unit</label>
+            <select id="addItemUnit" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold">
+              <option value="Units">Units (Pcs)</option>
+              <option value="Bags">Bags</option>
+              <option value="Boxes">Boxes (Cartons)</option>
+              <option value="Kg">Kg (Kilograms)</option>
+              <option value="Tons">Tons (MT)</option>
+              <option value="Liters">Liters (L)</option>
+              <option value="Packets">Packets</option>
+              <option value="Bundles">Bundles / Rolls</option>
+            </select>
           </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Initial Stock (Qty)</label>
+          <input type="number" id="addItemStock" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" value="0"/>
         </div>
         <button onclick="saveNewItem()" class="w-full mt-2 bg-primary text-on-primary py-2.5 rounded-full font-extrabold shadow uppercase tracking-wider text-[13px] active:scale-95 transition-transform flex items-center justify-center gap-1">
           <span class="material-symbols-outlined text-[16px]">add</span>
@@ -641,7 +714,7 @@
   </div>
 
   <!-- Stock-In Inward Modal Dialog -->
-  <div id="stockInModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div id="stockInModal" onclick="if(event.target===this) closeStockInModal()" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
     <div class="w-full max-w-md max-h-full overflow-y-auto bg-surface rounded-2xl p-4 space-y-3 shadow-2xl border border-surface-container-high animate-in fade-in zoom-in-95">
       <div class="flex items-center justify-between border-b border-surface-container pb-2">
         <div class="flex items-center gap-2 text-tertiary">
@@ -655,13 +728,13 @@
 
       <div class="space-y-2.5 text-[12px]">
         <div>
-          <label class="block font-bold text-on-surface-variant mb-1">Cement Product</label>
+          <label class="block font-bold text-on-surface-variant mb-1">Product</label>
           <select id="stockInProductSelect" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"></select>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-bold text-on-surface-variant mb-1">Bags Count (+)</label>
-            <input type="number" id="stockInBags" value="500" min="1" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold"/>
+            <label class="block font-bold text-on-surface-variant mb-1">Quantity (+)</label>
+            <input type="number" id="stockInBags" value="100" min="1" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold"/>
           </div>
           <div>
             <label class="block font-bold text-on-surface-variant mb-1">Bay Location</label>
@@ -1010,1604 +1083,13 @@
     </div>
   </nav>
 
-  <!-- Application Logic & Bridge Integration -->
-  <script>
-    let activeTab = 'dashboard';
-    const SUPABASE_URL = "https://sklzrmubjeotbanagsag.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_3a2PFNZrt1MKWWwl00Yz_Q_jMH-RXyG";
 
-    let currentBusiness = null;
-    let currentUser = null;
-    let currentPin = '';
-    let staffMembers = [];
-
-    async function sFetch(path, options = {}) {
-      const headers = {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-      };
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...options, headers });
-      return res.json();
-    }
-
-    async function checkAuthOnStartup() {
-      if (!bridge()) return;
-      
-      const savedUserStr = bridge().getCurrentUser(); // We'll hijack this to store { business: {}, user: {} }
-      if (savedUserStr) {
-        try {
-          const authData = JSON.parse(savedUserStr);
-          if (authData.business && authData.user) {
-            currentBusiness = authData.business;
-            currentUser = authData.user;
-            document.getElementById('authOverlay').classList.add('hidden');
-            refreshData(); // normal startup
-            return;
-          }
-        } catch(e){}
-      }
-
-      // Show setup/login
-      document.getElementById('authOverlay').classList.remove('hidden');
-      showSetupScreen();
-    }
-
-    function showSetupScreen() {
-      document.getElementById('setupScreen').classList.remove('hidden');
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('setupError').classList.add('hidden');
-    }
-
-    async function handleSetupSubmit() {
-      const bName = document.getElementById('businessNameInput').value.trim();
-      const bPass = document.getElementById('businessPasswordInput').value.trim();
-      
-      if (!bName || !bPass) {
-        document.getElementById('setupError').textContent = "Both Name and Password are required";
-        document.getElementById('setupError').classList.remove('hidden');
-        return;
-      }
-      
-      const btn = document.getElementById('setupBtn');
-      btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Connecting...';
-      btn.disabled = true;
-      document.getElementById('setupError').classList.add('hidden');
-
-      try {
-        let businesses = await sFetch(`businesses?name=eq.${encodeURIComponent(bName)}&select=*`);
-        
-        if (businesses.length > 0) {
-          const b = businesses[0];
-          if (b.password !== bPass) {
-            document.getElementById('setupError').textContent = "Incorrect Business Password.";
-            document.getElementById('setupError').classList.remove('hidden');
-            return;
-          }
-          currentBusiness = b;
-        } else {
-          // Create new
-          const res = await sFetch(`businesses`, {
-            method: 'POST',
-            headers: { 'Prefer': 'return=representation' },
-            body: JSON.stringify({ name: bName, password: bPass })
-          });
-          currentBusiness = res[0];
-        }
-        
-        await fetchStaff();
-        showLoginScreen();
-      } catch (err) {
-        document.getElementById('setupError').textContent = "Connection failed. Try again.";
-        document.getElementById('setupError').classList.remove('hidden');
-      } finally {
-        btn.innerHTML = '<span class="material-symbols-outlined">login</span> Connect';
-        btn.disabled = false;
-      }
-    }
-    
-    async function fetchStaff() {
-      staffMembers = await sFetch(`staff?business_id=eq.${currentBusiness.id}&select=*`);
-    }
-
-    function showLoginScreen() {
-      document.getElementById('setupScreen').classList.add('hidden');
-      document.getElementById('loginScreen').classList.remove('hidden');
-      populateUserDropdown();
-    }
-
-    function populateUserDropdown() {
-      const select = document.getElementById('loginUserSelect');
-      select.innerHTML = '<option value="">Select your name...</option>';
-      select.innerHTML += '<option value="CREATE_NEW">+ Add New Staff</option>';
-      staffMembers.forEach(u => {
-        const opt = document.createElement('option');
-        opt.value = u.id;
-        opt.textContent = u.name;
-        select.appendChild(opt);
-      });
-      select.onchange = (e) => {
-        if (e.target.value === 'CREATE_NEW') {
-          const name = prompt("Enter new staff name:");
-          const pin = prompt("Create a 4-digit PIN for " + name + ":");
-          if (name && pin && pin.length === 4) {
-            createNewStaff(name, pin);
-          } else {
-            select.value = '';
-          }
-        }
-      };
-    }
-
-    async function createNewStaff(name, pin) {
-      document.getElementById('loginError').textContent = 'Creating...';
-      try {
-        await sFetch(`staff`, {
-          method: 'POST',
-          headers: { 'Prefer': 'return=representation' },
-          body: JSON.stringify({ business_id: currentBusiness.id, name, pin, role: 'staff' })
-        });
-        await fetchStaff();
-        populateUserDropdown();
-        document.getElementById('loginError').textContent = '';
-      } catch(e) {
-        document.getElementById('loginError').textContent = 'Failed to create staff';
-      }
-    }
-
-    async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, driverPhone, challanNo, ewbNo, destinationSite, items, totals) {
-      if(!currentBusiness) return;
-      const id = 'tx_' + Date.now();
-      const ts = Date.now();
-      const dateStr = new Date().toLocaleDateString();
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      const payload = {
-        id: id,
-        business_id: currentBusiness.id,
-        slip_no: slipNo,
-        type: type,
-        timestamp: ts,
-        date_str: dateStr,
-        time_str: timeStr,
-        party_name: partyName,
-        vehicle_no: vehicleNo,
-        driver_name: driverName,
-        driver_phone: driverPhone,
-        challan_no: challanNo,
-        ewb_no: ewbNo,
-        destination_site: destinationSite,
-        total_bags: totals.bags || 0,
-        total_metric_tons: totals.mt || 0,
-        total_amount: totals.amount || 0,
-        dispatched_by: currentUser ? currentUser.name : "Admin",
-        items: items
-      };
-      
-      try {
-        await sFetch(`transactions`, { method: 'POST', body: JSON.stringify(payload) });
-      } catch(e) { console.error("Tx sync failed", e); }
-      
-      return payload;
-    }
-
-    async function syncFromCloud() {
-      if (!currentBusiness) return;
-      try {
-        const [cloudProducts, cloudTx, cloudParties] = await Promise.all([
-          sFetch(`products?business_id=eq.${currentBusiness.id}&select=*`),
-          sFetch(`transactions?business_id=eq.${currentBusiness.id}&select=*`),
-          sFetch(`parties?business_id=eq.${currentBusiness.id}&select=*`)
-        ]);
-
-        if (Array.isArray(cloudProducts)) {
-          cachedProducts = cloudProducts.map(p => ({
-            id: p.id,
-            name: p.name,
-            grade: p.grade || "Standard",
-            weightPerBagKg: Number(p.weight_per_bag_kg) || 50,
-            defaultRatePerBag: Number(p.default_rate_per_bag) || 0,
-            bayLocation: p.bay_location || "Unassigned",
-            currentStockBags: Number(p.current_stock_bags) || 0,
-            batchNo: p.batch_no || "-",
-            imageUrl: p.image_url || "",
-            isActive: p.is_active !== false
-          }));
-          renderPosProducts();
-          populateProductDropdowns();
-        }
-
-        if (Array.isArray(cloudTx)) {
-          cachedTransactions = cloudTx.map(t => ({
-             id: t.id,
-             slipNo: t.slip_no,
-             type: t.type,
-             timestamp: Number(t.timestamp) || Date.now(),
-             timeStr: t.time_str || "",
-             dateStr: t.date_str || "",
-             partyName: t.party_name || "Direct Walk-in Contractor",
-             vehicleNo: t.vehicle_no || "-",
-             driverName: t.driver_name || "-",
-             driverPhone: t.driver_phone || "-",
-             challanNo: t.challan_no || "-",
-             ewbNo: t.ewb_no || "-",
-             destinationSite: t.destination_site || "-",
-             totalBags: Number(t.total_bags) || 0,
-             totalMetricTons: Number(t.total_metric_tons) || 0,
-             totalAmount: Number(t.total_amount) || 0,
-             dispatchedBy: t.dispatched_by || "Admin",
-             items: Array.isArray(t.items) ? t.items : []
-          }));
-          renderDashboardActivities();
-          renderLedger();
-        }
-
-        if (Array.isArray(cloudParties)) {
-          cachedParties = cloudParties.map(p => ({
-             id: p.id,
-             name: p.name,
-             phone: p.phone || "",
-             gstin: p.gstin || "UNREGISTERED",
-             defaultDestination: p.default_destination || "",
-             accountNo: p.account_no || ""
-          }));
-          populatePartyDropdowns();
-        }
-      } catch (e) {
-        console.error("Cloud sync failed", e);
-      }
-    }
-
-    function appendPin(digit) {
-      if (currentPin.length < 4) {
-        currentPin += digit;
-        updatePinDisplay();
-        if (currentPin.length === 4) verifyPin();
-      }
-    }
-    function clearPin() { currentPin = ''; updatePinDisplay(); }
-    function deletePin() { currentPin = currentPin.slice(0, -1); updatePinDisplay(); }
-    function updatePinDisplay() {
-      for (let i = 1; i <= 4; i++) {
-        const el = document.getElementById('pin' + i);
-        if (i <= currentPin.length) {
-          el.textContent = '•'; el.classList.add('bg-primary/20', 'border-primary');
-        } else {
-          el.textContent = ''; el.classList.remove('bg-primary/20', 'border-primary');
-        }
-      }
-    }
-
-    function verifyPin() {
-      const selectedId = document.getElementById('loginUserSelect').value;
-      if (!selectedId || selectedId === 'CREATE_NEW') {
-        document.getElementById('loginError').textContent = "Select a user";
-        clearPin(); return;
-      }
-      
-      const user = staffMembers.find(u => u.id === selectedId);
-      if (user && user.pin === currentPin) {
-        currentUser = user;
-        bridge().saveCurrentUser(JSON.stringify({ business: currentBusiness, user: currentUser }));
-        document.getElementById('authOverlay').classList.add('hidden');
-        refreshData();
-      } else {
-        document.getElementById('loginError').textContent = "Incorrect PIN";
-        clearPin();
-      }
-    }
-    
-    function resetBusinessLink() {
-      if(confirm('Unlink this device?')) {
-        bridge().saveCurrentUser('');
-        currentBusiness = null;
-        currentUser = null;
-        showSetupScreen();
-      }
-    }
-    let currentLastSlipNo = 'GP-9485';
-    let cachedProducts = [];
-    let cachedParties = [];
-    let cachedTransactions = [];
-    let posCart = {}; // productId -> count
-    let ledgerFilter = 'ALL';
-
-    function bridge() {
-      return window.AndroidBridge || null;
-    }
-
-    function vibrate(ms = 30) {
-      if (bridge() && bridge().vibrate) {
-        bridge().vibrate(ms);
-      } else if (navigator.vibrate) {
-        navigator.vibrate(ms);
-      }
-    }
-
-    function showToast(msg) {
-      if (bridge() && bridge().showToast) {
-        bridge().showToast(msg);
-      } else {
-        console.log(msg);
-      }
-    }
-
-    function switchTab(tabId) {
-      vibrate(25);
-      activeTab = tabId;
-
-      document.querySelectorAll('.tab-page').forEach(page => {
-        page.classList.add('hidden');
-      });
-      const targetPage = document.getElementById('tab-' + tabId);
-      if (targetPage) targetPage.classList.remove('hidden');
-
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        const isSelected = btn.getAttribute('data-tab') === tabId;
-        btn.className = isSelected
-          ? 'nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-primary'
-          : 'nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant';
-      });
-
-      const subtitles = {
-        'dashboard': 'Godown #4 - Central Depot',
-        'pos': 'Quick Dispatch Terminal',
-        'dispatch': 'Issue Gate Pass & Unload',
-        'thermal': 'Thermal Print Spooler',
-        'ledger': 'Stock Ledger & Audit Log'
-      };
-      if (subtitles[tabId]) {
-        document.getElementById('topSubtitle').textContent = subtitles[tabId];
-      }
-
-      // Show/hide POS cart bottom bar
-      const cartBar = document.getElementById('posCartBottomBar');
-      if (tabId === 'pos' && getTotalCartBags() > 0) {
-        cartBar.classList.remove('hidden');
-      } else {
-        cartBar.classList.add('hidden');
-      }
-
-      if (tabId === 'thermal') {
-        loadSlipPreview(currentLastSlipNo);
-      } else if (tabId === 'ledger') {
-        renderLedger();
-      }
-    }
-
-    function refreshData() {
-      vibrate(30);
-      try {
-        if (bridge()) {
-          const telemetryStr = bridge().getDashboardTelemetry();
-          const productsStr = bridge().getProducts();
-          const partiesStr = bridge().getParties();
-          const txStr = bridge().getTransactions();
-          currentLastSlipNo = bridge().getLastSlipNo() || 'GP-9485';
-
-          if (telemetryStr) updateDashboardTelemetry(JSON.parse(telemetryStr));
-          if (productsStr) {
-            cachedProducts = JSON.parse(productsStr);
-            renderPosProducts();
-            populateProductDropdowns();
-          }
-          if (partiesStr) {
-            cachedParties = JSON.parse(partiesStr);
-            populatePartyDropdowns();
-          }
-          if (txStr) {
-            cachedTransactions = JSON.parse(txStr);
-            renderDashboardActivities();
-            renderLedger();
-          }
-          refreshBluetoothPrinters();
-          syncFromCloud();
-        }
-      } catch (e) {
-        console.error("Error refreshing data: ", e);
-      }
-    }
-
-
-    function updateDashboardTelemetry(t) {
-      if (!t) return;
-      document.getElementById('metricTotalBags').textContent = Number(t.totalStoredBags || 0).toLocaleString('en-IN');
-      document.getElementById('metricNetMt').textContent = `Net: ${(t.totalMetricTons || 0).toFixed(2)} MT`;
-      document.getElementById('metricInwardBags').textContent = Number(t.inwardDayBags || 0).toLocaleString('en-IN');
-      document.getElementById('metricDispatchedBags').textContent = Number(t.dispatchedBags || 0).toLocaleString('en-IN');
-      document.getElementById('metricPendingSlips').textContent = t.pendingSlipsCount || 0;
-      document.getElementById('dashLastSlipNo').textContent = currentLastSlipNo;
-
-
-    }
-
-    function renderDashboardActivities() {
-      const list = document.getElementById('dashActivityList');
-      if (!list) return;
-      list.innerHTML = '';
-      const recent = cachedTransactions.slice(0, 4);
-
-      if (recent.length === 0) {
-        list.innerHTML = '<div class="text-[12px] text-on-surface-variant text-center py-2">No recent activity</div>';
-        return;
-      }
-
-      recent.forEach(tx => {
-        const isOut = tx.type === 'OUTWARD';
-        const card = document.createElement('div');
-        card.className = 'bg-surface-container-lowest rounded-xl p-2.5 flex items-center justify-between gap-2 shadow-sm border border-surface-container-high cursor-pointer active:scale-[0.99]';
-        card.onclick = () => viewSlip(tx.slipNo);
-        card.innerHTML = `
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-lg ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'} flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[20px]">${isOut ? 'local_shipping' : 'archive'}</span>
-            </div>
-            <div class="flex flex-col min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="font-mono text-[12px] font-bold text-on-surface">${tx.slipNo}</span>
-                <span class="text-[9px] font-bold uppercase px-1 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
-              </div>
-              <span class="text-[11px] text-on-surface-variant truncate">${tx.totalBags} Bags • ${tx.partyName}</span>
-            </div>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="text-[10px] text-on-surface-variant">${tx.timeStr}</span>
-            <span class="block text-[11px] font-bold text-primary">${tx.totalMetricTons.toFixed(2)} MT</span>
-          </div>
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    let editModeItemId = null;
-    let lastToggleTime = 0;
-    function toggleItemEditMode(id) {
-      const now = Date.now();
-      if (now - lastToggleTime < 300) return; // debounce double triggers from touch + contextmenu
-      lastToggleTime = now;
-      
-      if (editModeItemId === id) {
-        editModeItemId = null;
-      } else {
-        editModeItemId = id;
-        vibrate(50);
-      }
-      renderPosProducts();
-    }
-
-    function renderPosProducts() {
-      const grid = document.getElementById('posProductsGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      cachedProducts.forEach(p => {
-
-        const inCart = posCart[p.id] || 0;
-        const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
-        const tile = document.createElement('div');
-        tile.className = `bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high shadow-sm flex flex-col justify-between select-none relative ${opacity}`;
-        
-        let pressTimer;
-        tile.addEventListener('touchstart', (e) => {
-           pressTimer = setTimeout(() => {
-               toggleItemEditMode(p.id);
-           }, 600);
-        });
-        tile.addEventListener('touchend', (e) => {
-           clearTimeout(pressTimer);
-        });
-        tile.addEventListener('touchmove', (e) => {
-           clearTimeout(pressTimer);
-        });
-        tile.oncontextmenu = (e) => {
-           e.preventDefault();
-           toggleItemEditMode(p.id);
-        };
-
-        if (editModeItemId === p.id) {
-          tile.innerHTML = `
-            <div class="flex-1 flex flex-col items-center justify-center cursor-pointer min-h-[120px]" onclick="openEditItemModal('${p.id}')">
-              <span class="material-symbols-outlined text-[48px] text-primary">edit</span>
-              <span class="text-[12px] font-bold text-primary mt-2">EDIT ITEM</span>
-            </div>
-          `;
-        } else {
-          const imgHtml = (p.imageUrl && p.imageUrl.trim() !== "") 
-            ? `<img src="${p.imageUrl}" class="w-8 h-8 rounded-lg object-cover border border-surface-container" />` 
-            : `<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">inventory_2</span></div>`;
-            
-          tile.innerHTML = `
-            <div>
-              <div class="flex items-start justify-between">
-                ${imgHtml}
-                <span class="${inCart > 0 ? '' : 'hidden'} px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary-container text-on-primary" id="posBadge-${p.id}">${inCart} in cart</span>
-              </div>
-              <div class="mt-1.5">
-                <h4 class="text-[13px] font-bold text-on-surface line-clamp-1 leading-tight">${p.name}</h4>
-                <div class="flex items-baseline justify-between mt-1">
-                  <span class="text-[16px] font-extrabold text-primary">₹${p.defaultRatePerBag}<span class="text-[10px] font-normal text-on-surface-variant">/bag</span></span>
-                  <span class="font-mono text-[10px] text-on-surface-variant">${p.currentStockBags} Stock</span>
-                </div>
-              </div>
-            </div>
-            <div class="mt-2 pt-2 border-t border-surface-container grid grid-cols-3 gap-1">
-              <button onclick="addPosItem('${p.id}', 1)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+1</button>
-              <button onclick="addPosItem('${p.id}', 10)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+10</button>
-              <button onclick="addPosItem('${p.id}', 50)" class="h-8 rounded bg-primary-fixed text-on-primary-fixed text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+50</button>
-            </div>
-          `;
-        }
-        grid.appendChild(tile);
-      });
-
-      const addTile = document.createElement('div');
-      addTile.className = 'bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high border-dashed shadow-sm flex flex-col justify-center items-center select-none relative cursor-pointer min-h-[140px] active:scale-95 transition-transform';
-      addTile.onclick = () => {
-         openAddItemModal();
-      };
-      addTile.innerHTML = `
-         <span class="material-symbols-outlined text-[48px] text-primary/50">add</span>
-         <span class="text-[12px] font-bold text-primary/70 mt-2 uppercase tracking-wide">Add Product</span>
-      `;
-      grid.appendChild(addTile);
-    }
-
-
-
-    function addPosItem(productId, delta) {
-      vibrate(35);
-      const cur = posCart[productId] || 0;
-      const product = cachedProducts.find(p => p.id === productId);
-      if (!product) return;
-
-      const next = Math.max(0, cur + delta);
-      if (next > product.currentStockBags) {
-        showToast(`Cannot add: only ${product.currentStockBags} bags in stock`);
-        return;
-      }
-
-      if (next === 0) {
-        delete posCart[productId];
-      } else {
-        posCart[productId] = next;
-      }
-
-      // Update badge
-      const badge = document.getElementById(`posBadge-${productId}`);
-      if (badge) {
-        if (next > 0) {
-          badge.textContent = `${next} in cart`;
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
-      }
-
-      updatePosCartBar();
-    }
-
-    function getTotalCartBags() {
-      return Object.values(posCart).reduce((a, b) => a + b, 0);
-    }
-
-    function updatePosCartBar() {
-      const totalBags = getTotalCartBags();
-      let totalAmount = 0;
-      let totalMt = 0;
-
-      for (const [pId, qty] of Object.entries(posCart)) {
-        const p = cachedProducts.find(x => x.id === pId);
-        if (p) {
-          totalAmount += qty * p.defaultRatePerBag;
-          totalMt += (qty * p.weightPerBagKg) / 1000.0;
-        }
-      }
-
-      document.getElementById('posCartTotalBags').textContent = totalBags;
-      document.getElementById('posCartTotalMt').textContent = totalMt.toFixed(2);
-      document.getElementById('posCartTotalAmount').textContent = totalAmount.toLocaleString('en-IN');
-
-      const bar = document.getElementById('posCartBottomBar');
-      if (activeTab === 'pos' && totalBags > 0) {
-        bar.classList.remove('hidden');
-      } else {
-        bar.classList.add('hidden');
-      }
-    }
-
-    function checkoutPosCart() {
-      vibrate(40);
-      const totalBags = getTotalCartBags();
-      if (totalBags === 0) {
-        showToast("Cart is empty");
-        return;
-      }
-
-      const partySelect = document.getElementById('posPartySelect');
-      const partyName = partySelect ? partySelect.value : "Direct Walk-in Contractor";
-
-      // If only one product in cart, use quick dispatch
-      const keys = Object.keys(posCart);
-      if (keys.length === 1) {
-        const pId = keys[0];
-        const qty = posCart[pId];
-        if (bridge()) {
-          const resStr = bridge().recordQuickDispatch(pId, qty, partyName);
-          const res = JSON.parse(resStr);
-          if (res.success) {
-            currentLastSlipNo = res.slipNo;
-            const p = cachedProducts.find(x => x.id === pId);
-            const mt = (p.weightPerBagKg*qty)/1000;
-            const amt = qty*p.defaultRatePerBag;
-            const items = [{ productId: pId, productName: p.name, quantityBags: qty, metricTons: mt, ratePerBag: p.defaultRatePerBag }];
-            cloudRecordTx('OUTWARD', res.slipNo, partyName, "", "", "", "", "", "", items, {bags: qty, mt: mt, amount: amt});
-            
-            posCart = {};
-            updatePosCartBar();
-            syncFromCloud();
-            switchTab('thermal');
-            showToast(`Slip ${res.slipNo} issued!`);
-          } else {
-            alert(res.error || "Dispatch failed");
-          }
-        }
-      } else {
-        // Multi-item dispatch
-        const items = [];
-        for (const [pId, qty] of Object.entries(posCart)) {
-          items.push({ productId: pId, bags: qty });
-        }
-        if (bridge()) {
-          const resStr = bridge().recordDispatch(
-            partyName,
-            "MH-12-QZ-4891",
-            "Express Driver",
-            "+91 98220-44102",
-            "Express POS Counter",
-            "DC-POS-" + (Date.now() % 10000),
-            "-",
-            JSON.stringify(items)
-          );
-          const res = JSON.parse(resStr);
-          if (res.success) {
-            currentLastSlipNo = res.slipNo;
-            
-            let tMt = 0; let tAmt = 0;
-            items.forEach(i => { tMt += i.metricTons; tAmt += i.quantityBags * i.ratePerBag; });
-            cloudRecordTx('OUTWARD', res.slipNo, partyName, "MH-12-QZ-4891", "Express Driver", "+91 98220-44102", "DC-POS-" + (Date.now() % 10000), "-", "Express POS Counter", items, {bags: totalBags, mt: tMt, amount: tAmt});
-
-            posCart = {};
-            updatePosCartBar();
-            syncFromCloud();
-            switchTab('thermal');
-            showToast(`Gate Pass ${res.slipNo} issued!`);
-          } else {
-            alert(res.error || "Dispatch failed");
-          }
-        }
-      }
-    }
-
-    function handlePartyChange(select) {
-      if (select.value === '__NEW__') {
-        document.getElementById('newCustomerTargetSelect').value = select.id;
-        document.getElementById('newCustomerName').value = '';
-        document.getElementById('newCustomerPhone').value = '';
-        document.getElementById('newCustomerModal').classList.remove('hidden');
-      } else {
-        if (select.id === 'dispatchPartySelect') {
-          const selectedOpt = select.options[select.selectedIndex];
-          const phoneInput = document.getElementById('dispatchPhone');
-          if (phoneInput) {
-            if (selectedOpt && selectedOpt.dataset.phone) {
-              phoneInput.value = selectedOpt.dataset.phone;
-            } else {
-              const party = cachedParties.find(p => p.name === select.value);
-              if (party) phoneInput.value = party.phone;
-            }
-          }
-        }
-      }
-    }
-
-    function closeNewCustomerModal() {
-      document.getElementById('newCustomerModal').classList.add('hidden');
-      const targetId = document.getElementById('newCustomerTargetSelect').value;
-      if (targetId) {
-         document.getElementById(targetId).value = 'Direct Walk-in Contractor';
-      }
-    }
-
-    async function submitNewCustomer() {
-      const name = document.getElementById('newCustomerName').value.trim();
-      const phone = document.getElementById('newCustomerPhone').value.trim();
-      const targetId = document.getElementById('newCustomerTargetSelect').value;
-      
-      if (!name) {
-        alert("Name is required");
-        return;
-      }
-      
-      const newId = 'party_' + Date.now();
-      try {
-        await sFetch(`parties`, {
-          method: 'POST',
-          body: JSON.stringify({
-            id: newId, business_id: currentBusiness.id, type: 'customer', name: name, phone: phone, is_active: true
-          })
-        });
-      } catch(e) { console.error("Cloud party failed", e); }
-      
-      const newParty = { id: newId, name: name, phone: phone };
-      cachedParties.push(newParty);
-      populatePartyDropdowns();
-      
-      const targetSelect = document.getElementById(targetId);
-      if (targetSelect) {
-          targetSelect.value = name;
-          if (targetId === 'dispatchPartySelect') {
-            const phoneInput = document.getElementById('dispatchPhone');
-            if (phoneInput) phoneInput.value = phone;
-          }
-      }
-      
-      document.getElementById('newCustomerModal').classList.add('hidden');
-    }
-
-    function populatePartyDropdowns() {
-      const posSelect = document.getElementById('posPartySelect');
-      const dispatchSelect = document.getElementById('dispatchPartySelect');
-      if (!posSelect || !dispatchSelect) return;
-
-      posSelect.innerHTML = '';
-      dispatchSelect.innerHTML = '';
-
-      const walkIn = document.createElement('option');
-      walkIn.value = 'Direct Walk-in Contractor';
-      walkIn.textContent = 'Direct Walk-in Contractor [CASH/UPI]';
-      posSelect.appendChild(walkIn.cloneNode(true));
-      dispatchSelect.appendChild(walkIn.cloneNode(true));
-
-      cachedParties.forEach(p => {
-        if (p.name === 'Direct Walk-in Contractor') return;
-        const opt = document.createElement('option');
-        opt.value = p.name;
-        opt.textContent = `${p.name} [${p.accountNo}]`;
-        posSelect.appendChild(opt.cloneNode(true));
-        dispatchSelect.appendChild(opt);
-      });
-
-      const newOpt = document.createElement('option');
-      newOpt.value = '__NEW__';
-      newOpt.textContent = '+ Add New Customer...';
-      posSelect.appendChild(newOpt.cloneNode(true));
-      dispatchSelect.appendChild(newOpt);
-    }
-
-    function populateProductDropdowns() {
-      const dSelect = document.getElementById('dispatchProductSelect');
-      const sSelect = document.getElementById('stockInProductSelect');
-      if (!dSelect || !sSelect) return;
-
-      dSelect.innerHTML = '';
-      sSelect.innerHTML = '';
-
-      cachedProducts.forEach(p => {
-        if (p.isActive === false) return;
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = `${p.name} (${p.currentStockBags} bags available)`;
-        dSelect.appendChild(opt.cloneNode(true));
-
-        const opt2 = document.createElement('option');
-        opt2.value = p.id;
-        opt2.textContent = `${p.name} (${p.bayLocation})`;
-        sSelect.appendChild(opt2);
-      });
-    }
-
-    function submitFullDispatch() {
-      vibrate(40);
-      const party = document.getElementById('dispatchPartySelect').value;
-      const vehicle = document.getElementById('dispatchVehicle').value.trim();
-      const site = document.getElementById('dispatchSite').value.trim();
-      const driver = document.getElementById('dispatchDriver').value.trim();
-      const phone = document.getElementById('dispatchPhone').value.trim();
-      const challan = document.getElementById('dispatchChallan').value.trim();
-      const ewb = document.getElementById('dispatchEwb').value.trim();
-      const pId = document.getElementById('dispatchProductSelect').value;
-      const bags = parseInt(document.getElementById('dispatchBagsInput').value, 10) || 0;
-
-      if (bags <= 0) {
-        alert("Please enter a valid quantity of bags");
-        return;
-      }
-
-      const items = [{ productId: pId, bags: bags }];
-      if (bridge()) {
-        const resStr = bridge().recordDispatch(party, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
-        const res = JSON.parse(resStr);
-        if (res.success) {
-          currentLastSlipNo = res.slipNo;
-          
-          let tMt = 0; let tAmt = 0; let tBags = 0;
-          items.forEach(i => { tMt += i.metricTons; tAmt += i.quantityBags * i.ratePerBag; tBags += i.quantityBags; });
-          cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, items, {bags: tBags, mt: tMt, amount: tAmt});
-
-          syncFromCloud();
-          switchTab('thermal');
-          showToast(`Dispatch Pass ${res.slipNo} Created!`);
-        } else {
-          alert(res.error || "Dispatch failed");
-        }
-      }
-    }
-
-    function openStockInModal() {
-      vibrate(25);
-      document.getElementById('stockInModal').classList.remove('hidden');
-    }
-
-    function closeStockInModal() {
-      vibrate(25);
-      document.getElementById('stockInModal').classList.add('hidden');
-    }
-
-    function submitStockIn() {
-      vibrate(40);
-      const pId = document.getElementById('stockInProductSelect').value;
-      const bags = parseInt(document.getElementById('stockInBags').value, 10) || 0;
-      const bay = document.getElementById('stockInBay').value.trim();
-      const batch = document.getElementById('stockInBatch').value.trim();
-
-      if (bags <= 0) {
-        alert("Stock in bags must be greater than zero");
-        return;
-      }
-
-      if (bridge()) {
-        const resStr = bridge().recordStockIn(pId, bags, batch, bay);
-        const res = JSON.parse(resStr);
-        if (res.success) {
-          const p = cachedProducts.find(x => x.id === pId);
-          const items = [{ productId: pId, productName: p.name, quantityBags: bags, metricTons: (p.weightPerBagKg*bags)/1000, ratePerBag: p.defaultRatePerBag }];
-          cloudRecordTx('INWARD', res.slipNo, "Factory", "-", "-", "-", "-", "-", bay, items, {bags: bags, mt: (p.weightPerBagKg*bags)/1000, amount: bags*p.defaultRatePerBag});
-          
-          closeStockInModal();
-          syncFromCloud();
-          showToast(`Stock In +${bags} bags recorded!`);
-        } else {
-          alert(res.error || "Stock in failed");
-        }
-      }
-    }
-
-    function openEditItemModal(id) {
-      vibrate(25);
-      const product = cachedProducts.find(p => p.id === id);
-      if (!product) return;
-      document.getElementById('editItemId').value = product.id;
-      document.getElementById('editItemName').value = product.name;
-      document.getElementById('editItemRate').value = product.defaultRatePerBag;
-      document.getElementById('editItemImage').value = product.imageUrl || '';
-      
-      const isAct = product.isActive !== false;
-      document.getElementById('editItemId').dataset.active = isAct;
-      updateEditToggleBtn(isAct);
-
-      document.getElementById('editItemModal').classList.remove('hidden');
-    }
-
-    function updateEditToggleBtn(isActive) {
-      const btn = document.getElementById('editItemToggleStatusBtn');
-      const text = document.getElementById('editItemToggleStatusText');
-      const icon = document.getElementById('editItemToggleStatusIcon');
-      if (isActive) {
-        btn.className = "bg-error text-on-error py-2.5 rounded-xl font-extrabold shadow uppercase tracking-wider text-[13px] active:scale-95 transition-transform flex items-center justify-center gap-1";
-        icon.textContent = "block";
-        text.textContent = "DISABLE";
-      } else {
-        btn.className = "bg-primary-container text-on-primary-container py-2.5 rounded-xl font-extrabold shadow uppercase tracking-wider text-[13px] active:scale-95 transition-transform flex items-center justify-center gap-1";
-        icon.textContent = "check_circle";
-        text.textContent = "ENABLE";
-      }
-    }
-
-    function toggleEditItemStatus() {
-      vibrate(40);
-      const input = document.getElementById('editItemId');
-      const current = input.dataset.active === 'true';
-      const next = !current;
-      input.dataset.active = next;
-      updateEditToggleBtn(next);
-    }
-
-    function closeEditItemModal() {
-      vibrate(25);
-      document.getElementById('editItemModal').classList.add('hidden');
-      editModeItemId = null;
-      renderPosProducts();
-    }
-
-    function openAddItemModal() {
-      document.getElementById('addItemName').value = '';
-      document.getElementById('addItemRate').value = '';
-      document.getElementById('addItemStock').value = '0';
-      document.getElementById('addItemModal').classList.remove('hidden');
-    }
-
-    function closeAddItemModal() {
-      document.getElementById('addItemModal').classList.add('hidden');
-    }
-
-    async function saveNewItem() {
-      vibrate(40);
-      const name = document.getElementById('addItemName').value.trim();
-      const rate = parseFloat(document.getElementById('addItemRate').value);
-      const stock = parseInt(document.getElementById('addItemStock').value) || 0;
-
-      if (!name || isNaN(rate)) {
-        alert("Please fill required fields properly.");
-        return;
-      }
-
-      const id = 'prod_' + Date.now();
-      const newProduct = {
-        id: id,
-        name: name,
-        grade: "Standard",
-        weightPerBagKg: 50,
-        defaultRatePerBag: rate,
-        bayLocation: "Unassigned",
-        currentStockBags: stock,
-        batchNo: "NEW",
-        imageUrl: "",
-        isActive: true
-      };
-
-      // Optimistic local update: show item immediately
-      cachedProducts.push(newProduct);
-      renderPosProducts();
-      populateProductDropdowns();
-      closeAddItemModal();
-      showToast(`Item added!`);
-
-      // Persist to local bridge
-      if (bridge()) {
-        try {
-          bridge().addProduct(JSON.stringify(newProduct));
-        } catch(e) { console.error("Bridge addProduct error", e); }
-      }
-
-      // Background cloud sync
-      try {
-        if (currentBusiness && currentBusiness.id) {
-          await sFetch(`products`, {
-            method: 'POST',
-            body: JSON.stringify({
-              id: id,
-              business_id: currentBusiness.id,
-              name: name, 
-              default_rate_per_bag: rate,
-              current_stock_bags: stock,
-              is_active: true
-            })
-          });
-        }
-      } catch(e) { console.error("Cloud save failed", e); }
-    }
-
-    async function saveEditItem() {
-      vibrate(40);
-      const id = document.getElementById('editItemId').value;
-      const name = document.getElementById('editItemName').value.trim();
-      const rate = parseFloat(document.getElementById('editItemRate').value);
-      const image = document.getElementById('editItemImage').value.trim();
-
-      if (!name || isNaN(rate)) {
-        alert("Please fill required fields.");
-        return;
-      }
-      
-      const isActive = document.getElementById('editItemId').dataset.active === 'true';
-
-      // Optimistic local update
-      const pIdx = cachedProducts.findIndex(p => p.id === id);
-      if (pIdx !== -1) {
-        cachedProducts[pIdx].name = name;
-        cachedProducts[pIdx].defaultRatePerBag = rate;
-        cachedProducts[pIdx].imageUrl = image;
-        cachedProducts[pIdx].isActive = isActive;
-        renderPosProducts();
-        populateProductDropdowns();
-      }
-      closeEditItemModal();
-      showToast(`Item updated!`);
-
-      // Persist to local bridge
-      if (bridge()) {
-        try {
-          const obj = { id: id, name: name, defaultRatePerBag: rate, imageUrl: image, isActive: isActive };
-          bridge().updateProduct(JSON.stringify(obj));
-        } catch(e) { console.error("Bridge updateProduct error", e); }
-      }
-
-      // Background cloud sync
-      try {
-        if (currentBusiness && currentBusiness.id) {
-          await sFetch(`products?id=eq.${id}&business_id=eq.${currentBusiness.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              name: name,
-              default_rate_per_bag: rate,
-              image_url: image,
-              is_active: isActive
-            })
-          });
-        }
-      } catch(e) { console.error("Cloud edit failed", e); }
-    }
-
-    // Print Content Options & Customization State
-    // ==========================================
-    let activePrintOptions = {
-      showHeader: true,
-      showSlipMeta: true,
-      showCustomer: true,
-      showSite: true,
-      showTransport: true,
-      showChallanEwb: true,
-      showBatchBay: true,
-      showAmount: true,
-      showQrVerification: true,
-      showSignatures: true
-    };
-
-    function loadSavedPrintOptions() {
-      try {
-        if (bridge() && bridge().getPrintOptions) {
-          const saved = bridge().getPrintOptions();
-          if (saved && saved !== '{}') {
-            activePrintOptions = Object.assign({}, activePrintOptions, JSON.parse(saved));
-            syncPrintOptionCheckboxes();
-            return;
-          }
-        }
-        const local = localStorage.getItem('bhpos_print_options');
-        if (local) {
-          activePrintOptions = Object.assign({}, activePrintOptions, JSON.parse(local));
-        }
-      } catch (e) {
-        console.warn("Could not load print options:", e);
-      }
-      syncPrintOptionCheckboxes();
-    }
-
-    function savePrintOptionsToStorage() {
-      const jsonStr = JSON.stringify(activePrintOptions);
-      try {
-        localStorage.setItem('bhpos_print_options', jsonStr);
-        if (bridge() && bridge().savePrintOptions) {
-          bridge().savePrintOptions(jsonStr);
-        }
-      } catch (e) {
-        console.warn("Could not save print options:", e);
-      }
-    }
-
-    function syncPrintOptionCheckboxes() {
-      for (const key in activePrintOptions) {
-        const cb = document.getElementById('opt_' + key);
-        if (cb) {
-          cb.checked = !!activePrintOptions[key];
-        }
-      }
-    }
-
-    function onPrintOptionChanged(key, checked) {
-      activePrintOptions[key] = !!checked;
-      savePrintOptionsToStorage();
-      loadSlipPreview(currentLastSlipNo);
-    }
-
-    function applyPrintPreset(preset) {
-      vibrate(25);
-      if (preset === 'all') {
-        for (const k in activePrintOptions) activePrintOptions[k] = true;
-      } else if (preset === 'driver_pass') {
-        activePrintOptions.showHeader = true;
-        activePrintOptions.showSlipMeta = true;
-        activePrintOptions.showCustomer = true;
-        activePrintOptions.showSite = true;
-        activePrintOptions.showTransport = true;
-        activePrintOptions.showChallanEwb = true;
-        activePrintOptions.showBatchBay = false;
-        activePrintOptions.showAmount = false; // Hide price details from driver
-        activePrintOptions.showQrVerification = true;
-        activePrintOptions.showSignatures = true;
-      } else if (preset === 'minimal') {
-        activePrintOptions.showHeader = false;
-        activePrintOptions.showSlipMeta = true;
-        activePrintOptions.showCustomer = true;
-        activePrintOptions.showSite = false;
-        activePrintOptions.showTransport = false;
-        activePrintOptions.showChallanEwb = false;
-        activePrintOptions.showBatchBay = false;
-        activePrintOptions.showAmount = false;
-        activePrintOptions.showQrVerification = false;
-        activePrintOptions.showSignatures = false;
-      }
-      syncPrintOptionCheckboxes();
-      savePrintOptionsToStorage();
-      loadSlipPreview(currentLastSlipNo);
-      showToast(`Preset: ${preset.replace('_', ' ').toUpperCase()}`);
-    }
-
-    function openPrintSettingsModal() {
-      vibrate(25);
-      syncPrintOptionCheckboxes();
-      const modal = document.getElementById('printSettingsModal');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closePrintSettingsModal() {
-      vibrate(20);
-      const modal = document.getElementById('printSettingsModal');
-      if (modal) modal.classList.add('hidden');
-      loadSlipPreview(currentLastSlipNo);
-    }
-
-    function loadSlipPreview(slipNo) {
-      if (bridge()) {
-        const optJson = JSON.stringify(activePrintOptions);
-        let text = '';
-        if (bridge().getSlipTextWithOptions) {
-          text = bridge().getSlipTextWithOptions(slipNo || currentLastSlipNo, currentPaperWidth, optJson);
-        } else {
-          text = bridge().getSlipText(slipNo || currentLastSlipNo, currentPaperWidth);
-        }
-        document.getElementById('thermalSlipContent').textContent = text;
-      }
-    }
-
-    function setPaperWidth(width) {
-      vibrate(25);
-      currentPaperWidth = width;
-      const b58 = document.getElementById('btnPaper58');
-      const b80 = document.getElementById('btnPaper80');
-
-      if (width === 58) {
-        b58.className = 'flex-1 py-1 rounded-md text-center font-bold transition-all bg-surface-container-lowest text-primary shadow-sm';
-        b80.className = 'flex-1 py-1 rounded-md text-center font-bold transition-all text-on-surface-variant';
-      } else {
-        b80.className = 'flex-1 py-1 rounded-md text-center font-bold transition-all bg-surface-container-lowest text-primary shadow-sm';
-        b58.className = 'flex-1 py-1 rounded-md text-center font-bold transition-all text-on-surface-variant';
-      }
-
-      loadSlipPreview(currentLastSlipNo);
-    }
-
-    function triggerPrintSlip() {
-      vibrate(60);
-      const cutBar = document.getElementById('cutLineBar');
-      if (cutBar) {
-        cutBar.classList.remove('hidden');
-        setTimeout(() => cutBar.classList.add('hidden'), 1800);
-      }
-
-      if (bridge()) {
-        const optJson = JSON.stringify(activePrintOptions);
-        let resStr = '';
-        if (bridge().printSlipWithOptions) {
-          resStr = bridge().printSlipWithOptions(currentLastSlipNo, currentPaperWidth, optJson);
-        } else {
-          resStr = bridge().printSlip(currentLastSlipNo, currentPaperWidth);
-        }
-        const res = JSON.parse(resStr);
-        if (!res.success) {
-          showToast(res.error || "Print failed");
-        }
-      }
-    }
-
-    function copySlipToClipboard() {
-      vibrate(25);
-      const text = document.getElementById('thermalSlipContent').textContent;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text);
-        showToast("Slip copied to clipboard");
-      } else {
-        showToast("Copied");
-      }
-    }
-
-    function viewSlip(slipNo) {
-      currentLastSlipNo = slipNo;
-      switchTab('thermal');
-    }
-
-    function filterLedgerType(type, btn) {
-      vibrate(20);
-      ledgerFilter = type;
-      document.querySelectorAll('.ledger-pill').forEach(el => {
-        el.className = 'ledger-pill px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-surface-container-lowest text-on-surface-variant border border-surface-container-high shrink-0';
-      });
-      btn.className = 'ledger-pill px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-primary-container text-on-primary shadow-sm shrink-0';
-      renderLedger();
-    }
-
-    function renderLedger() {
-      const list = document.getElementById('ledgerTransactionsList');
-      if (!list) return;
-      list.innerHTML = '';
-
-      const search = (document.getElementById('ledgerSearchInput').value || '').toLowerCase().trim();
-
-      const filtered = cachedTransactions.filter(t => {
-        if (ledgerFilter !== 'ALL' && t.type !== ledgerFilter) return false;
-        if (search) {
-          const hay = `${t.slipNo} ${t.partyName} ${t.vehicleNo} ${t.destinationSite}`.toLowerCase();
-          return hay.includes(search);
-        }
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-[12px] text-on-surface-variant text-center py-6">No matching transactions found</div>';
-        return;
-      }
-
-      filtered.forEach(t => {
-        const isOut = t.type === 'OUTWARD';
-        const card = document.createElement('div');
-        card.className = 'bg-surface-container-lowest rounded-xl p-3 shadow-sm border border-surface-container-high space-y-1.5 cursor-pointer active:scale-[0.99]';
-        card.onclick = () => viewSlip(t.slipNo);
-        card.innerHTML = `
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="font-mono text-[13px] font-bold text-on-surface">${t.slipNo}</span>
-              <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock In'}</span>
-            </div>
-            <span class="text-[11px] text-on-surface-variant">${t.dateStr} • ${t.timeStr}</span>
-          </div>
-          <div class="text-[12px] font-semibold text-on-surface truncate">
-            ${t.partyName}
-          </div>
-          <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-surface-container">
-            <span>Truck: <b class="text-on-surface">${t.vehicleNo}</b></span>
-            <span>Total: <b class="text-primary font-bold">${t.totalBags} Bags</b> (${t.totalMetricTons.toFixed(2)} MT)</span>
-          </div>
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    function captureCurrentScreen(tag = null) {
-      vibrate(40);
-      const name = tag || activeTab;
-      if (bridge() && bridge().takeScreenshot) {
-        bridge().takeScreenshot(name);
-      } else {
-        showToast("Bridge not ready");
-      }
-    }
-
-    let activePrinterName = "POS-80C Mobile Thermal";
-    let activePrinterAddress = "";
-    let isScanningPrinters = false;
-    let discoveredPrintersMap = {};
-
-    function updatePrinterDisplayUI(name, address) {
-      activePrinterName = name || "POS-80C Mobile Thermal";
-      activePrinterAddress = address || "";
-      
-      const shortName = activePrinterName.length > 14 ? activePrinterName.slice(0, 12) + ".." : activePrinterName;
-      
-      // Update Header
-      const hName = document.getElementById('headerBtName');
-      if (hName) hName.textContent = shortName;
-      
-      // Update Dashboard banner
-      const dLabel = document.getElementById('dashPrinterLabel');
-      if (dLabel) dLabel.textContent = `ESC/POS Spooler • ${shortName} (Ready)`;
-      
-      // Update Tab 4 Thermal card
-      const tName = document.getElementById('thermalCardPrinterName');
-      if (tName) tName.textContent = activePrinterName;
-      const tMac = document.getElementById('thermalCardPrinterMac');
-      if (tMac) tMac.textContent = activePrinterAddress ? `MAC: ${activePrinterAddress} • ESC/POS` : "ESC/POS Standard • Direct Link";
-
-      // Update Modal Active Card
-      const mName = document.getElementById('btActiveName');
-      if (mName) mName.textContent = activePrinterName;
-      const mAddr = document.getElementById('btActiveAddress');
-      if (mAddr) mAddr.textContent = activePrinterAddress ? `MAC: ${activePrinterAddress}` : "Default Thermal Spooler Direct Link";
-    }
-
-    function openBluetoothModal() {
-      vibrate(25);
-      document.getElementById('bluetoothPrinterModal').classList.remove('hidden');
-      refreshBluetoothPrinters();
-    }
-
-    function closeBluetoothModal() {
-      vibrate(20);
-      document.getElementById('bluetoothPrinterModal').classList.add('hidden');
-      if (isScanningPrinters) {
-        stopBluetoothScan();
-      }
-    }
-
-    function refreshBluetoothPrinters() {
-      if (!bridge()) return;
-
-      try {
-        const statusStr = bridge().getBluetoothStatus();
-        const status = JSON.parse(statusStr);
-        const warnBox = document.getElementById('btWarningBox');
-        const warnMsg = document.getElementById('btWarningMsg');
-
-        if (!status.enabled) {
-          if (warnBox) warnBox.classList.remove('hidden');
-          if (warnMsg) warnMsg.textContent = "Bluetooth is turned off";
-        } else if (!status.hasPermission) {
-          if (warnBox) warnBox.classList.remove('hidden');
-          if (warnMsg) warnMsg.textContent = "Bluetooth permissions required";
-          bridge().requestBluetoothPermission();
-        } else {
-          if (warnBox) warnBox.classList.add('hidden');
-        }
-
-        if (status.activePrinter) {
-          updatePrinterDisplayUI(status.activePrinter.name, status.activePrinter.address);
-        }
-
-        loadPairedPrinters();
-      } catch (e) {
-        console.error("Error refreshing bluetooth printers: ", e);
-      }
-    }
-
-    function loadPairedPrinters() {
-      const list = document.getElementById('pairedPrintersList');
-      const badge = document.getElementById('pairedCountBadge');
-      if (!list) return;
-
-      try {
-        const pairedStr = bridge().getPairedPrinters();
-        const paired = JSON.parse(pairedStr);
-        if (badge) badge.textContent = `${paired.length} paired`;
-
-        if (paired.length === 0) {
-          list.innerHTML = `
-            <div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high text-center space-y-1">
-              <p class="text-[12px] font-bold text-on-surface">No Paired Devices Found</p>
-              <p class="text-[11px] text-on-surface-variant">Turn on your Bluetooth printer and pair it with PIN 0000 or 1234 in Android Settings.</p>
-              <button onclick="openSystemBluetoothSettings()" class="mt-1 px-3 py-1 bg-primary text-on-primary text-[11px] font-bold rounded-lg uppercase">Open Android Bluetooth</button>
-            </div>
-          `;
-          return;
-        }
-
-        list.innerHTML = '';
-        paired.forEach(dev => {
-          const isCurrent = dev.isSelected || (activePrinterAddress && dev.address === activePrinterAddress);
-          const item = document.createElement('div');
-          item.className = `p-2.5 rounded-xl border transition-all ${isCurrent ? 'bg-primary/5 border-primary shadow-xs' : 'bg-surface-container-lowest border-surface-container-high'}`;
-          item.innerHTML = `
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 min-w-0 pr-2">
-                <div class="w-8 h-8 rounded-lg ${isCurrent ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'} flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-[18px]">${dev.isPrinter ? 'print' : 'bluetooth'}</span>
-                </div>
-                <div class="min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-[13px] font-bold text-on-surface truncate">${dev.name}</span>
-                    ${dev.isPrinter ? '<span class="px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed text-[8px] font-bold uppercase rounded">Thermal</span>' : ''}
-                    ${isCurrent ? '<span class="px-1.5 py-0.2 bg-primary text-on-primary text-[8px] font-bold uppercase rounded">Active</span>' : ''}
-                  </div>
-                  <p class="text-[10px] font-mono text-on-surface-variant truncate">${dev.address}</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-1 shrink-0">
-                ${!isCurrent ? `
-                  <button onclick="selectPrinter('${dev.name.replace(/'/g, "\\'")}', '${dev.address}')" class="px-2.5 py-1 bg-primary text-on-primary font-bold text-[11px] rounded-lg uppercase tracking-wide active:scale-95 shadow-xs">
-                    Select
-                  </button>
-                ` : ''}
-                <button onclick="testPrintSpecific('${dev.name.replace(/'/g, "\\'")}', '${dev.address}')" class="p-1 rounded-lg bg-surface-container text-on-surface-variant active:scale-95" title="Test Print">
-                  <span class="material-symbols-outlined text-[16px]">receipt</span>
-                </button>
-              </div>
-            </div>
-          `;
-          list.appendChild(item);
-        });
-      } catch (e) {
-        list.innerHTML = `<div class="text-[11px] text-error text-center py-2">Error loading devices: ${e.message}</div>`;
-      }
-    }
-
-    function toggleBluetoothScan() {
-      vibrate(30);
-      if (isScanningPrinters) {
-        stopBluetoothScan();
-      } else {
-        startBluetoothScan();
-      }
-    }
-
-    function startBluetoothScan() {
-      if (!bridge()) return;
-      discoveredPrintersMap = {};
-      const resStr = bridge().startBluetoothScan();
-      const res = JSON.parse(resStr);
-      if (res.success) {
-        isScanningPrinters = true;
-        updateScanButtonUI(true);
-        const list = document.getElementById('discoveredPrintersList');
-        if (list) {
-          list.innerHTML = `
-            <div class="text-[11px] text-primary text-center py-3 bg-primary/5 rounded-xl border border-primary/20 flex items-center justify-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-              <span>Scanning for nearby Bluetooth devices...</span>
-            </div>
-          `;
-        }
-      } else {
-        showToast(res.error || "Scan could not start");
-      }
-    }
-
-    function stopBluetoothScan() {
-      if (bridge()) {
-        bridge().stopBluetoothScan();
-      }
-      isScanningPrinters = false;
-      updateScanButtonUI(false);
-    }
-
-    function updateScanButtonUI(scanning) {
-      const btn = document.getElementById('btnToggleScan');
-      const label = document.getElementById('btnScanLabel');
-      const icon = document.getElementById('scanRadarIcon');
-      if (scanning) {
-        if (btn) btn.className = 'px-2.5 py-1 rounded-lg bg-error text-on-error font-bold text-[11px] flex items-center gap-1 active:scale-95 shadow-xs';
-        if (label) label.textContent = 'Stop';
-        if (icon) icon.className = 'material-symbols-outlined text-[15px] text-primary animate-spin';
-      } else {
-        if (btn) btn.className = 'px-2.5 py-1 rounded-lg bg-surface-container text-primary font-bold text-[11px] flex items-center gap-1 active:scale-95 border border-surface-container-high';
-        if (label) label.textContent = 'Scan';
-        if (icon) icon.className = 'material-symbols-outlined text-[15px] text-primary';
-      }
-    }
-
-    window.onBluetoothDeviceDiscovered = function(name, address) {
-      discoveredPrintersMap[address] = name;
-      renderDiscoveredPrinters();
-    };
-
-    window.onBluetoothScanFinished = function() {
-      isScanningPrinters = false;
-      updateScanButtonUI(false);
-      renderDiscoveredPrinters();
-    };
-
-    window.onBluetoothPermissionsResult = function(granted) {
-      if (granted) {
-        showToast("Bluetooth permissions granted");
-        refreshBluetoothPrinters();
-      } else {
-        showToast("Bluetooth permissions denied");
-      }
-    };
-
-    function renderDiscoveredPrinters() {
-      const list = document.getElementById('discoveredPrintersList');
-      if (!list) return;
-
-      const addrs = Object.keys(discoveredPrintersMap);
-      if (addrs.length === 0) {
-        list.innerHTML = `
-          <div class="text-[11px] text-on-surface-variant text-center py-3 bg-surface-container-lowest rounded-xl border border-surface-container-high border-dashed">
-            No new devices found nearby. Ensure printer is in pairing mode.
-          </div>
-        `;
-        return;
-      }
-
-      list.innerHTML = '';
-      addrs.forEach(addr => {
-        const name = discoveredPrintersMap[addr];
-        const item = document.createElement('div');
-        item.className = 'p-2.5 rounded-xl bg-surface-container-lowest border border-surface-container-high flex items-center justify-between shadow-xs';
-        item.innerHTML = `
-          <div class="flex items-center gap-2 min-w-0 pr-2">
-            <div class="w-8 h-8 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[18px]">bluetooth_searching</span>
-            </div>
-            <div class="min-w-0">
-              <span class="text-[13px] font-bold text-on-surface truncate block">${name}</span>
-              <span class="text-[10px] font-mono text-on-surface-variant">${addr}</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-1 shrink-0">
-            <button onclick="pairAndSelectDevice('${name.replace(/'/g, "\\'")}', '${addr}')" class="px-2.5 py-1 bg-tertiary text-on-tertiary font-bold text-[11px] rounded-lg uppercase tracking-wide active:scale-95 shadow-xs flex items-center gap-1">
-              <span class="material-symbols-outlined text-[14px]">link</span>
-              <span>Pair</span>
-            </button>
-          </div>
-        `;
-        list.appendChild(item);
-      });
-    }
-
-    function selectPrinter(name, address) {
-      if (bridge()) {
-        const resStr = bridge().selectPrinter(name, address);
-        const res = JSON.parse(resStr);
-        if (res.success) {
-          updatePrinterDisplayUI(name, address);
-          loadPairedPrinters();
-        }
-      }
-    }
-
-    function pairAndSelectDevice(name, address) {
-      if (bridge()) {
-        bridge().pairBluetoothDevice(address);
-        bridge().selectPrinter(name, address);
-        updatePrinterDisplayUI(name, address);
-        setTimeout(refreshBluetoothPrinters, 2000);
-      }
-    }
-
-    function testPrintCurrent() {
-      vibrate(40);
-      if (bridge()) {
-        showToast("Sending test slip...");
-        const resStr = bridge().testPrintPrinter(activePrinterName, activePrinterAddress, currentPaperWidth);
-        const res = JSON.parse(resStr);
-        if (res.success) {
-          showToast(res.message || "Test print sent!");
-        } else {
-          showToast(res.message || "Test print failed");
-        }
-      }
-    }
-
-    function testPrintSpecific(name, address) {
-      vibrate(40);
-      if (bridge()) {
-        showToast(`Testing ${name}...`);
-        const resStr = bridge().testPrintPrinter(name, address, currentPaperWidth);
-        const res = JSON.parse(resStr);
-        if (res.success) {
-          showToast(res.message || "Test print sent!");
-        } else {
-          showToast(res.message || "Test print failed");
-        }
-      }
-    }
-
-    function openSystemBluetoothSettings() {
-      vibrate(25);
-      if (bridge()) {
-        bridge().openBluetoothSettings();
-      }
-    }
-
-    // Auto-initialize on load
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadSavedPrintOptions();
-      checkAuthOnStartup();
-      // Auto-capture screenshot 2 seconds after load
-      setTimeout(() => {
-        captureCurrentScreen('dashboard_auto');
-      }, 2000);
-    });
-  </script>
+  <!-- Modular Application Scripts -->
+  <script src="js/supabase_auth.js"></script>
+  <script src="js/cloud_sync.js"></script>
+  <script src="js/catalog_pos.js"></script>
+  <script src="js/dispatch.js"></script>
+  <script src="js/thermal_printer.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

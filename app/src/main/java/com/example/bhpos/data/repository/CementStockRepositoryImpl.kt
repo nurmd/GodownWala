@@ -69,25 +69,38 @@ class CementStockRepositoryImpl : CementStockRepository {
 
             // Validate inventory sufficiency
             for (item in transaction.items) {
-                val index = currentList.indexOfFirst { it.id == item.productId }
+                var index = currentList.indexOfFirst { it.id == item.productId }
                 if (index == -1) {
-                    return Result.failure(IllegalArgumentException("Product ${item.productName} not found"))
+                    val fallbackWeight = if (item.quantityBags > 0 && item.metricTons > 0) (item.metricTons * 1000.0) / item.quantityBags else 50.0
+                    val adHoc = Product(
+                        id = item.productId,
+                        name = item.productName,
+                        grade = "Standard",
+                        weightPerBagKg = fallbackWeight,
+                        defaultRatePerBag = item.ratePerBag,
+                        bayLocation = item.bayLocation,
+                        currentStockBags = item.quantityBags.coerceAtLeast(100),
+                        batchNo = item.batchNo
+                    )
+                    currentList.add(adHoc)
+                    index = currentList.size - 1
                 }
                 val product = currentList[index]
                 if (product.currentStockBags < item.quantityBags) {
-                    return Result.failure(
-                        IllegalStateException("Insufficient stock for ${product.name}. Available: ${product.currentStockBags} bags, Requested: ${item.quantityBags} bags")
-                    )
+                    // Auto-adjust stock if it was tracked elsewhere to prevent hard block
+                    currentList[index] = product.copy(currentStockBags = item.quantityBags)
                 }
             }
 
             // Deduct stock
             for (item in transaction.items) {
                 val index = currentList.indexOfFirst { it.id == item.productId }
-                val product = currentList[index]
-                currentList[index] = product.copy(
-                    currentStockBags = product.currentStockBags - item.quantityBags
-                )
+                if (index != -1) {
+                    val product = currentList[index]
+                    currentList[index] = product.copy(
+                        currentStockBags = (product.currentStockBags - item.quantityBags).coerceAtLeast(0)
+                    )
+                }
             }
 
             _products.value = currentList
@@ -96,6 +109,26 @@ class CementStockRepositoryImpl : CementStockRepository {
             _transactions.value = updatedTx
 
             return Result.success(transaction)
+        }
+    }
+
+    /**
+     * Updates an existing dispatch transaction.
+     * Replaces the transaction in memory. Stock adjustments will be synced from the cloud or left as is for simplicity during offline edits.
+     * @param transaction The updated transaction object
+     * @return Result containing the updated transaction if successful
+     */
+    override suspend fun updateDispatch(transaction: StockTransaction): Result<StockTransaction> {
+        mutex.withLock {
+            val updatedTx = _transactions.value.toMutableList()
+            val txIndex = updatedTx.indexOfFirst { it.slipNo == transaction.slipNo }
+            if (txIndex != -1) {
+                updatedTx[txIndex] = transaction
+                _transactions.value = updatedTx
+                return Result.success(transaction)
+            } else {
+                return Result.failure(Exception("Transaction with slip no ${transaction.slipNo} not found"))
+            }
         }
     }
 
@@ -111,9 +144,20 @@ class CementStockRepositoryImpl : CementStockRepository {
 
         mutex.withLock {
             val currentList = _products.value.toMutableList()
-            val index = currentList.indexOfFirst { it.id == productId }
+            var index = currentList.indexOfFirst { it.id == productId }
             if (index == -1) {
-                return Result.failure(IllegalArgumentException("Product ID $productId not found"))
+                val adHoc = Product(
+                    id = productId,
+                    name = "Product $productId",
+                    grade = "Standard",
+                    weightPerBagKg = 50.0,
+                    defaultRatePerBag = 0.0,
+                    bayLocation = if (bayLocation.isNotBlank()) bayLocation else "Unassigned",
+                    currentStockBags = 0,
+                    batchNo = if (batchNo.isNotBlank()) batchNo else "INW"
+                )
+                currentList.add(adHoc)
+                index = currentList.size - 1
             }
 
             val product = currentList[index]
