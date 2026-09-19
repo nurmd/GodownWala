@@ -958,8 +958,14 @@ class MainActivity : Activity() {
 
         private fun tryBluetoothPrint(bytes: ByteArray): Boolean {
             return try {
-                val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter() ?: return false
-                if (!adapter.isEnabled) return false
+                android.util.Log.d("BH_PRINTER", "Starting tryBluetoothPrint. Bytes size: ${bytes.size}")
+                val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
+                if (adapter == null) {
+                    return false
+                }
+                if (!adapter.isEnabled) {
+                    return false
+                }
                 
                 var printer: android.bluetooth.BluetoothDevice? = null
                 val savedAddr = getSavedPrinterAddress()
@@ -967,15 +973,23 @@ class MainActivity : Activity() {
                 if (savedAddr.isNotBlank()) {
                     try {
                         printer = adapter.getRemoteDevice(savedAddr)
-                    } catch (e: Exception) {}
+                    } catch (e: Exception) {
+                    }
                 }
                 
                 if (printer == null) {
-                    val bonded = adapter.bondedDevices ?: return false
+                    val bonded = adapter.bondedDevices
+                    if (bonded == null || bonded.isEmpty()) {
+                         return false
+                    }
                     printer = bonded.firstOrNull { d ->
                         val name = (d.name ?: "").lowercase(java.util.Locale.ROOT)
                         name.contains("printer") || name.contains("pos") || name.contains("rp") || name.contains("thermal") || name.contains("bt")
-                    } ?: bonded.firstOrNull() ?: return false
+                    } ?: bonded.firstOrNull()
+                    
+                    if (printer == null) {
+                        return false
+                    }
                 }
 
                 val uuid = java.util.UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
@@ -983,18 +997,10 @@ class MainActivity : Activity() {
                 socket.connect()
                 val os = socket.outputStream
                 
-                // Chunk the bytes to prevent Bluetooth MTU / Printer Buffer overflow
-                val chunkSize = 1024
-                var offset = 0
-                while (offset < bytes.size) {
-                    val length = Math.min(chunkSize, bytes.size - offset)
-                    os.write(bytes, offset, length)
-                    os.flush()
-                    offset += length
-                    Thread.sleep(50) // Small delay to let the printer process the buffer
-                }
+                os.write(bytes)
+                os.flush()
                 
-                Thread.sleep(200) // Wait before closing
+                Thread.sleep(200) // Wait before closing to ensure flush completes
                 socket.close()
                 true
             } catch (e: Exception) {
