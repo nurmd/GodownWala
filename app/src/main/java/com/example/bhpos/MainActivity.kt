@@ -973,7 +973,7 @@ class MainActivity : Activity() {
                 if (printer == null) {
                     val bonded = adapter.bondedDevices ?: return false
                     printer = bonded.firstOrNull { d ->
-                        val name = (d.name ?: "").lowercase(Locale.ROOT)
+                        val name = (d.name ?: "").lowercase(java.util.Locale.ROOT)
                         name.contains("printer") || name.contains("pos") || name.contains("rp") || name.contains("thermal") || name.contains("bt")
                     } ?: bonded.firstOrNull() ?: return false
                 }
@@ -982,8 +982,19 @@ class MainActivity : Activity() {
                 val socket = printer.createRfcommSocketToServiceRecord(uuid)
                 socket.connect()
                 val os = socket.outputStream
-                os.write(bytes)
-                os.flush()
+                
+                // Chunk the bytes to prevent Bluetooth MTU / Printer Buffer overflow
+                val chunkSize = 1024
+                var offset = 0
+                while (offset < bytes.size) {
+                    val length = Math.min(chunkSize, bytes.size - offset)
+                    os.write(bytes, offset, length)
+                    os.flush()
+                    offset += length
+                    Thread.sleep(50) // Small delay to let the printer process the buffer
+                }
+                
+                Thread.sleep(200) // Wait before closing
                 socket.close()
                 true
             } catch (e: Exception) {
