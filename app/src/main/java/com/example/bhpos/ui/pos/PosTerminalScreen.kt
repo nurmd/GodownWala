@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bhpos.data.repository.CementStockRepository
-import com.example.bhpos.domain.model.CementProduct
+import com.example.bhpos.domain.model.Product
 import com.example.bhpos.domain.model.Party
 import com.example.bhpos.domain.model.StockTransaction
 import com.example.bhpos.domain.model.StockTransactionItem
@@ -409,7 +409,7 @@ fun PosTerminalScreen(
 
 @Composable
 fun PosProductTile(
-    product: CementProduct,
+    product: Product,
     cartCount: Int,
     onAddBags: (Int) -> Unit,
     onClear: () -> Unit

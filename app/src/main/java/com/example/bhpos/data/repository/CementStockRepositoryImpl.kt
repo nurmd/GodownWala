@@ -1,6 +1,6 @@
 package com.example.bhpos.data.repository
 
-import com.example.bhpos.domain.model.CementProduct
+import com.example.bhpos.domain.model.Product
 import com.example.bhpos.domain.model.DashboardTelemetry
 import com.example.bhpos.domain.model.Party
 import com.example.bhpos.domain.model.StockTransaction
@@ -17,158 +17,18 @@ class CementStockRepositoryImpl : CementStockRepository {
 
     private val mutex = Mutex()
 
-    private val initialProducts = listOf(
-        CementProduct(
-            id = "ultratech_ppc",
-            name = "UltraTech Super PPC",
-            grade = "PPC 50kg",
-            weightPerBagKg = 50.0,
-            defaultRatePerBag = 380.0,
-            bayLocation = "Bay A1-A4",
-            currentStockBags = 6200,
-            batchNo = "UT-24-OCT-03"
-        ),
-        CementProduct(
-            id = "ambuja_opc",
-            name = "Ambuja OPC 53 Grade",
-            grade = "OPC 53G",
-            weightPerBagKg = 50.0,
-            defaultRatePerBag = 410.0,
-            bayLocation = "Bay B1-B2",
-            currentStockBags = 4150,
-            batchNo = "AM-24-OCT-11"
-        ),
-        CementProduct(
-            id = "acc_suraksha",
-            name = "ACC Suraksha Power",
-            grade = "PPC 50kg",
-            weightPerBagKg = 50.0,
-            defaultRatePerBag = 395.0,
-            bayLocation = "Bay B3-B4",
-            currentStockBags = 3250,
-            batchNo = "AC-24-OCT-09"
-        ),
-        CementProduct(
-            id = "jk_white",
-            name = "JK White Cement Max",
-            grade = "Specialty 50kg",
-            weightPerBagKg = 50.0,
-            defaultRatePerBag = 580.0,
-            bayLocation = "Bay C1",
-            currentStockBags = 1250,
-            batchNo = "JK-24-SEP-28"
-        ),
-        CementProduct(
-            id = "shree_ultra",
-            name = "Shree Ultra Jung Rodhak",
-            grade = "PPC 50kg",
-            weightPerBagKg = 50.0,
-            defaultRatePerBag = 375.0,
-            bayLocation = "Bay C2",
-            currentStockBags = 1800,
-            batchNo = "SC-24-OCT-01"
-        )
-    )
-
-    private val initialParties = listOf(
-        Party(
-            id = "p1",
-            name = "Vanguard Infra Projects Pvt Ltd",
-            gstin = "27AABCV8934L1Z2",
-            phone = "+91 98234-11029",
-            defaultDestination = "Metro Pillar 142 Site, North Corridor",
-            accountNo = "CR-8820"
-        ),
-        Party(
-            id = "p2",
-            name = "Sharma Infra Projects Ltd.",
-            gstin = "27AABCS1234F1Z1",
-            phone = "+91 98220-44102",
-            defaultDestination = "Ring Road Flyover Pier 12",
-            accountNo = "SH-901"
-        ),
-        Party(
-            id = "p3",
-            name = "Apex Builders & Developers",
-            gstin = "27AABCA5678K1Z3",
-            phone = "+91 98221-55099",
-            defaultDestination = "Sector 18 Commercial Complex",
-            accountNo = "AP-412"
-        ),
-        Party(
-            id = "p4",
-            name = "Direct Walk-in Contractor",
-            gstin = "UNREGISTERED",
-            phone = "+91 99000-00000",
-            defaultDestination = "Depot Gate Cash Sale",
-            accountNo = "CASH/UPI"
-        )
-    )
-
-    private val initialTransactions = mutableListOf(
-        StockTransaction(
-            id = "tx_1",
-            slipNo = "GP-9482",
-            type = TransactionType.OUTWARD,
-            timestamp = System.currentTimeMillis() - 3600_000 * 2,
-            partyName = "Sharma Infra Projects Ltd.",
-            vehicleNo = "MH-12-QZ-4891",
-            driverName = "Rameshwar",
-            driverPhone = "+91 98234-11029",
-            challanNo = "DC-2024-8841",
-            ewbNo = "8921-4402-9912",
-            destinationSite = "Ring Road Flyover Pier 12",
-            totalBags = 200,
-            totalMetricTons = 10.0,
-            totalAmount = 76000.0,
-            items = listOf(
-                StockTransactionItem(
-                    productId = "ultratech_ppc",
-                    productName = "UltraTech Super PPC",
-                    quantityBags = 200,
-                    metricTons = 10.0,
-                    ratePerBag = 380.0,
-                    batchNo = "UT-24-OCT-03",
-                    bayLocation = "Bay A1-A4"
-                )
-            )
-        ),
-        StockTransaction(
-            id = "tx_0",
-            slipNo = "GRN-2024-110",
-            type = TransactionType.INWARD,
-            timestamp = System.currentTimeMillis() - 3600_000 * 5,
-            partyName = "UltraTech Cement Works (Factory)",
-            vehicleNo = "MH-04-AB-7721",
-            driverName = "Balwinder Singh",
-            driverPhone = "+91 98111-22334",
-            challanNo = "FAC-INV-9901",
-            ewbNo = "8833-2211-5544",
-            destinationSite = "Godown #4 Bay A1",
-            totalBags = 1200,
-            totalMetricTons = 60.0,
-            totalAmount = 456000.0,
-            items = listOf(
-                StockTransactionItem(
-                    productId = "ultratech_ppc",
-                    productName = "UltraTech Super PPC",
-                    quantityBags = 1200,
-                    metricTons = 60.0,
-                    ratePerBag = 380.0,
-                    batchNo = "UT-24-OCT-03",
-                    bayLocation = "Bay A1-A4"
-                )
-            )
-        )
-    )
-
+    private val initialProducts = emptyList<Product>()
     private val _products = MutableStateFlow(initialProducts)
-    private val _transactions = MutableStateFlow(initialTransactions.toList())
+    private val _transactions = MutableStateFlow(emptyList<StockTransaction>())
 
-    override fun getProductsFlow(): Flow<List<CementProduct>> = _products.asStateFlow()
-    override fun getCurrentProducts(): List<CementProduct> = _products.value
+    override fun setProducts(products: List<Product>) { _products.value = products }
+    override fun getProductsFlow(): Flow<List<Product>> = _products.asStateFlow()
+    override fun getCurrentProducts(): List<Product> = _products.value
 
-    override fun getParties(): List<Party> = initialParties
+    override fun setTransactions(txs: List<StockTransaction>) { _transactions.value = txs }
+    private var _parties = emptyList<Party>()
+    override fun getParties(): List<Party> = _parties
+    override fun setParties(parties: List<Party>) { _parties = parties }
 
     override fun getTransactionsFlow(): Flow<List<StockTransaction>> = _transactions.asStateFlow()
     override fun getCurrentTransactions(): List<StockTransaction> = _transactions.value
@@ -301,7 +161,7 @@ class CementStockRepositoryImpl : CementStockRepository {
         }
     }
 
-    override suspend fun updateProduct(product: CementProduct): Result<Unit> {
+    override suspend fun updateProduct(product: Product): Result<Unit> {
         mutex.withLock {
             val currentList = _products.value.toMutableList()
             val index = currentList.indexOfFirst { it.id == product.id }
@@ -314,7 +174,7 @@ class CementStockRepositoryImpl : CementStockRepository {
         }
     }
 
-    override suspend fun addProduct(product: CementProduct): Result<Unit> {
+    override suspend fun addProduct(product: Product): Result<Unit> {
         mutex.withLock {
             val currentList = _products.value.toMutableList()
             if (currentList.any { it.id == product.id }) {

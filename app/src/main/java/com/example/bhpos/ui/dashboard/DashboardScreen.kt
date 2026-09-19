@@ -45,7 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bhpos.data.repository.CementStockRepository
-import com.example.bhpos.domain.model.CementProduct
+import com.example.bhpos.domain.model.Product
 import com.example.bhpos.domain.model.DashboardTelemetry
 import com.example.bhpos.ui.components.CementTrackHeader
 import com.example.bhpos.ui.theme.ConcreteBorder
@@ -520,7 +520,7 @@ fun DashboardScreen(
 
 @Composable
 fun MaterialLotCard(
-    product: CementProduct,
+    product: Product,
     onTap: () -> Unit
 ) {
     Card(

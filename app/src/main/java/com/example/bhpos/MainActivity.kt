@@ -15,7 +15,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import com.example.bhpos.data.repository.CementStockRepositoryImpl
-import com.example.bhpos.domain.model.CementProduct
+import com.example.bhpos.domain.model.Product
 import com.example.bhpos.domain.model.StockTransaction
 import com.example.bhpos.domain.model.StockTransactionItem
 import com.example.bhpos.domain.model.TransactionType
@@ -577,7 +577,7 @@ class MainActivity : Activity() {
                 
                 val newId = name.lowercase().replace("\\s+".toRegex(), "_") + "_" + System.currentTimeMillis()
                 
-                val newProduct = CementProduct(
+                val newProduct = Product(
                     id = newId,
                     name = name,
                     grade = "Custom",

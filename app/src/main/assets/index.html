@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <title>CementTrack Godown Manager</title>
+  <title>Godown Manager</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @font-face {
@@ -192,7 +192,7 @@
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate">CementTrack POS</span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate">GodownTrack POS</span>
             <span class="text-[9px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded">Live</span>
           </div>
           <span class="text-[14px] font-bold text-on-surface truncate" id="topSubtitle">Godown #4 - Central Depot</span>
@@ -1157,6 +1157,85 @@
     }
 
     function appendPin(digit) {
+    async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, driverPhone, challanNo, ewbNo, destinationSite, items, totals) {
+      if(!currentBusiness) return;
+      const id = 'tx_' + Date.now();
+      const ts = Date.now();
+      const dateStr = new Date().toLocaleDateString();
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      const payload = {
+        id: id,
+        business_id: currentBusiness.id,
+        slip_no: slipNo,
+        type: type,
+        timestamp: ts,
+        date_str: dateStr,
+        time_str: timeStr,
+        party_name: partyName,
+        vehicle_no: vehicleNo,
+        driver_name: driverName,
+        driver_phone: driverPhone,
+        challan_no: challanNo,
+        ewb_no: ewbNo,
+        destination_site: destinationSite,
+        total_bags: totals.bags,
+        total_metric_tons: totals.mt,
+        total_amount: totals.amount,
+        dispatched_by: currentUser ? currentUser.name : "Admin",
+        items: items
+      };
+      
+      try {
+        await sFetch(`transactions`, { method: 'POST', body: JSON.stringify(payload) });
+      } catch(e) { console.error("Tx sync failed", e); }
+      
+      return payload;
+    }
+    async function syncFromCloud() {
+      if (!currentBusiness) return;
+      try {
+        const [cloudProducts, cloudTx, cloudParties] = await Promise.all([
+          sFetch(`products?business_id=eq.${currentBusiness.id}&select=*`),
+          sFetch(`transactions?business_id=eq.${currentBusiness.id}&select=*`),
+          sFetch(`parties?business_id=eq.${currentBusiness.id}&select=*`)
+        ]);
+
+        if (cloudProducts && !cloudProducts.error) {
+          cachedProducts = cloudProducts.map(p => ({
+            id: p.id, name: p.name, grade: p.grade, weightPerBagKg: p.weight_per_bag_kg,
+            defaultRatePerBag: p.default_rate_per_bag, bayLocation: p.bay_location,
+            currentStockBags: p.current_stock_bags, batchNo: p.batch_no,
+            imageUrl: p.image_url, isActive: p.is_active
+          }));
+          renderPosProducts();
+          populateProductDropdowns();
+        }
+
+        if (cloudTx && !cloudTx.error) {
+          cachedTransactions = cloudTx.map(t => ({
+             id: t.id, slipNo: t.slip_no, type: t.type, timestamp: t.timestamp,
+             partyName: t.party_name, vehicleNo: t.vehicle_no, driverName: t.driver_name,
+             driverPhone: t.driver_phone, challanNo: t.challan_no, ewbNo: t.ewb_no,
+             destinationSite: t.destination_site, totalBags: t.total_bags,
+             totalMetricTons: t.total_metric_tons, totalAmount: t.total_amount,
+             dispatchedBy: t.dispatched_by, items: t.items
+          }));
+          renderDashboardActivities();
+          renderLedger();
+        }
+
+        if (cloudParties && !cloudParties.error) {
+          cachedParties = cloudParties.map(p => ({
+             id: p.id, name: p.name, phone: p.phone, gstin: p.gstin,
+             defaultDestination: p.default_destination, accountNo: p.account_no
+          }));
+          populatePartyDropdowns();
+        }
+      } catch (e) {
+        console.error("Cloud sync failed", e);
+      }
+    }
       if (currentPin.length < 4) {
         currentPin += digit;
         updatePinDisplay();
@@ -1299,6 +1378,7 @@
             renderLedger();
           }
           refreshBluetoothPrinters();
+          syncFromCloud();
         }
       } catch (e) {
         console.error("Error refreshing data: ", e);
@@ -1533,9 +1613,15 @@
           const res = JSON.parse(resStr);
           if (res.success) {
             currentLastSlipNo = res.slipNo;
+            const p = cachedProducts.find(x => x.id === pId);
+            const mt = (p.weightPerBagKg*qty)/1000;
+            const amt = qty*p.defaultRatePerBag;
+            const items = [{ productId: pId, productName: p.name, quantityBags: qty, metricTons: mt, ratePerBag: p.defaultRatePerBag }];
+            cloudRecordTx('OUTWARD', res.slipNo, partyName, "", "", "", "", "", "", items, {bags: qty, mt: mt, amount: amt});
+            
             posCart = {};
             updatePosCartBar();
-            refreshData();
+            syncFromCloud();
             switchTab('thermal');
             showToast(`Slip ${res.slipNo} issued!`);
           } else {
@@ -1562,9 +1648,14 @@
           const res = JSON.parse(resStr);
           if (res.success) {
             currentLastSlipNo = res.slipNo;
+            
+            let tMt = 0; let tAmt = 0;
+            items.forEach(i => { tMt += i.metricTons; tAmt += i.quantityBags * i.ratePerBag; });
+            cloudRecordTx('OUTWARD', res.slipNo, partyName, "MH-12-QZ-4891", "Express Driver", "+91 98220-44102", "DC-POS-" + (Date.now() % 10000), "-", "Express POS Counter", items, {bags: totalBags, mt: tMt, amount: tAmt});
+
             posCart = {};
             updatePosCartBar();
-            refreshData();
+            syncFromCloud();
             switchTab('thermal');
             showToast(`Gate Pass ${res.slipNo} issued!`);
           } else {
@@ -1604,7 +1695,7 @@
       }
     }
 
-    function submitNewCustomer() {
+    async function submitNewCustomer() {
       const name = document.getElementById('newCustomerName').value.trim();
       const phone = document.getElementById('newCustomerPhone').value.trim();
       const targetId = document.getElementById('newCustomerTargetSelect').value;
@@ -1614,18 +1705,24 @@
         return;
       }
       
-      const select = document.getElementById(targetId);
-      if (select) {
-          const finalName = name;
-          const opt = document.createElement('option');
-          opt.value = finalName;
-          opt.dataset.phone = phone;
-          opt.textContent = finalName + (phone ? ` [${phone}]` : ' [NEW]');
-          
-          select.insertBefore(opt, select.lastChild);
-          select.value = finalName;
-          
-          if (select.id === 'dispatchPartySelect' && phone) {
+      const newId = 'party_' + Date.now();
+      try {
+        await sFetch(`parties`, {
+          method: 'POST',
+          body: JSON.stringify({
+            id: newId, business_id: currentBusiness.id, type: 'customer', name: name, phone: phone, is_active: true
+          })
+        });
+      } catch(e) { console.error("Cloud party failed", e); }
+      
+      const newParty = { id: newId, name: name, phone: phone };
+      cachedParties.push(newParty);
+      populatePartyDropdowns();
+      
+      const targetSelect = document.getElementById(targetId);
+      if (targetSelect) {
+          targetSelect.value = name;
+          if (targetId === 'dispatchPartySelect') {
             const phoneInput = document.getElementById('dispatchPhone');
             if (phoneInput) phoneInput.value = phone;
           }
@@ -1709,7 +1806,12 @@
         const res = JSON.parse(resStr);
         if (res.success) {
           currentLastSlipNo = res.slipNo;
-          refreshData();
+          
+          let tMt = 0; let tAmt = 0; let tBags = 0;
+          items.forEach(i => { tMt += i.metricTons; tAmt += i.quantityBags * i.ratePerBag; tBags += i.quantityBags; });
+          cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, items, {bags: tBags, mt: tMt, amount: tAmt});
+
+          syncFromCloud();
           switchTab('thermal');
           showToast(`Dispatch Pass ${res.slipNo} Created!`);
         } else {
@@ -1744,8 +1846,12 @@
         const resStr = bridge().recordStockIn(pId, bags, batch, bay);
         const res = JSON.parse(resStr);
         if (res.success) {
+          const p = cachedProducts.find(x => x.id === pId);
+          const items = [{ productId: pId, productName: p.name, quantityBags: bags, metricTons: (p.weightPerBagKg*bags)/1000, ratePerBag: p.defaultRatePerBag }];
+          cloudRecordTx('INWARD', res.slipNo, "Factory", "-", "-", "-", "-", "-", bay, items, {bags: bags, mt: (p.weightPerBagKg*bags)/1000, amount: bags*p.defaultRatePerBag});
+          
           closeStockInModal();
-          refreshData();
+          syncFromCloud();
           showToast(`Stock In +${bags} bags recorded!`);
         } else {
           alert(res.error || "Stock in failed");
@@ -1811,7 +1917,7 @@
       document.getElementById('addItemModal').classList.add('hidden');
     }
 
-    function saveNewItem() {
+    async function saveNewItem() {
       vibrate(40);
       const name = document.getElementById('addItemName').value.trim();
       const rate = parseFloat(document.getElementById('addItemRate').value);
@@ -1822,17 +1928,26 @@
         return;
       }
 
+      const id = 'prod_' + Date.now();
+      
+      try {
+        await sFetch(`products`, {
+          method: 'POST',
+          body: JSON.stringify({
+            id: id, business_id: currentBusiness.id, name: name, 
+            default_rate_per_bag: rate, current_stock_bags: stock,
+            is_active: true
+          })
+        });
+      } catch(e) { console.error("Cloud save failed", e); }
+
       if (bridge()) {
-        const obj = {
-           name: name,
-           defaultRatePerBag: rate,
-           currentStockBags: stock
-        };
+        const obj = { id: id, name: name, defaultRatePerBag: rate, currentStockBags: stock };
         const resStr = bridge().addProduct(JSON.stringify(obj));
         const res = JSON.parse(resStr);
         if (res.success) {
           closeAddItemModal();
-          refreshData();
+          syncFromCloud();
           showToast(`Item added!`);
         } else {
           alert(res.error || "Failed to add item");
@@ -1840,7 +1955,7 @@
       }
     }
 
-    function saveEditItem() {
+    async function saveEditItem() {
       vibrate(40);
       const id = document.getElementById('editItemId').value;
       const name = document.getElementById('editItemName').value.trim();
@@ -1848,24 +1963,28 @@
       const image = document.getElementById('editItemImage').value.trim();
 
       if (!name || isNaN(rate)) {
-        alert("Please fill required fields properly.");
+        alert("Please fill required fields.");
         return;
       }
+      
+      const isActive = document.getElementById('editItemId').dataset.active === 'true';
+
+      try {
+        await sFetch(`products?id=eq.${id}&business_id=eq.${currentBusiness.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            name: name, default_rate_per_bag: rate, image_url: image, is_active: isActive
+          })
+        });
+      } catch(e) { console.error("Cloud edit failed", e); }
 
       if (bridge()) {
-        const isActive = document.getElementById('editItemId').dataset.active === 'true';
-        const obj = {
-           id: id,
-           name: name,
-           defaultRatePerBag: rate,
-           imageUrl: image,
-           isActive: isActive
-        };
+        const obj = { id: id, name: name, defaultRatePerBag: rate, imageUrl: image, isActive: isActive };
         const resStr = bridge().updateProduct(JSON.stringify(obj));
         const res = JSON.parse(resStr);
         if (res.success) {
           closeEditItemModal();
-          refreshData();
+          syncFromCloud();
           showToast(`Item updated!`);
         } else {
           alert(res.error || "Update failed");
@@ -2153,6 +2272,7 @@
       vibrate(25);
       document.getElementById('bluetoothPrinterModal').classList.remove('hidden');
       refreshBluetoothPrinters();
+          syncFromCloud();
     }
 
     function closeBluetoothModal() {
@@ -2322,6 +2442,7 @@
       if (granted) {
         showToast("Bluetooth permissions granted");
         refreshBluetoothPrinters();
+          syncFromCloud();
       } else {
         showToast("Bluetooth permissions denied");
       }

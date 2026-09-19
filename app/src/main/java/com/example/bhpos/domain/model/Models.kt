@@ -6,7 +6,7 @@ enum class TransactionType {
     DAMAGED
 }
 
-data class CementProduct(
+data class Product(
     val id: String,
     val name: String,
     val grade: String, // e.g. PPC, OPC 53G, White
