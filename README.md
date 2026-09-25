@@ -238,8 +238,8 @@ GodownTrack POS communicates directly via the Bluetooth Serial Port Profile (SPP
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/godowntrack-pos.git
-cd godowntrack-pos
+git clone https://github.com/nurmd/GodownWala.git
+cd GodownWala
 
 # Build debug APK
 ./gradlew assembleDebug
