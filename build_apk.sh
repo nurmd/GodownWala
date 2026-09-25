@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-echo "=== Building & Packaging GodownTrack POS APK ==="
+echo "=== Building & Packaging GodownWala POS APK ==="
 cd /data/data/com.termux/files/home/bhpos
 
 ANDROID_JAR="/data/data/com.termux/files/home/android-sdk/platforms/android-26/android.jar"

@@ -46,7 +46,7 @@ jobs:
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: godowntrack-pos-debug-apk
+          name: godownwala-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 14
 

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="app/src/main/assets/img/app_logo.png" width="128" height="128" alt="GodownTrack POS Logo" style="border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+  <img src="app/src/main/assets/img/app_logo.png" width="128" height="128" alt="GodownWala Logo" style="border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
 </p>
 
-<h1 align="center">GodownTrack POS</h1>
+<h1 align="center">GodownWala</h1>
 
 <p align="center">
   <b>Enterprise Warehouse Inventory Management, Fast Dispatch &amp; Dual-Width Bluetooth Thermal Printing System</b>
@@ -21,11 +21,11 @@
 
 ## 📖 Overview
 
-**GodownTrack POS** (formerly BH POS) is an industrial-grade, offline-first mobile Point of Sale (POS) and inventory dispatch application designed for warehouses, godowns, distribution depots, and wholesale stockyards.
+**GodownWala** is an industrial-grade, offline-first mobile Point of Sale (POS) and inventory dispatch application designed for warehouses, godowns, distribution depots, and wholesale stockyards.
 
-Built with a high-performance **hybrid architecture** combining a native **Kotlin Android** host with a modern, responsive **Material 3 / Tailwind CSS** interface, GodownTrack delivers instantaneous (0ms) local feedback while maintaining real-time bidirectional synchronization with a multi-tenant **Supabase** PostgreSQL cloud.
+Built with a high-performance **hybrid architecture** combining a native **Kotlin Android** host with a modern, responsive **Material 3 / Tailwind CSS** interface, GodownWala delivers instantaneous (0ms) local feedback while maintaining real-time bidirectional synchronization with a multi-tenant **Supabase** PostgreSQL cloud.
 
-Whether operating in high-speed contractor pickup lanes, conducting stock-in receiving at the docks, or generating physical gate passes on battery-powered thermal printers, GodownTrack ensures continuous operations with zero downtime.
+Whether operating in high-speed contractor pickup lanes, conducting stock-in receiving at the docks, or generating physical gate passes on battery-powered thermal printers, GodownWala ensures continuous operations with zero downtime.
 
 ---
 
@@ -93,7 +93,7 @@ Whether operating in high-speed contractor pickup lanes, conducting stock-in rec
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                 GodownTrack Mobile Client                   │
+│                   GodownWala Mobile Client                  │
 ├──────────────────────────────┬──────────────────────────────┤
 │    Frontend Web View Layer   │     Native Android Layer     │
 │  • HTML5 / Material 3        │  • Kotlin 2.1.0 Host         │
@@ -126,7 +126,7 @@ Whether operating in high-speed contractor pickup lanes, conducting stock-in rec
 
 ## 📋 Database Setup (Supabase)
 
-To link GodownTrack POS to your own Supabase instance:
+To link GodownWala to your own Supabase instance:
 
 1. Create a new project in the [Supabase Dashboard](https://supabase.com).
 2. Navigate to the **SQL Editor** and execute the provided [`schema.sql`](file:///data/data/com.termux/files/home/bhpos/schema.sql) file:
@@ -220,7 +220,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE parties;
 
 ## ⚙️ Hardware Compatibility
 
-GodownTrack POS communicates directly via the Bluetooth Serial Port Profile (SPP / RFCOMM) without requiring external third-party print service plugins or manufacturer-specific SDKs.
+GodownWala communicates directly via the Bluetooth Serial Port Profile (SPP / RFCOMM) without requiring external third-party print service plugins or manufacturer-specific SDKs.
 
 | Printer Model | Standard Roll Width | Printable Columns | Status | Notes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -250,7 +250,7 @@ cd GodownWala
 
 ### Option 2: Standalone On-Device Build (Termux / Linux CLI)
 
-GodownTrack POS includes a zero-dependency local build script ([`build_apk.sh`](file:///data/data/com.termux/files/home/bhpos/build_apk.sh)) that compiles resources via `aapt2`, compiles Kotlin sources via `kotlinc`, translates bytecode via `d8`, and signs the package via `apksigner`:
+GodownWala includes a zero-dependency local build script ([`build_apk.sh`](file:///data/data/com.termux/files/home/bhpos/build_apk.sh)) that compiles resources via `aapt2`, compiles Kotlin sources via `kotlinc`, translates bytecode via `d8`, and signs the package via `apksigner`:
 
 ```bash
 # Run the standalone compilation script
@@ -287,14 +287,14 @@ GodownTrack POS includes a zero-dependency local build script ([`build_apk.sh`](
 ### 4. Thermal Printer Setup & Test Prints
 1. Switch to the **Thermal** tab.
 2. Tap **"Scan Bluetooth Printers"** to discover nearby devices, or pick an existing paired device from the list.
-3. Tap **"Test Print"** on any device to verify hardware communication. GodownTrack remembers the paper roll width (58mm or 80mm) for that device automatically.
+3. Tap **"Test Print"** on any device to verify hardware communication. GodownWala remembers the paper roll width (58mm or 80mm) for that device automatically.
 
 ---
 
 ## 📂 Directory Structure
 
 ```text
-godowntrack-pos/
+GodownWala/
 ├── app/
 │   ├── src/
 │   │   ├── main/
