@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/Backend-Supabase_Realtime_(PostgreSQL)-emerald?logo=supabase&logoColor=white" alt="Supabase Backend" />
   <img src="https://img.shields.io/badge/Printing-ESC%2FPOS_(58mm_%2F_80mm)-orange?logo=bluetooth&logoColor=white" alt="ESC/POS Printing" />
   <img src="https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white" alt="GitHub Actions CI" />
-  <img src="https://img.shields.io/badge/License-MIT-gray" alt="License" />
+  <img src="https://img.shields.io/badge/License-GPLv3-blue" alt="License" />
 </p>
 
 ---
@@ -345,7 +345,7 @@ Contributions, bug reports, and feature requests are welcome!
 
 ## 📄 License
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distributed under the **GNU General Public License v3.0 (GPLv3)**. See `LICENSE` for more information.
 
 ---
 
