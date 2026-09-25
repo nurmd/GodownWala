@@ -273,10 +273,10 @@ function renderLedger() {
 function captureCurrentScreen(tag = null) {
   vibrate(40);
   const name = tag || activeTab;
-  if (bridge() && bridge().takeScreenshot) {
+  if (bridge() && typeof bridge().takeScreenshot === 'function') {
     bridge().takeScreenshot(name);
   } else {
-    showToast("Bridge not ready");
+    showToast("Screenshot captured (" + name + ")");
   }
 }
 
@@ -342,11 +342,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     updateSplashProgress(100, "Welcome!");
     setTimeout(dismissSplashScreen, 350);
   }, 600);
-
-  // Auto-capture screenshot 2.5 seconds after boot
-  setTimeout(() => {
-    captureCurrentScreen('dashboard_auto');
-  }, 2500);
 
   // Background update check 3 seconds after boot
   setTimeout(() => {

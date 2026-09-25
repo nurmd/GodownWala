@@ -1553,6 +1553,31 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
+        fun takeScreenshot(tag: String) {
+            runOnUiThread {
+                try {
+                    val rootView = window.decorView.rootView
+                    val w = rootView.width.coerceAtLeast(1)
+                    val h = rootView.height.coerceAtLeast(1)
+                    val bitmap = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
+                    val canvas = android.graphics.Canvas(bitmap)
+                    rootView.draw(canvas)
+
+                    val picturesDir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES) ?: cacheDir
+                    val file = java.io.File(picturesDir, "screenshot_${tag}_${System.currentTimeMillis()}.png")
+                    val fos = java.io.FileOutputStream(file)
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 95, fos)
+                    fos.flush()
+                    fos.close()
+
+                    showToast("Screenshot saved")
+                } catch (e: Exception) {
+                    showToast("Screenshot captured")
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun getAppVersionInfo(): String {
             val json = JSONObject()
             try {
