@@ -61,6 +61,52 @@
       font-family: "Space Mono", monospace, "Courier New", Courier;
       white-space: pre;
     }
+    @keyframes splashLogoEnter {
+      0% {
+        opacity: 0;
+        transform: scale(0.82) translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    @keyframes splashTextEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes pulseGlow {
+      0%, 100% {
+        opacity: 0.45;
+        transform: scale(0.96);
+      }
+      50% {
+        opacity: 0.85;
+        transform: scale(1.05);
+      }
+    }
+    .splash-logo-enter {
+      animation: splashLogoEnter 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .splash-text-enter {
+      animation: splashTextEnter 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    }
+    .splash-pulse-glow {
+      animation: pulseGlow 2.4s ease-in-out infinite;
+    }
+    .splash-exit {
+      opacity: 0 !important;
+      transform: scale(1.04) !important;
+      filter: blur(2px) !important;
+      pointer-events: none !important;
+      transition: all 0.55s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
   </style>
   <script src="tailwind.js"></script>
   <script>
@@ -106,6 +152,57 @@
   </script>
 </head>
 <body class="bg-surface text-on-surface flex flex-col h-screen w-screen overflow-hidden">
+  <!-- Startup Splash Screen with Smooth Fluid Animation -->
+  <div id="appSplashScreen" class="fixed inset-0 z-[999] flex flex-col items-center justify-between p-8 bg-[#0B132B] text-white select-none transition-all duration-700 ease-out">
+    
+    <!-- Ambient Top Glow -->
+    <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/25 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="w-full flex justify-end pt-safe">
+      <span class="text-[10px] font-mono tracking-widest text-slate-400/80 uppercase">v1.0.0 Stable</span>
+    </div>
+
+    <!-- Center Branding -->
+    <div class="flex flex-col items-center justify-center text-center space-y-6 my-auto">
+      <!-- Animated Logo Container with Glow -->
+      <div class="relative group">
+        <div class="absolute -inset-4 bg-gradient-to-tr from-cyan-500/30 via-primary/40 to-amber-500/30 rounded-3xl blur-2xl splash-pulse-glow"></div>
+        <div class="relative w-28 h-28 rounded-2xl bg-[#0F1E40] border border-cyan-400/30 shadow-[0_12px_40px_rgba(0,0,0,0.6)] p-2 flex items-center justify-center splash-logo-enter">
+          <img src="img/app_logo.png" alt="GodownTrack" class="w-full h-full object-contain rounded-xl drop-shadow-lg" />
+        </div>
+      </div>
+
+      <!-- App Title & Tagline -->
+      <div class="space-y-1.5 splash-text-enter">
+        <h1 class="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-1.5">
+          <span>GodownTrack</span>
+          <span class="px-2 py-0.5 rounded-md bg-primary/30 border border-primary/40 text-primary-fixed text-[11px] font-extrabold uppercase tracking-wider">POS</span>
+        </h1>
+        <p class="text-xs font-medium text-slate-400 tracking-wide">
+          Smart Warehouse Inventory &amp; Dispatch Engine
+        </p>
+      </div>
+
+      <!-- Smooth Progress Indicator -->
+      <div class="w-60 space-y-2 pt-2">
+        <div class="w-full h-1.5 bg-slate-800/90 rounded-full overflow-hidden p-0.5 border border-slate-700/60 shadow-inner">
+          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-cyan-400 via-primary-container to-amber-400 rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_8px_rgba(245,124,0,0.6)]"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium px-1">
+          <span id="splashStatusText" class="animate-pulse">Starting engine...</span>
+          <span id="splashPercentText" class="font-mono text-cyan-400 font-bold">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Footer Credentials -->
+    <div class="pb-safe text-center space-y-1">
+      <div class="flex items-center justify-center gap-2 text-slate-500 text-[11px]">
+        <span class="material-symbols-outlined text-[15px] text-primary">cloud_sync</span>
+        <span>Supabase Multi-Tenant &bull; ESC/POS Native</span>
+      </div>
+    </div>
+  </div>
   <!-- Auth Overlay -->
   <div id="authOverlay" class="fixed inset-0 z-[100] bg-surface flex flex-col items-center justify-center p-6 hidden">
     <!-- Setup Screen -->
@@ -195,7 +292,7 @@
             <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate">GodownTrack POS</span>
             <span class="text-[9px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded">Live</span>
           </div>
-          <span class="text-[14px] font-bold text-on-surface truncate" id="topSubtitle">Godown #4 - Central Depot</span>
+          <select id="topGodownSelector" onchange="changeGodown()" class="text-[14px] font-bold text-on-surface bg-transparent border-none p-0 focus:ring-0 truncate" style="max-width:180px;"><option value="ALL">All Godowns</option></select>
         </div>
       </div>
 
@@ -231,7 +328,7 @@
                 <h2 class="text-[15px] font-bold text-on-surface">Bay 2 • Central Logistics</h2>
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed">Active</span>
               </div>
-              <p class="text-[12px] text-on-surface-variant">Godown #4 (Industrial Hub)</p>
+              <p class="text-[12px] text-on-surface-variant" id="dashGodownSubtitle">All Godowns</p>
             </div>
           </div>
           <button onclick="refreshData()" class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-95">
@@ -330,8 +427,8 @@
 
     <!-- ==================== TAB 2: POS TERMINAL (QUICK DISPATCH) ==================== -->
     <section id="tab-pos" class="tab-page hidden px-4 py-3 space-y-3">
-      <!-- Products Grid -->
-      <div class="grid grid-cols-2 gap-2.5" id="posProductsGrid"></div>
+      <!-- Products Grid (Responsive: 2 cols on mobile, up to 6 on wide screens) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5" id="posProductsGrid"></div>
     </section>
 
     <!-- ==================== TAB 3: NEW DISPATCH ==================== -->
@@ -355,33 +452,33 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block font-bold text-on-surface-variant mb-1">Vehicle No</label>
-              <input type="text" id="dispatchVehicle" value="MH-12-QZ-4891" placeholder="e.g. MH-12-QZ-4891" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold uppercase"/>
+              <input type="text" id="dispatchVehicle" value="" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold uppercase"/>
             </div>
             <div>
               <label class="block font-bold text-on-surface-variant mb-1">Destination Site</label>
-              <input type="text" id="dispatchSite" value="Metro Pillar 142 Site" placeholder="Delivery Location" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+              <input type="text" id="dispatchSite" value="" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block font-bold text-on-surface-variant mb-1">Driver Name</label>
-              <input type="text" id="dispatchDriver" value="Rameshwar" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+              <input type="text" id="dispatchDriver" value="" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
             </div>
             <div>
               <label class="block font-bold text-on-surface-variant mb-1">Driver Phone</label>
-              <input type="text" id="dispatchPhone" value="+91 98234-11029" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+              <input type="text" id="dispatchPhone" value="" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block font-bold text-on-surface-variant mb-1">Delivery Challan No</label>
-              <input type="text" id="dispatchChallan" value="DC-2024-8841" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+              <input type="text" id="dispatchChallan" value="" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
             </div>
             <div>
               <label class="block font-bold text-on-surface-variant mb-1">E-Way Bill (EWB)</label>
-              <input type="text" id="dispatchEwb" value="8921-4402-9912" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+              <input type="text" id="dispatchEwb" value="" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
             </div>
           </div>
 
@@ -585,7 +682,7 @@
       <div class="bg-surface-container-low px-4 py-3 flex items-center justify-between border-b border-surface-container-high shrink-0">
         <h2 class="text-[16px] font-bold text-on-surface" id="slipPreviewHeader">Slip Preview</h2>
         <div class="flex items-center gap-2">
-          <button id="slipPreviewEditBtn" class="px-3 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all">
+          <button id="slipPreviewTrashBtn" onclick="deleteCurrentSlip()" class="px-3 py-1 rounded-lg bg-error-container text-on-error-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all mr-1"><span class="material-symbols-outlined text-[14px]">delete</span> Trash</button> <button id="slipPreviewEditBtn" class="px-3 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all">
             <span class="material-symbols-outlined text-[14px]">edit</span> Edit
           </button>
           <button onclick="closeSlipPreviewModal()" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90 transition-all cursor-pointer z-50">
@@ -645,8 +742,28 @@
           </div>
         </div>
         <div>
-          <label class="block font-bold text-on-surface-variant mb-1">Image URL</label>
-          <input type="text" id="editItemImage" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" placeholder="https://..."/>
+          <label class="block font-bold text-on-surface-variant mb-1">Product Photo</label>
+          <div class="flex items-center gap-3 bg-surface-container-low border border-surface-container-high rounded-xl p-2.5">
+            <input type="hidden" id="editItemImage" value="" />
+            <input type="file" id="editItemFileInput" accept="image/*" class="hidden" onchange="handleProductImageUpload(this, 'editItemImage', 'editItemImagePreview', 'editItemImagePlaceholder')" />
+            <div id="editItemImagePreviewWrapper" class="relative w-16 h-16 rounded-lg bg-surface-container border border-surface-container-high overflow-hidden shrink-0 flex items-center justify-center">
+              <img id="editItemImagePreview" class="hidden w-full h-full object-cover" />
+              <span id="editItemImagePlaceholder" class="material-symbols-outlined text-outline text-[28px]">add_a_photo</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1.5">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="document.getElementById('editItemFileInput').click()" class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 font-bold text-[11px] flex items-center gap-1 active:scale-95 transition-transform">
+                  <span class="material-symbols-outlined text-[15px]">upload</span>
+                  Upload Photo
+                </button>
+                <button type="button" id="editItemImageRemoveBtn" onclick="clearProductImage('editItemImage', 'editItemImagePreview', 'editItemImagePlaceholder')" class="hidden px-2.5 py-1.5 rounded-lg bg-error/10 text-error hover:bg-error/20 font-bold text-[11px] flex items-center gap-1 active:scale-95 transition-transform">
+                  <span class="material-symbols-outlined text-[15px]">delete</span>
+                  Remove
+                </button>
+              </div>
+              <span class="text-[10px] text-on-surface-variant">Compressed & synced across all devices</span>
+            </div>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-2 mt-2">
           <button onclick="saveEditItem()" class="bg-primary text-on-primary py-2.5 rounded-xl font-extrabold shadow uppercase tracking-wider text-[13px] active:scale-95 transition-transform flex items-center justify-center gap-1">
@@ -702,8 +819,36 @@
           </div>
         </div>
         <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Godown / Location</label>
+          <input type="text" id="addItemGodown" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold" placeholder="e.g. Godown 1" value="Godown 1"/>
+        </div>
+        <div>
           <label class="block font-bold text-on-surface-variant mb-1">Initial Stock (Qty)</label>
           <input type="number" id="addItemStock" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" value="0"/>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Product Photo</label>
+          <div class="flex items-center gap-3 bg-surface-container-low border border-surface-container-high rounded-xl p-2.5">
+            <input type="hidden" id="addItemImage" value="" />
+            <input type="file" id="addItemFileInput" accept="image/*" class="hidden" onchange="handleProductImageUpload(this, 'addItemImage', 'addItemImagePreview', 'addItemImagePlaceholder')" />
+            <div id="addItemImagePreviewWrapper" class="relative w-16 h-16 rounded-lg bg-surface-container border border-surface-container-high overflow-hidden shrink-0 flex items-center justify-center">
+              <img id="addItemImagePreview" class="hidden w-full h-full object-cover" />
+              <span id="addItemImagePlaceholder" class="material-symbols-outlined text-outline text-[28px]">add_a_photo</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1.5">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="document.getElementById('addItemFileInput').click()" class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 font-bold text-[11px] flex items-center gap-1 active:scale-95 transition-transform">
+                  <span class="material-symbols-outlined text-[15px]">upload</span>
+                  Upload Photo
+                </button>
+                <button type="button" id="addItemImageRemoveBtn" onclick="clearProductImage('addItemImage', 'addItemImagePreview', 'addItemImagePlaceholder')" class="hidden px-2.5 py-1.5 rounded-lg bg-error/10 text-error hover:bg-error/20 font-bold text-[11px] flex items-center gap-1 active:scale-95 transition-transform">
+                  <span class="material-symbols-outlined text-[15px]">delete</span>
+                  Remove
+                </button>
+              </div>
+              <span class="text-[10px] text-on-surface-variant">Compressed & synced across all devices</span>
+            </div>
+          </div>
         </div>
         <button onclick="saveNewItem()" class="w-full mt-2 bg-primary text-on-primary py-2.5 rounded-full font-extrabold shadow uppercase tracking-wider text-[13px] active:scale-95 transition-transform flex items-center justify-center gap-1">
           <span class="material-symbols-outlined text-[16px]">add</span>
@@ -730,6 +875,15 @@
         <div>
           <label class="block font-bold text-on-surface-variant mb-1">Product</label>
           <select id="stockInProductSelect" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"></select>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-bold text-on-surface-variant">Vendor / Source Factory</label>
+            <button onclick="openPartyModal()" class="text-tertiary font-bold text-[10px] uppercase">New</button>
+          </div>
+          <select id="stockInVendorSelect" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold">
+            <option value="Factory">Factory</option>
+          </select>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>

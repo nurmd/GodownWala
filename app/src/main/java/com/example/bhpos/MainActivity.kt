@@ -8,7 +8,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.net.Uri
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -33,6 +35,7 @@ class MainActivity : Activity() {
     private lateinit var webView: WebView
     private val repository = CementStockRepositoryImpl.instance
     private var vibrator: Vibrator? = null
+    private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +111,27 @@ class MainActivity : Activity() {
                 android.util.Log.d("BH_CONSOLE", "${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}")
                 return true
             }
+
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                fileChooserCallback?.onReceiveValue(null)
+                fileChooserCallback = filePathCallback
+                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "image/*"
+                }
+                try {
+                    startActivityForResult(Intent.createChooser(intent, "Select Product Image"), FILE_CHOOSER_REQUEST_CODE)
+                } catch (e: Exception) {
+                    fileChooserCallback?.onReceiveValue(null)
+                    fileChooserCallback = null
+                    return false
+                }
+                return true
+            }
         }
 
         webView.addJavascriptInterface(AndroidBridge(), "AndroidBridge")
@@ -118,6 +142,26 @@ class MainActivity : Activity() {
             webView.goBack()
         } else {
             super.onBackPressed()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                val result = if (data.data != null) {
+                    arrayOf(data.data!!)
+                } else if (data.clipData != null) {
+                    val count = data.clipData!!.itemCount
+                    Array(count) { i -> data.clipData!!.getItemAt(i).uri }
+                } else {
+                    null
+                }
+                fileChooserCallback?.onReceiveValue(result)
+            } else {
+                fileChooserCallback?.onReceiveValue(null)
+            }
+            fileChooserCallback = null
         }
     }
 
@@ -132,6 +176,7 @@ class MainActivity : Activity() {
         private const val KEY_CLOUD_URL = "cloud_sync_url"
         private const val KEY_CURRENT_USER = "current_user_json"
         private const val PERM_REQUEST_CODE = 2001
+        private const val FILE_CHOOSER_REQUEST_CODE = 3001
     }
 
     fun getCloudUrl(): String {
@@ -197,6 +242,36 @@ class MainActivity : Activity() {
     fun saveActivePrinter(name: String, address: String) {
         val sp = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         sp.edit().putString(KEY_PRINTER_NAME, name).putString(KEY_PRINTER_ADDR, address).apply()
+    }
+
+    fun getSavedPaperWidthForDevice(identifier: String): Int {
+        if (identifier.isBlank()) return 0
+        val sp = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return sp.getInt("printer_paper_width_" + identifier.trim(), 0)
+    }
+
+    fun savePaperWidthForDevice(identifier: String, widthMm: Int) {
+        if (identifier.isBlank() || (widthMm != 58 && widthMm != 80)) return
+        val sp = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        sp.edit().putInt("printer_paper_width_" + identifier.trim(), widthMm).apply()
+    }
+
+    fun resolvePaperWidth(name: String?, address: String?): Int {
+        // 1. Check remembered width for address
+        if (!address.isNullOrBlank()) {
+            val w = getSavedPaperWidthForDevice(address)
+            if (w == 58 || w == 80) return w
+        }
+        // 2. Check remembered width for name
+        if (!name.isNullOrBlank()) {
+            val w = getSavedPaperWidthForDevice(name)
+            if (w == 58 || w == 80) return w
+        }
+        // 3. Auto-detect from model name keywords
+        val detected = com.example.bhpos.printer.BluetoothPrinterManager.detectPaperWidthFromName(name)
+        if (!address.isNullOrBlank()) savePaperWidthForDevice(address, detected)
+        if (!name.isNullOrBlank()) savePaperWidthForDevice(name, detected)
+        return detected
     }
 
     fun getSavedPrintOptions(): String {
@@ -688,12 +763,12 @@ class MainActivity : Activity() {
 
                 val tx = existingTx.copy(
                     partyName = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor",
-                    vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "MH-12-QZ-4891",
-                    driverName = if (driverName.isNotBlank()) driverName else "Depot Driver",
+                    vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
+                    driverName = if (driverName.isNotBlank()) driverName else "-",
                     driverPhone = if (driverPhone.isNotBlank()) driverPhone else "-",
                     challanNo = if (challanNo.isNotBlank()) challanNo else existingTx.challanNo,
                     ewbNo = if (ewbNo.isNotBlank()) ewbNo else "-",
-                    destinationSite = if (site.isNotBlank()) site else "Site Delivery",
+                    destinationSite = if (site.isNotBlank()) site else "-",
                     totalBags = totalBags,
                     totalMetricTons = totalMt,
                     totalAmount = totalAmount,
@@ -801,12 +876,12 @@ class MainActivity : Activity() {
                     type = TransactionType.OUTWARD,
                     timestamp = System.currentTimeMillis(),
                     partyName = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor",
-                    vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "MH-12-QZ-4891",
-                    driverName = if (driverName.isNotBlank()) driverName else "Depot Driver",
+                    vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
+                    driverName = if (driverName.isNotBlank()) driverName else "-",
                     driverPhone = if (driverPhone.isNotBlank()) driverPhone else "-",
                     challanNo = if (challanNo.isNotBlank()) challanNo else "DC-${System.currentTimeMillis() % 10000}",
                     ewbNo = if (ewbNo.isNotBlank()) ewbNo else "-",
-                    destinationSite = if (site.isNotBlank()) site else "Site Delivery",
+                    destinationSite = if (site.isNotBlank()) site else "-",
                     totalBags = totalBags,
                     totalMetricTons = totalMt,
                     totalAmount = totalAmount,
@@ -843,6 +918,7 @@ class MainActivity : Activity() {
                 val result = runBlocking { repository.recordStockIn(productId, bags, batchNo, bayLocation) }
                 if (result.isSuccess) {
                     response.put("success", true)
+                    response.put("slipNo", result.getOrNull())
                     vibrate(40)
                 } else {
                     response.put("success", false)
@@ -912,7 +988,11 @@ class MainActivity : Activity() {
                 val id = obj.getString("id")
                 val name = obj.getString("name")
                 val rate = obj.getDouble("defaultRatePerBag")
-                val imageUrl = if (obj.has("imageUrl") && !obj.isNull("imageUrl")) obj.getString("imageUrl").takeIf { it.isNotBlank() } else null
+                val hasImageKey = obj.has("imageUrl")
+                val imageUrl = if (hasImageKey) {
+                    if (obj.isNull("imageUrl") || obj.getString("imageUrl").isBlank()) null
+                    else obj.getString("imageUrl")
+                } else null
                 val unit = if (obj.has("unit")) obj.getString("unit") else null
                 
                 val products = repository.getCurrentProducts()
@@ -922,7 +1002,7 @@ class MainActivity : Activity() {
                     val updated = existing.copy(
                         name = name,
                         defaultRatePerBag = rate,
-                        imageUrl = imageUrl ?: existing.imageUrl,
+                        imageUrl = if (hasImageKey) imageUrl else existing.imageUrl,
                         isActive = if (obj.has("isActive")) obj.getBoolean("isActive") else existing.isActive,
                         unit = finalUnit,
                         grade = finalUnit
@@ -1050,6 +1130,8 @@ class MainActivity : Activity() {
 
                     val isLikelyPrinter = BluetoothPrinterManager.isLikelyPrinter(dev)
                     obj.put("isPrinter", isLikelyPrinter)
+                    val width = resolvePaperWidth(name, addr)
+                    obj.put("paperWidthMm", width)
                     array.put(obj)
                 }
             } catch (_: Exception) {}
@@ -1112,6 +1194,8 @@ class MainActivity : Activity() {
                         lower.contains("rp") || lower.contains("thermal") ||
                         lower.contains("mpt") || lower.contains("slip") || lower.contains("bt")
                 obj.put("isPrinter", isLikelyPrinter)
+                val width = resolvePaperWidth(name, addr)
+                obj.put("paperWidthMm", width)
                 array.put(obj)
             }
             return array.toString()
@@ -1120,9 +1204,29 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun selectPrinter(name: String, address: String): String {
             saveActivePrinter(name, address)
+            val resolvedWidth = resolvePaperWidth(name, address)
+            savePaperWidthForDevice(address, resolvedWidth)
+            savePaperWidthForDevice(name, resolvedWidth)
             showToast("Selected Printer: $name")
             vibrate(30)
-            return """{"success": true}"""
+            val res = JSONObject()
+            res.put("success", true)
+            res.put("name", name)
+            res.put("address", address)
+            res.put("paperWidthMm", resolvedWidth)
+            return res.toString()
+        }
+
+        @JavascriptInterface
+        fun getPrinterPaperWidth(name: String, address: String): Int {
+            return resolvePaperWidth(name, address)
+        }
+
+        @JavascriptInterface
+        fun savePrinterPaperWidth(address: String, widthMm: Int) {
+            savePaperWidthForDevice(address, widthMm)
+            val curName = getSavedPrinterName()
+            if (curName.isNotBlank()) savePaperWidthForDevice(curName, widthMm)
         }
 
         @JavascriptInterface
@@ -1141,11 +1245,7 @@ class MainActivity : Activity() {
 
         /**
          * Sends an ESC/POS self-test receipt to a targeted or default Bluetooth printer.
-         *
-         * Futureproofing rules:
-         * 1. Uses [EscPosSlipGenerator.generateTestSlipBytes] for valid ESC/POS commands (feed & cut).
-         * 2. Always targets [address] if passed; otherwise falls back to the saved printer in SharedPreferences.
-         * 3. Automatically persists newly verified printer connections to [saveActivePrinter].
+         * Automatically detects, remembers, and applies the printer paper width.
          */
         @JavascriptInterface
         fun testPrintPrinter(name: String, address: String, paperWidthMm: Int): String {
@@ -1154,7 +1254,6 @@ class MainActivity : Activity() {
                 val isSpecificTarget = address.isNotBlank()
                 val targetAddr = if (isSpecificTarget) address else getSavedPrinterAddress()
                 val targetName = if (isSpecificTarget) name else getSavedPrinterName()
-                val width = if (paperWidthMm == 58) 58 else 80
                 val allowFailover = !isSpecificTarget
 
                 val result = BluetoothPrinterManager.print(
@@ -1164,19 +1263,30 @@ class MainActivity : Activity() {
                     payloadSupplier = { connectedDevice, isFailover ->
                         val devName = connectedDevice.name ?: targetName
                         val devAddr = connectedDevice.address ?: targetAddr
+                        val width = if (paperWidthMm == 58 || paperWidthMm == 80) {
+                            paperWidthMm
+                        } else {
+                            resolvePaperWidth(devName, devAddr)
+                        }
                         com.example.bhpos.printer.EscPosSlipGenerator.generateTestSlipBytes(devName, devAddr, width, isFailover)
                     }
                 )
                 
                 vibrate(60)
                 if (result.success && !result.deviceAddress.isNullOrBlank()) {
-                    saveActivePrinter(result.deviceName ?: targetName, result.deviceAddress)
-                    if (result.isFailover) {
-                        runOnUiThread {
-                            val newName = result.deviceName ?: "Thermal Printer"
-                            showToast("Primary printer offline. Routed to $newName!")
-                            val script = "window.onActivePrinterChanged && window.onActivePrinterChanged(${JSONObject.quote(newName)}, ${JSONObject.quote(result.deviceAddress)}, true);"
-                            webView.evaluateJavascript(script, null)
+                    val pName = result.deviceName ?: targetName
+                    val pAddr = result.deviceAddress
+                    saveActivePrinter(pName, pAddr)
+                    savePaperWidthForDevice(pAddr, result.paperWidthMm)
+                    savePaperWidthForDevice(pName, result.paperWidthMm)
+
+                    runOnUiThread {
+                        val script = "window.onPrinterSizeDetected && window.onPrinterSizeDetected(${result.paperWidthMm}, ${JSONObject.quote(pName)}, ${JSONObject.quote(pAddr)});"
+                        webView.evaluateJavascript(script, null)
+                        if (result.isFailover) {
+                            showToast("Primary printer offline. Routed to $pName!")
+                            val failoverScript = "window.onActivePrinterChanged && window.onActivePrinterChanged(${JSONObject.quote(pName)}, ${JSONObject.quote(pAddr)}, true, ${result.paperWidthMm});"
+                            webView.evaluateJavascript(failoverScript, null)
                         }
                     }
                 } else if (!result.success) {
@@ -1195,6 +1305,7 @@ class MainActivity : Activity() {
                 response.put("message", msg)
                 response.put("isFailover", result.isFailover)
                 response.put("printedDevice", result.deviceName ?: "")
+                response.put("paperWidthMm", result.paperWidthMm)
             } catch (e: Exception) {
                 response.put("success", false)
                 response.put("message", e.message ?: "Test print failed")
@@ -1225,14 +1336,39 @@ class MainActivity : Activity() {
 
                 showToast("Printing slip ${tx.slipNo}...")
                 val opts = com.example.bhpos.printer.PrintOptions.fromJson(optionsJson)
-                val escBytes = com.example.bhpos.printer.EscPosSlipGenerator.generateEscPosBytes(tx, if (paperWidthMm == 58) 58 else 80, opts)
-                val result = tryBluetoothPrint(escBytes)
-                val printedBt = result.success
 
+                val result = BluetoothPrinterManager.print(
+                    targetAddress = getSavedPrinterAddress(),
+                    fallbackAddress = getSavedPrinterAddress(),
+                    allowFailover = true,
+                    payloadSupplier = { connectedDevice, isFailover ->
+                        val devName = connectedDevice.name ?: getSavedPrinterName()
+                        val devAddr = connectedDevice.address ?: getSavedPrinterAddress()
+                        val effectiveWidth = if (paperWidthMm == 58 || paperWidthMm == 80) {
+                            paperWidthMm
+                        } else {
+                            resolvePaperWidth(devName, devAddr)
+                        }
+                        com.example.bhpos.printer.EscPosSlipGenerator.generateEscPosBytes(tx, effectiveWidth, opts)
+                    }
+                )
+
+                val printedBt = result.success
                 vibrate(100)
                 if (printedBt) {
+                    val pName = result.deviceName ?: getSavedPrinterName()
+                    val pAddr = result.deviceAddress ?: getSavedPrinterAddress()
+                    if (result.deviceAddress != null) {
+                        saveActivePrinter(pName, pAddr)
+                        savePaperWidthForDevice(pAddr, result.paperWidthMm)
+                        savePaperWidthForDevice(pName, result.paperWidthMm)
+                    }
                     if (result.isFailover) {
-                        showToast("Printed via Bluetooth on ${result.deviceName}!")
+                        showToast("Printed via Bluetooth on $pName!")
+                        runOnUiThread {
+                            val script = "window.onActivePrinterChanged && window.onActivePrinterChanged(${JSONObject.quote(pName)}, ${JSONObject.quote(pAddr)}, true, ${result.paperWidthMm});"
+                            webView.evaluateJavascript(script, null)
+                        }
                     } else {
                         showToast("Thermal Slip printed via Bluetooth!")
                     }
@@ -1244,6 +1380,7 @@ class MainActivity : Activity() {
                 response.put("printedViaBluetooth", printedBt)
                 response.put("printedDevice", result.deviceName ?: "")
                 response.put("isFailover", result.isFailover)
+                response.put("paperWidthMm", result.paperWidthMm)
                 response.put("slipNo", tx.slipNo)
             } catch (e: Exception) {
                 response.put("success", false)
@@ -1269,17 +1406,38 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
-                val escBytes = EscPosSlipGenerator.generateEscPosBytes(tx, if (paperWidthMm == 58) 58 else 80)
-                val result = tryBluetoothPrint(escBytes)
-                val printedBt = result.success
+                val result = BluetoothPrinterManager.print(
+                    targetAddress = getSavedPrinterAddress(),
+                    fallbackAddress = getSavedPrinterAddress(),
+                    allowFailover = true,
+                    payloadSupplier = { connectedDevice, _ ->
+                        val devName = connectedDevice.name ?: getSavedPrinterName()
+                        val devAddr = connectedDevice.address ?: getSavedPrinterAddress()
+                        val effectiveWidth = if (paperWidthMm == 58 || paperWidthMm == 80) {
+                            paperWidthMm
+                        } else {
+                            resolvePaperWidth(devName, devAddr)
+                        }
+                        EscPosSlipGenerator.generateEscPosBytes(tx, effectiveWidth)
+                    }
+                )
 
+                val printedBt = result.success
                 vibrate(100)
+                if (printedBt && result.deviceAddress != null) {
+                    val pName = result.deviceName ?: getSavedPrinterName()
+                    val pAddr = result.deviceAddress
+                    saveActivePrinter(pName, pAddr)
+                    savePaperWidthForDevice(pAddr, result.paperWidthMm)
+                    savePaperWidthForDevice(pName, result.paperWidthMm)
+                }
                 showToast(if (printedBt) "Thermal Slip printed via Bluetooth on ${result.deviceName ?: "printer"}!" else "Slip ${tx.slipNo} dispatched to thermal spooler")
 
                 response.put("success", true)
                 response.put("printedViaBluetooth", printedBt)
                 response.put("printedDevice", result.deviceName ?: "")
                 response.put("isFailover", result.isFailover)
+                response.put("paperWidthMm", result.paperWidthMm)
                 response.put("slipNo", tx.slipNo)
             } catch (e: Exception) {
                 response.put("success", false)
@@ -1314,6 +1472,26 @@ class MainActivity : Activity() {
         fun showToast(message: String) {
             runOnUiThread {
                 Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        @JavascriptInterface
+        fun setStatusBarColor(hexColor: String, lightIcons: Boolean) {
+            runOnUiThread {
+                try {
+                    val window = this@MainActivity.window
+                    window.statusBarColor = android.graphics.Color.parseColor(hexColor)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        val decor = window.decorView
+                        var flags = decor.systemUiVisibility
+                        flags = if (lightIcons) {
+                            flags and android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                        } else {
+                            flags or android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        }
+                        decor.systemUiVisibility = flags
+                    }
+                } catch (_: Exception) {}
             }
         }
 

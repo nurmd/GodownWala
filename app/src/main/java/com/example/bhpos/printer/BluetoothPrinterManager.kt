@@ -50,8 +50,69 @@ object BluetoothPrinterManager {
         val deviceName: String? = null,
         val deviceAddress: String? = null,
         val isFailover: Boolean = false,
+        val paperWidthMm: Int = 80,
         val errorMessage: String? = null
     )
+
+    /**
+     * Determines the paper roll width (58mm or 80mm) from the printer model or name string.
+     */
+    fun detectPaperWidthFromName(name: String?): Int {
+        val n = (name ?: "").lowercase(Locale.ROOT)
+        return when {
+            n.contains("58") || n.contains("sr588") || n.contains("sr-588") ||
+            n.contains("mpt-ii") || n.contains("mpt-2") || n.contains("pt-210") ||
+            n.contains("rpp02") || n.contains("zj-58") || n.contains("pos-58") ||
+            n.contains("pos58") || n.contains("bt-58") || n.contains("qs-58") ||
+            n.contains("ep-58") || n.contains("2 inch") || n.contains("2\"") -> 58
+
+            n.contains("80") || n.contains("mpt-iii") || n.contains("mpt-3") ||
+            n.contains("rpp04") || n.contains("zj-80") || n.contains("pos-80") ||
+            n.contains("pos80") || n.contains("bt-80") || n.contains("qs-80") ||
+            n.contains("ep-80") || n.contains("3 inch") || n.contains("3\"") -> 80
+
+            else -> 80
+        }
+    }
+
+    /**
+     * Queries printer model string over an active RFCOMM socket using ESC/POS standard query.
+     */
+    fun queryPrinterModelOrName(socket: BluetoothSocket): String? {
+        return try {
+            val os = socket.outputStream
+            val inputStream = socket.inputStream
+            while (inputStream.available() > 0) {
+                inputStream.read()
+            }
+            // Send GS I 67 (0x1D, 0x49, 0x43) - Transmit printer name
+            os.write(byteArrayOf(0x1D, 0x49, 0x43))
+            os.flush()
+
+            val buffer = ByteArray(128)
+            var totalRead = 0
+            val start = System.currentTimeMillis()
+            while (System.currentTimeMillis() - start < 350 && totalRead < buffer.size) {
+                if (inputStream.available() > 0) {
+                    val r = inputStream.read(buffer, totalRead, buffer.size - totalRead)
+                    if (r > 0) {
+                        totalRead += r
+                        if (buffer[totalRead - 1] == 0.toByte() || buffer[totalRead - 1] == 10.toByte()) {
+                            break
+                        }
+                    }
+                } else {
+                    Thread.sleep(25)
+                }
+            }
+            if (totalRead > 0) {
+                val str = String(buffer, 0, totalRead).trim()
+                if (str.isNotBlank()) str else null
+            } else null
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     /**
      * Determines whether a Bluetooth device matches common thermal printer naming
@@ -215,6 +276,17 @@ object BluetoothPrinterManager {
                 }
 
                 val isFailover = !primaryTargetAddr.isNullOrBlank() && !pAddr.equals(primaryTargetAddr, ignoreCase = true)
+                var detectedWidth = detectPaperWidthFromName(pName)
+
+                // If generic or ambiguous device name, attempt fast ESC/POS model query
+                val lowerPName = pName.lowercase(Locale.ROOT)
+                if (!lowerPName.contains("58") && !lowerPName.contains("80") && !lowerPName.contains("mpt") && !lowerPName.contains("sr")) {
+                    queryPrinterModelOrName(socket)?.let { modelStr ->
+                        val queriedWidth = detectPaperWidthFromName(modelStr)
+                        detectedWidth = queriedWidth
+                    }
+                }
+
                 val payload = payloadSupplier?.invoke(printer, isFailover) ?: bytes ?: ByteArray(0)
 
                 // If connection succeeded, stream bytes directly
@@ -222,16 +294,17 @@ object BluetoothPrinterManager {
                 os.write(payload)
                 os.flush()
 
-                // Wait 200ms before closing socket to ensure complete transfer through hardware buffers
-                Thread.sleep(200)
+                // Wait before closing socket to ensure complete transfer through hardware buffers
+                Thread.sleep(4500)
                 socket.close()
 
-                Log.d(TAG, "SUCCESS: Printed to $pName ($pAddr). Failover: $isFailover")
+                Log.d(TAG, "SUCCESS: Printed to $pName ($pAddr) width: ${detectedWidth}mm. Failover: $isFailover")
                 return PrintResult(
                     success = true,
                     deviceName = pName,
                     deviceAddress = pAddr,
-                    isFailover = isFailover
+                    isFailover = isFailover,
+                    paperWidthMm = detectedWidth
                 )
             } catch (e: Exception) {
                 try {

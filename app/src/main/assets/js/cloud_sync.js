@@ -89,6 +89,8 @@ async function syncFromCloud() {
       }));
       renderPosProducts();
       populateProductDropdowns();
+      if (typeof updateGodownList === "function") updateGodownList();
+      if (typeof recalculateMetrics === "function") recalculateMetrics();
       if (bridge() && bridge().setProducts) {
         bridge().setProducts(JSON.stringify(cachedProducts));
       }
@@ -141,4 +143,155 @@ async function syncFromCloud() {
   } catch (e) {
     console.error("[CloudSync] Background sync encountered an error:", e);
   }
+}
+
+/**
+ * Triggered manually by the user from the Ledger UI.
+ * Provides visual feedback during the synchronization process.
+ */
+async function forceCloudSync() {
+  const syncBtnIcon = document.querySelector('button[onclick="forceCloudSync()"] span');
+  if (syncBtnIcon) {
+    syncBtnIcon.classList.add('animate-spin');
+  }
+  
+  showToast("Syncing with cloud...");
+  await syncFromCloud();
+  showToast("Cloud sync complete!");
+  
+  if (syncBtnIcon) {
+    syncBtnIcon.classList.remove('animate-spin');
+  }
+}
+
+async function deleteCurrentSlip() {
+  if (!currentLastSlipNo) return;
+  const slipNo = currentLastSlipNo;
+  
+  if (!confirm(`Are you sure you want to completely trash slip ${slipNo}?\n\nThis will permanently delete the transaction and automatically return/deduct the stock from your inventory.`)) {
+    return;
+  }
+  
+  const txIndex = cachedTransactions.findIndex(t => t.slipNo === slipNo);
+  if (txIndex === -1) {
+    showToast("Slip not found in local memory");
+    return;
+  }
+  
+  const tx = cachedTransactions[txIndex];
+  
+  // 1. Revert inventory
+  try {
+    if (Array.isArray(tx.items)) {
+      for (const item of tx.items) {
+        const pIndex = cachedProducts.findIndex(p => p.id === item.productId);
+        if (pIndex !== -1) {
+          const p = cachedProducts[pIndex];
+          let newBags = p.currentStockBags;
+          const qty = Number(item.quantityBags) || Number(item.bags) || Number(item.qty) || 0;
+          
+          if (tx.type === 'OUTWARD') {
+            // Revert dispatch -> ADD stock back
+            newBags += qty;
+          } else if (tx.type === 'INWARD') {
+            // Revert stock-in -> SUBTRACT stock
+            newBags -= qty;
+          }
+          
+          // Safety bounds
+          if (newBags < 0) newBags = 0;
+          
+          // Update locally
+          p.currentStockBags = newBags;
+          p.currentStockMt = (newBags * (p.weightPerBagKg || 50)) / 1000;
+          
+          // Sync product to Cloud
+          if (currentBusiness && currentBusiness.id) {
+            await sFetch(`products?id=eq.${p.id}&business_id=eq.${currentBusiness.id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ current_stock_bags: newBags })
+            });
+          }
+          
+          // Sync product to Bridge
+          if (bridge() && bridge().updateProduct) {
+            bridge().updateProduct(JSON.stringify(p));
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error reverting stock:", e);
+    showToast("Error reverting stock. Inventory may be out of sync.");
+  }
+  
+  // 2. Delete transaction from Cloud
+  try {
+    if (currentBusiness && currentBusiness.id) {
+      await sFetch(`transactions?slip_no=eq.${slipNo}&business_id=eq.${currentBusiness.id}`, {
+        method: 'DELETE'
+      });
+    }
+  } catch (e) {
+    console.error("Error deleting slip from cloud:", e);
+  }
+  
+  // 3. Remove locally
+  cachedTransactions.splice(txIndex, 1);
+  
+  // 4. Update UI
+  if (typeof renderDashboardActivities === 'function') renderDashboardActivities();
+  if (typeof renderLedger === 'function') renderLedger();
+  if (typeof recalculateMetrics === 'function') recalculateMetrics();
+  if (typeof renderPosProducts === 'function') renderPosProducts();
+  if (typeof populateProductDropdowns === 'function') populateProductDropdowns();
+  
+  if (typeof closeSlipPreviewModal === 'function') closeSlipPreviewModal();
+  
+  showToast(`Slip ${slipNo} trashed successfully!`);
+}
+
+// --- REAL-TIME PUSH SYNC ---
+let realtimeClient = null;
+let realtimeChannel = null;
+
+function initRealtimeSync() {
+  if (!window.supabase) {
+    console.log("Supabase not loaded yet for realtime sync.");
+    return;
+  }
+  if (!currentBusiness || !currentBusiness.id) return;
+  
+  if (!realtimeClient) {
+    realtimeClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+
+  if (realtimeChannel) {
+    realtimeClient.removeChannel(realtimeChannel);
+  }
+  
+  realtimeChannel = realtimeClient.channel(`room_${currentBusiness.id}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'transactions', filter: `business_id=eq.${currentBusiness.id}` },
+      (payload) => {
+        console.log("Realtime push received for transactions!", payload);
+        setTimeout(syncFromCloud, 600);
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'products', filter: `business_id=eq.${currentBusiness.id}` },
+      (payload) => {
+        console.log("Realtime push received for products!", payload);
+        setTimeout(syncFromCloud, 600);
+      }
+    )
+    .subscribe((status, err) => {
+      if (status === 'SUBSCRIBED') {
+        console.log("Subscribed to Realtime push updates for business:", currentBusiness.id);
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error("Realtime push channel error:", err);
+      }
+    });
 }

@@ -130,6 +130,7 @@ function refreshData() {
         renderLedger();
       }
       refreshBluetoothPrinters();
+      if (typeof initRealtimeSync === 'function') initRealtimeSync();
       syncFromCloud();
     }
   } catch (e) {
@@ -170,7 +171,7 @@ function renderDashboardActivities() {
   const list = document.getElementById('dashActivityList');
   if (!list) return;
   list.innerHTML = '';
-  const recent = cachedTransactions.slice(0, 4);
+  const recent = [...getFilteredTransactions()].sort((a,b) => b.timestamp - a.timestamp).slice(0, 4);
 
   if (recent.length === 0) {
     list.innerHTML = '<div class="text-[12px] text-on-surface-variant text-center py-2">No recent activity</div>';
@@ -230,7 +231,7 @@ function renderLedger() {
   const searchInput = document.getElementById('ledgerSearchInput');
   const search = (searchInput ? searchInput.value : '').toLowerCase().trim();
 
-  const filtered = cachedTransactions.filter(t => {
+  const filtered = getFilteredTransactions().filter(t => {
     if (ledgerFilter !== 'ALL' && t.type !== ledgerFilter) return false;
     if (search) {
       const hay = `${t.slipNo} ${t.partyName} ${t.vehicleNo} ${t.destinationSite}`.toLowerCase();
@@ -244,7 +245,7 @@ function renderLedger() {
     return;
   }
 
-  filtered.forEach(t => {
+  filtered.sort((a,b) => b.timestamp - a.timestamp).forEach(t => {
     const isOut = t.type === 'OUTWARD';
     const card = document.createElement('div');
     card.className = 'bg-surface-container-lowest rounded-xl p-3 shadow-sm border border-surface-container-high space-y-1.5 cursor-pointer active:scale-[0.99]';
@@ -286,13 +287,157 @@ function openSystemBluetoothSettings() {
   }
 }
 
-// Application Startup Lifecycle
-window.addEventListener('DOMContentLoaded', () => {
-  loadSavedPrintOptions();
-  checkAuthOnStartup();
+/**
+ * ============================================================================
+ * STARTUP SPLASH SCREEN CONTROLLER
+ * ============================================================================
+ * Manages the fluid startup animation, status text updates, and smooth exit
+ * transition into the authenticated dashboard or setup screen.
+ */
+function updateSplashProgress(percent, statusMsg) {
+  const bar = document.getElementById('splashProgressBar');
+  const txt = document.getElementById('splashStatusText');
+  const pct = document.getElementById('splashPercentText');
+  if (bar) bar.style.width = `${percent}%`;
+  if (txt && statusMsg) txt.textContent = statusMsg;
+  if (pct) pct.textContent = `${Math.round(percent)}%`;
+}
+
+function dismissSplashScreen() {
+  const splash = document.getElementById('appSplashScreen');
+  if (!splash) return;
   
-  // Auto-capture screenshot 2 seconds after boot
+  updateSplashProgress(100, "Ready");
+  
+  setTimeout(() => {
+    splash.classList.add('splash-exit');
+    
+    // Smoothly restore light status bar icons for dashboard theme
+    if (bridge() && bridge().setStatusBarColor) {
+      bridge().setStatusBarColor("#F4FAFF", false);
+    }
+    
+    setTimeout(() => {
+      splash.remove();
+    }, 600);
+  }, 300);
+}
+
+// Application Startup Lifecycle
+window.addEventListener('DOMContentLoaded', async () => {
+  updateSplashProgress(20, "Loading options...");
+  loadSavedPrintOptions();
+
+  setTimeout(() => {
+    updateSplashProgress(50, "Checking session...");
+  }, 250);
+
+  setTimeout(async () => {
+    updateSplashProgress(80, "Initializing inventory...");
+    try {
+      await checkAuthOnStartup();
+    } catch (e) {
+      console.error("[Startup] Auth check error:", e);
+    }
+    updateSplashProgress(100, "Welcome!");
+    setTimeout(dismissSplashScreen, 350);
+  }, 600);
+
+  // Auto-capture screenshot 2.5 seconds after boot
   setTimeout(() => {
     captureCurrentScreen('dashboard_auto');
-  }, 2000);
+  }, 2500);
 });
+
+let activeGodown = 'ALL';
+
+function updateGodownList() {
+  const sel = document.getElementById('topGodownSelector');
+  if (!sel) return;
+  sel.innerHTML = '<option value="ALL">All Godowns</option>';
+  
+  const godowns = new Set();
+  (cachedProducts || []).forEach(p => {
+    if (p.bayLocation && p.bayLocation !== "Unassigned") {
+      godowns.add(p.bayLocation);
+    }
+  });
+  
+  godowns.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g;
+    opt.textContent = g;
+    sel.appendChild(opt);
+  });
+  
+  if (godowns.has(activeGodown)) {
+    sel.value = activeGodown;
+  } else {
+    sel.value = 'ALL';
+    activeGodown = 'ALL';
+  }
+}
+
+function changeGodown() {
+  const sel = document.getElementById('topGodownSelector');
+  if (!sel) return;
+  activeGodown = sel.value;
+  
+  const sub = document.getElementById('dashGodownSubtitle');
+  if (sub) {
+    sub.textContent = activeGodown === 'ALL' ? 'All Godowns Overview' : activeGodown;
+  }
+  
+  recalculateMetrics();
+  if (typeof renderPosProducts === 'function') renderPosProducts();
+  if (typeof populateProductDropdowns === 'function') populateProductDropdowns();
+}
+
+function recalculateMetrics() {
+  const products = (cachedProducts || []).filter(p => activeGodown === 'ALL' || p.bayLocation === activeGodown);
+  const totalUnits = products.filter(p => p.isActive).reduce((sum, p) => sum + (p.currentStockBags || 0), 0);
+  const activeCount = products.filter(p => p.isActive).length;
+  
+  let inwardUnits = 0;
+  let dispatchedUnits = 0;
+  
+  const now = Date.now();
+  const dayStart = now - (24 * 60 * 60 * 1000);
+  
+  (cachedTransactions || []).forEach(tx => {
+    if (tx.timestamp >= dayStart) {
+      const validItems = tx.items.filter(item => {
+        if (activeGodown === 'ALL') return true;
+        const p = (cachedProducts || []).find(x => x.id === item.productId);
+        return p && p.bayLocation === activeGodown;
+      });
+      const itemBags = validItems.reduce((s, item) => s + (item.quantityBags || 0), 0);
+      
+      if (tx.type === 'INWARD') {
+        inwardUnits += itemBags;
+      } else if (tx.type === 'OUTWARD') {
+        dispatchedUnits += itemBags;
+      }
+    }
+  });
+  
+  const pendingSlipsCount = cachedTransactions ? cachedTransactions.length : 0;
+  
+  updateDashboardTelemetry({
+    totalUnits,
+    activeProductsCount: activeCount,
+    inwardDayUnits: inwardUnits,
+    dispatchedUnits: dispatchedUnits,
+    pendingSlipsCount
+  });
+}
+
+function getFilteredTransactions() {
+  if (typeof activeGodown === 'undefined' || activeGodown === 'ALL') return cachedTransactions || [];
+  return (cachedTransactions || []).filter(tx => {
+    return tx.items && tx.items.some(item => {
+      const p = (cachedProducts || []).find(x => x.id === item.productId);
+      return p && p.bayLocation === activeGodown;
+    });
+  });
+}

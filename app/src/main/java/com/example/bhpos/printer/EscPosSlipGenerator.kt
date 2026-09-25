@@ -184,17 +184,17 @@ object EscPosSlipGenerator {
         out.write(byteArrayOf(0x1B, 0x40))
 
         // ESC t 0: Standard character code table (PC437)
-        out.write(byteArrayOf(0x1B, 0x74, 0x00))
+        // out.write(byteArrayOf(0x1B, 0x74, 0x00)) // Removed charset command for 58mm compatibility
 
         // Print complete pre-formatted body text with active options
         val bodyText = generatePreviewText(tx, paperWidthMm, options)
         out.write(bodyText.toByteArray(Charsets.US_ASCII))
 
         // Feed paper past tear bar (ESC d 5 feeds 5 lines)
-        out.write(byteArrayOf(0x1B, 0x64, 0x05))
+        out.write("\n\n\n\n\n".toByteArray())
 
         // GS V 1: Partial cut
-        out.write(byteArrayOf(0x1D, 0x56, 0x01))
+        // out.write(byteArrayOf(0x1D, 0x56, 0x01)) // Removed cut command for 58mm compatibility
 
         return out.toByteArray()
     }
@@ -252,16 +252,16 @@ object EscPosSlipGenerator {
         // ESC @: Init
         out.write(byteArrayOf(0x1B, 0x40))
         // ESC t 0: Standard character code table (PC437)
-        out.write(byteArrayOf(0x1B, 0x74, 0x00))
+        // out.write(byteArrayOf(0x1B, 0x74, 0x00)) // Removed charset command for 58mm compatibility
 
         val text = generateTestSlipText(printerName, macAddress, paperWidthMm, isFailover)
         out.write(text.toByteArray(Charsets.US_ASCII))
 
         // Feed paper past tear bar (ESC d 5 feeds 5 lines)
-        out.write(byteArrayOf(0x1B, 0x64, 0x05))
+        out.write("\n\n\n\n\n".toByteArray())
 
         // GS V 1: Partial cut
-        out.write(byteArrayOf(0x1D, 0x56, 0x01))
+        // out.write(byteArrayOf(0x1D, 0x56, 0x01)) // Removed cut command for 58mm compatibility
         return out.toByteArray()
     }
 

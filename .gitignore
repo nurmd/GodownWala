@@ -1,15 +1,68 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+# ============================================================================
+# GodownTrack POS - Git Ignore Rules
+# ============================================================================
+
+# Gradle & Build Artifacts
+.gradle/
+build/
 /build
-/captures
-.externalNativeBuild
-.cxx
+app/build/
+bin/
+captures/
+.externalNativeBuild/
+.cxx/
 local.properties
+
+# Android Studio / IntelliJ IDE
+*.iml
+.idea/
+.DS_Store
+
+# Android Package & Keystores
+*.apk
+*.aab
+*.dex
+*.class
+*.flat
+debug.keystore
+
+# Diagnostic Logs & Memory Dumps
+*.log
+crash.log
+all_brains.txt
+raw_json.txt
+transcript_*.txt
+last_write.json
+
+# Scratch Files & Temporary Scripts
+scratch/
+biz.json
+prod.json
+tx.json
+txs.json
+fix*.js
+scratch_*.js
+test_*.html
+test_taps.sh
+jadx/
+jadx.zip
+MainActivity_extracted.kt
+MainActivity_recovered.kt
+bottom_half.kt
+helpers.kt
+new_methods.kt
+new_bridge_methods.kt
+new_prefs.kt
+real_bluetooth_methods.kt
+recover_main_activity.py
+name_helper.kt
+auth_js.js
+auth_ui.html
+cloud_sync.js
+dispatch_sync.js
+supabase_logic.js
+GetIP.*
+parties.sql
+alter.sql
+rename.sql
+screenshot.png

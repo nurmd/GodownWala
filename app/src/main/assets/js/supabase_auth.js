@@ -27,7 +27,8 @@ async function sFetch(path, options = {}) {
     ...(options.headers || {})
   };
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...options, headers });
-  return res.json();
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 /**

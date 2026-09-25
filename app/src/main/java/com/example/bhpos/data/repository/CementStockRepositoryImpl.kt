@@ -123,6 +123,27 @@ class CementStockRepositoryImpl : CementStockRepository {
             val updatedTx = _transactions.value.toMutableList()
             val txIndex = updatedTx.indexOfFirst { it.slipNo == transaction.slipNo }
             if (txIndex != -1) {
+                val existingTx = updatedTx[txIndex]
+                val currentProducts = _products.value.toMutableList()
+
+                // Calculate delta for each product affected
+                val affectedProductIds = (existingTx.items.map { it.productId } + transaction.items.map { it.productId }).toSet()
+                for (pId in affectedProductIds) {
+                    val oldQty = existingTx.items.filter { it.productId == pId }.sumOf { it.quantityBags }
+                    val newQty = transaction.items.filter { it.productId == pId }.sumOf { it.quantityBags }
+                    val deltaDispatched = newQty - oldQty
+                    if (deltaDispatched != 0) {
+                        val pIndex = currentProducts.indexOfFirst { it.id == pId }
+                        if (pIndex != -1) {
+                            val prod = currentProducts[pIndex]
+                            currentProducts[pIndex] = prod.copy(
+                                currentStockBags = (prod.currentStockBags - deltaDispatched).coerceAtLeast(0)
+                            )
+                        }
+                    }
+                }
+                _products.value = currentProducts
+
                 updatedTx[txIndex] = transaction
                 _transactions.value = updatedTx
                 return Result.success(transaction)
@@ -137,7 +158,7 @@ class CementStockRepositoryImpl : CementStockRepository {
         bags: Int,
         batchNo: String,
         bayLocation: String
-    ): Result<Unit> {
+    ): Result<String> {
         if (bags <= 0) {
             return Result.failure(IllegalArgumentException("Stock-in quantity must be positive"))
         }
@@ -201,7 +222,7 @@ class CementStockRepositoryImpl : CementStockRepository {
             updatedTx.add(0, newTx)
             _transactions.value = updatedTx
 
-            return Result.success(Unit)
+            return Result.success(newSlipNo)
         }
     }
 

@@ -94,41 +94,48 @@ async function submitNewCustomer() {
 let dispatchCartItems = {};
 
 /**
+/**
  * Populates customer/party dropdowns across POS and Detailed Dispatch.
  */
 function populatePartyDropdowns() {
   const posSelect = document.getElementById('posPartySelect');
   const dispatchSelect = document.getElementById('dispatchPartySelect');
-  if (!dispatchSelect) return;
-
+  const vendorSelect = document.getElementById('stockInVendorSelect');
+  
+  if (dispatchSelect) dispatchSelect.innerHTML = '';
   if (posSelect) posSelect.innerHTML = '';
-  dispatchSelect.innerHTML = '';
+  if (vendorSelect) vendorSelect.innerHTML = '';
 
   const walkIn = document.createElement('option');
   walkIn.value = 'Direct Walk-in Contractor';
   walkIn.textContent = 'Direct Walk-in Contractor [CASH/UPI]';
+  
+  const factoryOpt = document.createElement('option');
+  factoryOpt.value = 'Factory';
+  factoryOpt.textContent = 'Factory / Main Supplier';
+
   if (posSelect) posSelect.appendChild(walkIn.cloneNode(true));
-  dispatchSelect.appendChild(walkIn.cloneNode(true));
+  if (dispatchSelect) dispatchSelect.appendChild(walkIn.cloneNode(true));
+  if (vendorSelect) vendorSelect.appendChild(factoryOpt.cloneNode(true));
 
   cachedParties.forEach(p => {
     if (p.name === 'Direct Walk-in Contractor') return;
     const opt = document.createElement('option');
     opt.value = p.name;
     opt.textContent = p.phone ? `${p.name} [${p.phone}]` : p.name;
+    
     if (posSelect) posSelect.appendChild(opt.cloneNode(true));
-    dispatchSelect.appendChild(opt);
+    if (dispatchSelect) dispatchSelect.appendChild(opt.cloneNode(true));
+    if (vendorSelect) vendorSelect.appendChild(opt.cloneNode(true));
   });
 
   const newOpt = document.createElement('option');
   newOpt.value = '__NEW__';
-  newOpt.textContent = '+ Add New Customer...';
+  newOpt.textContent = '+ Add New Customer/Vendor...';
   if (posSelect) posSelect.appendChild(newOpt.cloneNode(true));
-  dispatchSelect.appendChild(newOpt);
+  if (dispatchSelect) dispatchSelect.appendChild(newOpt.cloneNode(true));
+  if (vendorSelect) vendorSelect.appendChild(newOpt.cloneNode(true));
 }
-
-/**
- * Loads cart items from POS into the Dispatch tab.
- */
 function loadCartIntoDispatch(cart) {
   dispatchCartItems = {};
   if (cart) {
@@ -386,7 +393,7 @@ function openEditDispatch(slipNo) {
 /**
  * Submits comprehensive dispatch with vehicle, driver, site, and multi-item list.
  */
-function submitFullDispatch() {
+async function submitFullDispatch() {
   vibrate(40);
   const partySelect = document.getElementById('dispatchPartySelect');
   const party = partySelect ? partySelect.value : "Direct Walk-in Contractor";
@@ -434,6 +441,10 @@ function submitFullDispatch() {
     return;
   }
 
+  // Capture original transaction items if editing to accurately calculate stock delta
+  const originalTx = editingSlipNo ? cachedTransactions.find(t => t.slipNo === editingSlipNo) : null;
+  const originalItems = (originalTx && Array.isArray(originalTx.items)) ? JSON.parse(JSON.stringify(originalTx.items)) : [];
+
   if (bridge()) {
     let resStr;
     if (editingSlipNo) {
@@ -451,18 +462,67 @@ function submitFullDispatch() {
     if (res.success) {
       currentLastSlipNo = res.slipNo;
 
-      cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false);
+      // Compute exact delta stock changes per affected product
+      const affectedProductIds = new Set();
+      items.forEach(it => affectedProductIds.add(it.productId));
+      if (editingSlipNo && originalItems.length > 0) {
+        originalItems.forEach(it => {
+          if (it.productId) affectedProductIds.add(it.productId);
+        });
+      }
 
-      // Clear both dispatch and POS carts
+      for (const pId of affectedProductIds) {
+        let oldQty = 0;
+        if (editingSlipNo && originalItems.length > 0) {
+          originalItems.filter(it => it.productId === pId).forEach(it => {
+            oldQty += Number(it.quantityBags) || Number(it.bags) || Number(it.qty) || 0;
+          });
+        }
+
+        let newQty = 0;
+        items.filter(it => it.productId === pId).forEach(it => {
+          newQty += Number(it.bags) || 0;
+        });
+
+        const deltaDispatched = newQty - oldQty;
+
+        if (deltaDispatched !== 0) {
+          const p = cachedProducts.find(x => x.id === pId);
+          if (p) {
+            const newStock = Math.max(0, p.currentStockBags - deltaDispatched);
+            p.currentStockBags = newStock;
+            p.currentStockMt = (newStock * (p.weightPerBagKg || 50)) / 1000.0;
+
+            if (currentBusiness && currentBusiness.id) {
+              try {
+                await sFetch(`products?id=eq.${pId}&business_id=eq.${currentBusiness.id}`, {
+                  method: 'PATCH',
+                  body: JSON.stringify({ current_stock_bags: newStock })
+                });
+              } catch(e) {
+                console.error("[Dispatch] Cloud stock update failed:", e);
+              }
+            }
+
+            if (bridge() && bridge().updateProduct) {
+              try {
+                bridge().updateProduct(JSON.stringify(p));
+              } catch(e) {}
+            }
+          }
+        }
+      }
+
+      await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false);
+
       dispatchCartItems = {};
       posCart = {};
       renderPosProducts();
       updatePosCartBar();
       clearDispatchForm();
 
-      syncFromCloud();
+      await syncFromCloud();
       
-      // Automatically return to the Ledger tab so the user doesn't feel stuck on a blank form
       switchTab('ledger');
       
       viewSlip(res.slipNo);
@@ -489,9 +549,10 @@ function closeStockInModal() {
 /**
  * Submits an Inward Stock-In transaction to add physical bags into inventory.
  */
-function submitStockIn() {
+async function submitStockIn() {
   vibrate(40);
   const pId = document.getElementById('stockInProductSelect').value;
+  const vendor = document.getElementById('stockInVendorSelect') ? document.getElementById('stockInVendorSelect').value : "Factory";
   const bags = parseInt(document.getElementById('stockInBags').value, 10) || 0;
   const bay = document.getElementById('stockInBay').value.trim();
   const batch = document.getElementById('stockInBatch').value.trim();
@@ -516,10 +577,20 @@ function submitStockIn() {
         ratePerBag: p ? p.defaultRatePerBag : 0
       }];
       
-      cloudRecordTx('INWARD', res.slipNo, "Factory", "-", "-", "-", "-", "-", bay, items, { bags: bags, mt: mt, amount: amt });
+      if (currentBusiness && currentBusiness.id && p) {
+        try {
+          const newStock = p.currentStockBags + bags;
+          await sFetch(`products?id=eq.${pId}&business_id=eq.${currentBusiness.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ current_stock_bags: newStock })
+          });
+        } catch(e) {}
+      }
+
+      await cloudRecordTx('INWARD', res.slipNo, vendor, "-", "-", "-", "-", "-", bay, items, { bags: bags, mt: mt, amount: amt });
       
       closeStockInModal();
-      syncFromCloud();
+      await syncFromCloud();
       showToast(`Stock In +${bags} ${p ? (p.unit || 'units') : 'units'} recorded!`);
     } else {
       alert(res.error || "Stock in failed");

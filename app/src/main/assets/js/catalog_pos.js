@@ -39,7 +39,7 @@ function renderPosProducts() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  cachedProducts.forEach(p => {
+  cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
     const inCart = posCart[p.id] || 0;
     const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
     const tile = document.createElement('div');
@@ -68,27 +68,32 @@ function renderPosProducts() {
       `;
     } else {
       const imgHtml = (p.imageUrl && p.imageUrl.trim() !== "") 
-        ? `<img src="${p.imageUrl}" class="w-8 h-8 rounded-lg object-cover border border-surface-container" />` 
-        : `<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">inventory_2</span></div>`;
+        ? `<div class="relative w-full h-24 mb-2 rounded-lg overflow-hidden border border-surface-container bg-surface-container-low shrink-0">
+             <img src="${p.imageUrl}" class="w-full h-full object-cover" />
+             <span class="${inCart > 0 ? '' : 'hidden'} absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
+           </div>`
+        : `<div class="flex items-start justify-end min-h-[16px] mb-1">
+             <span class="${inCart > 0 ? '' : 'hidden'} px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
+           </div>`;
         
       tile.innerHTML = `
         <div>
-          <div class="flex items-start justify-between">
-            ${imgHtml}
-            <span class="${inCart > 0 ? '' : 'hidden'} px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary-container text-on-primary" id="posBadge-${p.id}">${inCart} in cart</span>
-          </div>
-          <div class="mt-1.5">
-            <h4 class="text-[13px] font-bold text-on-surface line-clamp-1 leading-tight">${p.name}</h4>
+          ${imgHtml}
+          <div>
+            <h4 class="text-[14px] font-bold text-on-surface line-clamp-1 leading-snug">${p.name}</h4>
             <div class="flex items-baseline justify-between mt-1">
-              <span class="text-[16px] font-extrabold text-primary">₹${p.defaultRatePerBag}<span class="text-[10px] font-normal text-on-surface-variant">/${(p.unit || 'Unit').toLowerCase()}</span></span>
-              <span class="font-mono text-[10px] text-on-surface-variant">${p.currentStockBags} ${p.unit || 'Units'}</span>
+              <div class="flex items-baseline gap-1">
+                <span class="text-[18px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
+                <span class="text-[11px] font-semibold text-on-surface-variant">${p.unit || 'Units'}</span>
+              </div>
+              <span class="text-[11px] font-bold text-primary">₹${p.defaultRatePerBag}<span class="text-[9px] font-normal text-on-surface-variant">/${(p.unit || 'Unit').toLowerCase()}</span></span>
             </div>
           </div>
         </div>
         <div class="mt-2 pt-2 border-t border-surface-container grid grid-cols-3 gap-1">
           <button onclick="addPosItem('${p.id}', 1)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+1</button>
-          <button onclick="addPosItem('${p.id}', 10)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+10</button>
-          <button onclick="addPosItem('${p.id}', 50)" class="h-8 rounded bg-primary-fixed text-on-primary-fixed text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+50</button>
+          <button onclick="addPosItem('${p.id}', 5)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+5</button>
+          <button onclick="addPosItem('${p.id}', 10)" class="h-8 rounded bg-primary-fixed text-on-primary-fixed text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+10</button>
         </div>
       `;
     }
@@ -208,14 +213,90 @@ function checkoutPosCart() {
 }
 
 /**
+ * Handles client-side photo picking and canvas compression.
+ * Resizes image down to max 350x350 and encodes as JPEG Data URL (~10-20KB),
+ * allowing direct storage in products.image_url and instant real-time sync across devices.
+ */
+function handleProductImageUpload(fileInput, hiddenInputId, previewImgId, placeholderId) {
+  if (!fileInput.files || !fileInput.files[0]) return;
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 350;
+      let w = img.width;
+      let h = img.height;
+      if (w > h) {
+        if (w > maxDim) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        }
+      } else {
+        if (h > maxDim) {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      // Quality 0.7 gives clear 350px image under 15-20 KB
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+      const hiddenInput = document.getElementById(hiddenInputId);
+      if (hiddenInput) hiddenInput.value = compressedDataUrl;
+
+      const previewImg = document.getElementById(previewImgId);
+      const placeholder = document.getElementById(placeholderId);
+      const removeBtn = document.getElementById(hiddenInputId.replace('Image', 'ImageRemoveBtn'));
+
+      if (previewImg) {
+        previewImg.src = compressedDataUrl;
+        previewImg.classList.remove('hidden');
+      }
+      if (placeholder) placeholder.classList.add('hidden');
+      if (removeBtn) removeBtn.classList.remove('hidden');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearProductImage(hiddenInputId, previewImgId, placeholderId) {
+  const hiddenInput = document.getElementById(hiddenInputId);
+  if (hiddenInput) hiddenInput.value = '';
+
+  const previewImg = document.getElementById(previewImgId);
+  const placeholder = document.getElementById(placeholderId);
+  const removeBtn = document.getElementById(hiddenInputId.replace('Image', 'ImageRemoveBtn'));
+  const fileInput = document.getElementById(hiddenInputId.replace('Image', 'FileInput'));
+
+  if (fileInput) fileInput.value = '';
+  if (previewImg) {
+    previewImg.src = '';
+    previewImg.classList.add('hidden');
+  }
+  if (placeholder) placeholder.classList.remove('hidden');
+  if (removeBtn) removeBtn.classList.add('hidden');
+}
+
+/**
  * Opens modal to create a new product.
  */
 function openAddItemModal() {
+  const gInput = document.getElementById("addItemGodown"); if(gInput) gInput.value = (typeof activeGodown !== "undefined" && activeGodown !== "ALL") ? activeGodown : "Godown 1";
   document.getElementById('addItemName').value = '';
   document.getElementById('addItemRate').value = '';
   document.getElementById('addItemStock').value = '0';
   const unitSelect = document.getElementById('addItemUnit');
   if (unitSelect) unitSelect.value = 'Units';
+  clearProductImage('addItemImage', 'addItemImagePreview', 'addItemImagePlaceholder');
   document.getElementById('addItemModal').classList.remove('hidden');
 }
 
@@ -234,6 +315,7 @@ async function saveNewItem() {
   const stock = parseInt(document.getElementById('addItemStock').value) || 0;
   const unitSelect = document.getElementById('addItemUnit');
   const unit = unitSelect ? unitSelect.value : 'Units';
+  const image = document.getElementById('addItemImage') ? document.getElementById('addItemImage').value.trim() : '';
 
   if (!name || isNaN(rate)) {
     alert("Please fill required fields properly.");
@@ -248,10 +330,10 @@ async function saveNewItem() {
     unit: unit,
     weightPerBagKg: 50,
     defaultRatePerBag: rate,
-    bayLocation: "Unassigned",
+    bayLocation: document.getElementById("addItemGodown") ? document.getElementById("addItemGodown").value.trim() || "Godown 1" : "Godown 1",
     currentStockBags: stock,
     batchNo: "NEW",
-    imageUrl: "",
+    imageUrl: image,
     isActive: true
   };
 
@@ -259,6 +341,7 @@ async function saveNewItem() {
   cachedProducts.push(newProduct);
   renderPosProducts();
   populateProductDropdowns();
+  if (typeof updateGodownList === "function") updateGodownList();
   closeAddItemModal();
   showToast("Item added!");
 
@@ -283,6 +366,7 @@ async function saveNewItem() {
           grade: unit,
           default_rate_per_bag: rate,
           current_stock_bags: stock,
+          image_url: image,
           is_active: true
         })
       });
@@ -302,7 +386,33 @@ function openEditItemModal(id) {
   document.getElementById('editItemId').value = product.id;
   document.getElementById('editItemName').value = product.name;
   document.getElementById('editItemRate').value = product.defaultRatePerBag;
-  document.getElementById('editItemImage').value = product.imageUrl || '';
+  
+  const imgVal = product.imageUrl || '';
+  const imgInput = document.getElementById('editItemImage');
+  if (imgInput) imgInput.value = imgVal;
+
+  const previewImg = document.getElementById('editItemImagePreview');
+  const placeholder = document.getElementById('editItemImagePlaceholder');
+  const removeBtn = document.getElementById('editItemImageRemoveBtn');
+  const fileInput = document.getElementById('editItemFileInput');
+  if (fileInput) fileInput.value = '';
+
+  if (imgVal && imgVal.trim() !== '') {
+    if (previewImg) {
+      previewImg.src = imgVal;
+      previewImg.classList.remove('hidden');
+    }
+    if (placeholder) placeholder.classList.add('hidden');
+    if (removeBtn) removeBtn.classList.remove('hidden');
+  } else {
+    if (previewImg) {
+      previewImg.src = '';
+      previewImg.classList.add('hidden');
+    }
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (removeBtn) removeBtn.classList.add('hidden');
+  }
+
   const unitSelect = document.getElementById('editItemUnit');
   if (unitSelect) unitSelect.value = product.unit || product.grade || 'Units';
   
@@ -376,6 +486,7 @@ async function saveEditItem() {
     cachedProducts[pIdx].grade = unit;
     renderPosProducts();
     populateProductDropdowns();
+    if (typeof updateGodownList === "function") updateGodownList();
   }
   closeEditItemModal();
   showToast("Item updated!");
@@ -419,7 +530,7 @@ function populateProductDropdowns() {
 
   if (dAddSelect) {
     dAddSelect.innerHTML = '';
-    cachedProducts.forEach(p => {
+    cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
       if (p.isActive === false) return;
       const opt = document.createElement('option');
       opt.value = p.id;
@@ -431,7 +542,7 @@ function populateProductDropdowns() {
 
   if (dSelect) {
     dSelect.innerHTML = '';
-    cachedProducts.forEach(p => {
+    cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
       if (p.isActive === false) return;
       const opt = document.createElement('option');
       opt.value = p.id;
@@ -442,7 +553,7 @@ function populateProductDropdowns() {
 
   if (sSelect) {
     sSelect.innerHTML = '';
-    cachedProducts.forEach(p => {
+    cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
       if (p.isActive === false) return;
       const opt2 = document.createElement('option');
       opt2.value = p.id;

@@ -154,8 +154,9 @@ function loadSlipPreview(slipNo) {
 
 /**
  * Switches between 58mm (32 chars) and 80mm (48 chars) thermal formats.
+ * Persists the preferred width for the active printer.
  */
-function setPaperWidth(width) {
+function setPaperWidth(width, savePreference = true) {
   vibrate(25);
   currentPaperWidth = width;
   const b58 = document.getElementById('btnPaper58');
@@ -167,6 +168,12 @@ function setPaperWidth(width) {
   } else {
     if (b80) b80.className = 'flex-1 py-1 rounded-md text-center font-bold transition-all bg-surface-container-lowest text-primary shadow-sm';
     if (b58) b58.className = 'flex-1 py-1 rounded-md text-center font-bold transition-all text-on-surface-variant';
+  }
+
+  if (savePreference && bridge() && bridge().savePrinterPaperWidth) {
+    if (activePrinterAddress) {
+      bridge().savePrinterPaperWidth(activePrinterAddress, width);
+    }
   }
 
   loadSlipPreview(currentLastSlipNo);
@@ -265,10 +272,21 @@ function closeSlipPreviewModal() {
 /**
  * Updates UI cards and header badges with active printer info.
  */
-function updatePrinterDisplayUI(name, address) {
+function updatePrinterDisplayUI(name, address, paperWidthMm) {
   activePrinterName = name || "POS-80C Mobile Thermal";
   activePrinterAddress = address || "";
   
+  // Resolve remembered paper width for this printer and apply silently to preview toggle
+  let width = paperWidthMm;
+  if (!width && bridge() && bridge().getPrinterPaperWidth) {
+    try {
+      width = bridge().getPrinterPaperWidth(activePrinterName, activePrinterAddress);
+    } catch(e) {}
+  }
+  if (width === 58 || width === 80) {
+    setPaperWidth(width, false);
+  }
+
   const shortName = activePrinterName.length > 14 ? activePrinterName.slice(0, 12) + ".." : activePrinterName;
   
   const hName = document.getElementById('headerBtName');
@@ -478,15 +496,26 @@ window.onBluetoothPermissionsResult = function(granted) {
 /**
  * Triggered by native host when active printer changes or auto-fails over from an offline printer.
  */
-window.onActivePrinterChanged = function(name, address, isFailover) {
-  updatePrinterDisplayUI(name, address);
+window.onActivePrinterChanged = function(name, address, isFailover, paperWidthMm) {
+  updatePrinterDisplayUI(name, address, paperWidthMm);
   loadPairedPrinters();
   if (isFailover) {
-    showToast(`Offline printer bypassed. Switched to ${name}!`);
+    showToast(`Offline printer bypassed. Switched to ${name} (${paperWidthMm || 80}mm)!`);
     const statusLabel = document.getElementById('dashPrinterLabel');
     if (statusLabel) {
-      statusLabel.textContent = `ESC/POS Spooler • ${name} (Active)`;
+      statusLabel.textContent = `ESC/POS Spooler • ${name} [${paperWidthMm || 80}mm] (Active)`;
     }
+  }
+};
+
+/**
+ * Triggered when native bridge detects printer paper size (58mm or 80mm).
+ */
+window.onPrinterSizeDetected = function(width, name, address) {
+  if (width === 58 || width === 80) {
+    setPaperWidth(width, false);
+    updatePrinterDisplayUI(name, address, width);
+    showToast(`Thermal format auto-detected: ${width}mm!`);
   }
 };
 
@@ -521,6 +550,8 @@ function renderDiscoveredPrinters() {
   list.innerHTML = '';
   addrs.forEach(addr => {
     const name = discoveredPrintersMap[addr];
+    const is58 = name.toLowerCase().includes('58') || name.toLowerCase().includes('sr');
+    const widthTag = is58 ? '58mm' : '80mm';
     const item = document.createElement('div');
     item.className = 'p-2.5 rounded-xl bg-surface-container-lowest border border-surface-container-high flex items-center justify-between shadow-xs';
     item.innerHTML = `
@@ -549,7 +580,7 @@ function selectPrinter(name, address) {
     const resStr = bridge().selectPrinter(name, address);
     const res = JSON.parse(resStr);
     if (res.success) {
-      updatePrinterDisplayUI(name, address);
+      updatePrinterDisplayUI(name, address, res.paperWidthMm);
       loadPairedPrinters();
     }
   }
@@ -575,6 +606,10 @@ function testPrintCurrent() {
     const res = JSON.parse(resStr);
     if (res.success) {
       showToast(res.message || "Test print sent!");
+      if (res.paperWidthMm) {
+        updatePrinterDisplayUI(res.printedDevice || activePrinterName, activePrinterAddress, res.paperWidthMm);
+        loadPairedPrinters();
+      }
     } else {
       showToast(res.message || "Test print failed");
     }
@@ -592,6 +627,10 @@ function testPrintSpecific(name, address) {
     const res = JSON.parse(resStr);
     if (res.success) {
       showToast(res.message || "Test print sent!");
+      if (res.paperWidthMm) {
+        updatePrinterDisplayUI(res.printedDevice || name, address, res.paperWidthMm);
+        loadPairedPrinters();
+      }
     } else {
       showToast(res.message || "Test print failed");
     }
