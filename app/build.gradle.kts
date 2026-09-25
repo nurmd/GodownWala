@@ -7,19 +7,35 @@ android {
     namespace = "com.example.bhpos"
     compileSdk = 35
 
+    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 1
+    val vName = System.getenv("VERSION_NAME") ?: "1.0.0"
+
     defaultConfig {
         applicationId = "com.example.bhpos"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = vCode
+        versionName = vName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("sharedKey") {
+            storeFile = file("${rootDir}/keystore/app-key.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("sharedKey")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("sharedKey")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

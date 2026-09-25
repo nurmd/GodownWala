@@ -33,6 +33,7 @@ kotlinc -cp "$ANDROID_JAR:test-libs/coroutines.jar" \
   app/src/main/java/com/example/bhpos/data/repository/CementStockRepositoryImpl.kt \
   app/src/main/java/com/example/bhpos/printer/BluetoothPrinterManager.kt \
   app/src/main/java/com/example/bhpos/printer/EscPosSlipGenerator.kt \
+  app/src/main/java/com/example/bhpos/AppFileProvider.kt \
   app/src/main/java/com/example/bhpos/MainActivity.kt \
   -d build/app-classes
 
@@ -51,11 +52,12 @@ cp build/base.apk build/godownwala-unaligned.apk
 (cd build/dex && zip -u ../godownwala-unaligned.apk classes.dex)
 
 # 6. Sign APK
-echo "[6/6] Signing APK with debug certificate..."
-if [ ! -f debug.keystore ]; then
-  keytool -genkeypair -v -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
+echo "[6/6] Signing APK with project certificate..."
+if [ ! -f keystore/app-key.keystore ]; then
+  mkdir -p keystore
+  keytool -genkeypair -v -keystore keystore/app-key.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
 fi
-apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out build/GodownWala.apk build/godownwala-unaligned.apk
+apksigner sign --ks keystore/app-key.keystore --ks-pass pass:android --key-pass pass:android --out build/GodownWala.apk build/godownwala-unaligned.apk
 
 # Copy to Downloads
 mkdir -p /data/data/com.termux/files/home/storage/downloads

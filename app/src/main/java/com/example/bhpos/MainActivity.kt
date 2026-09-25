@@ -145,9 +145,65 @@ class MainActivity : Activity() {
         }
     }
 
+    private var pendingInstallApkPath: String? = null
+
+    override fun onResume() {
+        super.onResume()
+        checkPendingApkInstall()
+    }
+
+    private fun checkPendingApkInstall() {
+        val path = pendingInstallApkPath ?: return
+        val file = java.io.File(path)
+        if (!file.exists()) {
+            pendingInstallApkPath = null
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (packageManager.canRequestPackageInstalls()) {
+                pendingInstallApkPath = null
+                installApkInternal(file)
+            }
+        } else {
+            pendingInstallApkPath = null
+            installApkInternal(file)
+        }
+    }
+
+    fun installApkInternal(file: java.io.File) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !packageManager.canRequestPackageInstalls()) {
+                pendingInstallApkPath = file.absolutePath
+                val permIntent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivityForResult(permIntent, INSTALL_PERM_REQUEST_CODE)
+                runOnUiThread {
+                    Toast.makeText(this, "Please allow GodownWala to install updates", Toast.LENGTH_LONG).show()
+                }
+                return
+            }
+
+            val uri = AppFileProvider.getUriForFile(this, "$packageName.fileprovider", file)
+            val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(installIntent)
+        } catch (e: Exception) {
+            android.util.Log.e("BH_UPDATE", "Failed to launch installer", e)
+            runOnUiThread {
+                Toast.makeText(this, "Installation error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
+        if (requestCode == INSTALL_PERM_REQUEST_CODE) {
+            checkPendingApkInstall()
+        } else if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 val result = if (data.data != null) {
                     arrayOf(data.data!!)
@@ -177,6 +233,7 @@ class MainActivity : Activity() {
         private const val KEY_CURRENT_USER = "current_user_json"
         private const val PERM_REQUEST_CODE = 2001
         private const val FILE_CHOOSER_REQUEST_CODE = 3001
+        private const val INSTALL_PERM_REQUEST_CODE = 4001
     }
 
     fun getCloudUrl(): String {
@@ -1493,6 +1550,203 @@ class MainActivity : Activity() {
                     }
                 } catch (_: Exception) {}
             }
+        }
+
+        @JavascriptInterface
+        fun getAppVersionInfo(): String {
+            val json = JSONObject()
+            try {
+                val pInfo = packageManager.getPackageInfo(packageName, 0)
+                json.put("versionName", pInfo.versionName ?: "1.0.0")
+                @Suppress("DEPRECATION")
+                json.put("versionCode", pInfo.versionCode.toLong())
+            } catch (e: Exception) {
+                json.put("versionName", "1.0.0")
+                json.put("versionCode", 1L)
+            }
+            return json.toString()
+        }
+
+        @JavascriptInterface
+        fun checkForUpdates(isManual: Boolean) {
+            Thread {
+                try {
+                    val pInfo = packageManager.getPackageInfo(packageName, 0)
+                    val currentVersion = (pInfo.versionName ?: "1.0.0").trimStart('v')
+
+                    val url = java.net.URL("https://api.github.com/repos/nurmd/GodownWala/releases/latest")
+                    val conn = url.openConnection() as java.net.HttpURLConnection
+                    conn.connectTimeout = 12000
+                    conn.readTimeout = 12000
+                    conn.setRequestProperty("User-Agent", "GodownWala-Android")
+                    conn.setRequestProperty("Accept", "application/vnd.github.v3+json")
+
+                    if (conn.responseCode != 200) {
+                        if (isManual) {
+                            runOnUiThread {
+                                showToast("No release updates found on GitHub.")
+                            }
+                        }
+                        return@Thread
+                    }
+
+                    val reader = java.io.BufferedReader(java.io.InputStreamReader(conn.inputStream))
+                    val responseStr = reader.readText()
+                    reader.close()
+
+                    val releaseJson = JSONObject(responseStr)
+                    val tagName = releaseJson.optString("tag_name", "").trimStart('v')
+                    val releaseNotes = releaseJson.optString("body", "")
+                    val releaseName = releaseJson.optString("name", "v$tagName")
+
+                    var downloadUrl = ""
+                    var apkSize = 0L
+
+                    val assets = releaseJson.optJSONArray("assets")
+                    if (assets != null) {
+                        for (i in 0 until assets.length()) {
+                            val asset = assets.getJSONObject(i)
+                            val name = asset.optString("name", "")
+                            if (name.endsWith(".apk", ignoreCase = true)) {
+                                downloadUrl = asset.optString("browser_download_url", "")
+                                apkSize = asset.optLong("size", 0L)
+                                if (name.equals("GodownWala.apk", ignoreCase = true)) {
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+                    val isNewer = compareVersions(tagName, currentVersion) > 0
+
+                    val resultObj = JSONObject().apply {
+                        put("hasUpdate", isNewer)
+                        put("currentVersion", currentVersion)
+                        put("latestVersion", tagName)
+                        put("releaseName", releaseName)
+                        put("releaseNotes", releaseNotes)
+                        put("downloadUrl", downloadUrl)
+                        put("apkSize", apkSize)
+                        put("isManual", isManual)
+                    }
+
+                    runOnUiThread {
+                        if (!isNewer && isManual) {
+                            showToast("GodownWala is up to date (v$currentVersion)")
+                        }
+                        val js = "window.onUpdateCheckResult && window.onUpdateCheckResult(${resultObj.toString()});"
+                        webView.evaluateJavascript(js, null)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("BH_UPDATE", "Check update failed", e)
+                    if (isManual) {
+                        runOnUiThread {
+                            showToast("Check update failed: ${e.message}")
+                        }
+                    }
+                }
+            }.start()
+        }
+
+        @JavascriptInterface
+        fun downloadAndInstallUpdate(downloadUrl: String) {
+            Thread {
+                var conn: java.net.HttpURLConnection? = null
+                try {
+                    runOnUiThread {
+                        showToast("Starting update download...")
+                        val startJs = "window.onUpdateDownloadProgress && window.onUpdateDownloadProgress(0, 0, 0, 'starting');"
+                        webView.evaluateJavascript(startJs, null)
+                    }
+
+                    val updateDir = java.io.File(cacheDir, "updates")
+                    if (!updateDir.exists()) updateDir.mkdirs()
+                    val targetApk = java.io.File(updateDir, "GodownWala.apk")
+                    if (targetApk.exists()) targetApk.delete()
+
+                    var currentUrl = downloadUrl
+                    var redirectCount = 0
+                    while (redirectCount < 5) {
+                        conn = java.net.URL(currentUrl).openConnection() as java.net.HttpURLConnection
+                        conn.instanceFollowRedirects = true
+                        conn.connectTimeout = 15000
+                        conn.readTimeout = 30000
+                        conn.setRequestProperty("User-Agent", "GodownWala-Android")
+                        val code = conn.responseCode
+                        if (code == java.net.HttpURLConnection.HTTP_MOVED_PERM ||
+                            code == java.net.HttpURLConnection.HTTP_MOVED_TEMP ||
+                            code == 307 || code == 308) {
+                            val newLoc = conn.getHeaderField("Location")
+                            if (!newLoc.isNullOrBlank()) {
+                                currentUrl = newLoc
+                                redirectCount++
+                                continue
+                            }
+                        }
+                        break
+                    }
+
+                    val totalBytes = conn!!.contentLength.toLong()
+                    val input = java.io.BufferedInputStream(conn.inputStream)
+                    val output = java.io.FileOutputStream(targetApk)
+
+                    val buffer = ByteArray(8192)
+                    var downloadedBytes = 0L
+                    var bytesRead: Int
+                    var lastPercent = -1
+
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        downloadedBytes += bytesRead
+                        val percent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt() else 0
+                        if (percent != lastPercent) {
+                            lastPercent = percent
+                            runOnUiThread {
+                                val progJs = "window.onUpdateDownloadProgress && window.onUpdateDownloadProgress($percent, $downloadedBytes, $totalBytes, 'downloading');"
+                                webView.evaluateJavascript(progJs, null)
+                            }
+                        }
+                    }
+
+                    output.flush()
+                    output.close()
+                    input.close()
+
+                    runOnUiThread {
+                        val doneJs = "window.onUpdateDownloadProgress && window.onUpdateDownloadProgress(100, $downloadedBytes, $totalBytes, 'completed');"
+                        webView.evaluateJavascript(doneJs, null)
+                        showToast("Download complete. Opening installer...")
+                        installApkInternal(targetApk)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("BH_UPDATE", "Download update failed", e)
+                    runOnUiThread {
+                        showToast("Download failed: ${e.message}")
+                        val errJs = "window.onUpdateDownloadProgress && window.onUpdateDownloadProgress(-1, 0, 0, 'error');"
+                        webView.evaluateJavascript(errJs, null)
+                    }
+                } finally {
+                    conn?.disconnect()
+                }
+            }.start()
+        }
+
+        private fun compareVersions(v1: String, v2: String): Int {
+            val parts1 = v1.split(".").mapNotNull { s ->
+                val digits = s.filter { it.isDigit() }
+                digits.toIntOrNull()
+            }
+            val parts2 = v2.split(".").mapNotNull { s ->
+                val digits = s.filter { it.isDigit() }
+                digits.toIntOrNull()
+            }
+            val maxLen = maxOf(parts1.size, parts2.size)
+            for (i in 0 until maxLen) {
+                val p1 = parts1.getOrElse(i) { 0 }
+                val p2 = parts2.getOrElse(i) { 0 }
+                if (p1 != p2) return p1.compareTo(p2)
+            }
+            return 0
         }
 
         /**

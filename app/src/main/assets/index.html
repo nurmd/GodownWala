@@ -296,8 +296,12 @@
         </div>
       </div>
 
-      <!-- Thermal Status Chip & Screenshot Trigger -->
+      <!-- Thermal Status Chip & Screenshot Trigger & App Update -->
       <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="checkForUpdatesManual()" class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 border border-surface-container-high shadow-sm relative" title="Check for App Updates">
+          <span class="material-symbols-outlined text-[18px]">system_update</span>
+          <span id="headerUpdateBadge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse border-2 border-surface"></span>
+        </button>
         <button onclick="openBluetoothModal()" class="flex items-center gap-1 bg-surface-container-low hover:bg-surface-container px-2 py-1 rounded-lg border border-surface-container-high active:scale-95 transition-all" title="Manage Bluetooth Printer">
           <span id="headerBtIcon" class="material-symbols-outlined text-[15px] text-tertiary">bluetooth_connected</span>
           <span id="headerBtName" class="text-[11px] font-mono text-on-surface hidden sm:inline">POS-80C</span>
@@ -316,6 +320,23 @@
 
     <!-- ==================== TAB 1: DASHBOARD ==================== -->
     <section id="tab-dashboard" class="tab-page px-4 py-3 space-y-3">
+      <!-- App Update Available Banner -->
+      <div id="updateNotificationBanner" class="hidden bg-gradient-to-r from-amber-500/15 via-primary/15 to-amber-500/15 border border-amber-500/40 rounded-xl p-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px] animate-bounce">system_update</span>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[12px] font-bold text-on-surface flex items-center gap-1.5 truncate">
+              <span>Update Ready:</span>
+              <span id="bannerNewVersion" class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 font-mono text-[10px] font-extrabold">v1.0.1</span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant truncate">Tap to install the latest GodownWala build</p>
+          </div>
+        </div>
+        <button onclick="openUpdateModal()" class="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-on-primary font-bold text-[11px] uppercase tracking-wide active:scale-95 shadow-sm">Update</button>
+      </div>
+
       <!-- Godown Hub & Equipment Status Card -->
       <div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm border border-surface-container-high">
         <div class="flex items-start justify-between">
@@ -1237,6 +1258,76 @@
     </div>
   </nav>
 
+
+  <!-- App Update Modal -->
+  <div id="updateModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest border border-surface-container-high rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col animate-scale-up">
+      
+      <!-- Header -->
+      <div class="p-4 border-b border-surface-container-high flex items-center justify-between bg-surface-container/50">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-[20px]">system_update</span>
+          </div>
+          <div>
+            <h3 class="text-[15px] font-bold text-on-surface">GodownWala Update</h3>
+            <span class="text-[10px] text-on-surface-variant font-mono">GitHub Release Engine</span>
+          </div>
+        </div>
+        <button onclick="closeUpdateModal()" class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 space-y-3.5">
+        <!-- Versions diff pill -->
+        <div class="flex items-center justify-between bg-surface-container-low rounded-xl p-3 border border-surface-container-high">
+          <div>
+            <div class="text-[10px] font-bold text-on-surface-variant uppercase">Current Version</div>
+            <div id="updateCurrentVer" class="text-[13px] font-mono font-bold text-on-surface">v1.0.0</div>
+          </div>
+          <span class="material-symbols-outlined text-primary text-[18px]">arrow_forward</span>
+          <div class="text-right">
+            <div class="text-[10px] font-bold text-amber-500 uppercase">Latest Available</div>
+            <div id="updateLatestVer" class="text-[13px] font-mono font-bold text-primary">v1.0.1</div>
+          </div>
+        </div>
+
+        <!-- Release Notes / Changelog -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Release Notes</span>
+            <span id="updateApkSize" class="text-[10px] font-mono text-slate-400 font-semibold"></span>
+          </div>
+          <div id="updateChangelog" class="text-[12px] text-on-surface bg-surface-container-low/60 rounded-lg p-2.5 max-h-32 overflow-y-auto whitespace-pre-wrap border border-surface-container-high/60 font-sans leading-relaxed">
+            Bug fixes and performance enhancements.
+          </div>
+        </div>
+
+        <!-- Download Progress bar (shown while downloading) -->
+        <div id="updateProgressContainer" class="hidden space-y-1.5 pt-1">
+          <div class="flex justify-between text-[11px] font-mono">
+            <span id="updateProgressStatus" class="text-primary font-bold">Downloading GodownWala.apk...</span>
+            <span id="updateProgressPercent" class="font-extrabold text-on-surface">0%</span>
+          </div>
+          <div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
+            <div id="updateProgressBar" class="h-full bg-primary rounded-full transition-all duration-200" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeUpdateModal()" id="updateCancelBtn" class="flex-1 py-2.5 rounded-xl bg-surface-container text-on-surface font-bold text-[12px] uppercase active:scale-95 text-center">Later</button>
+          <button onclick="startAppUpdateDownload()" id="updateActionBtn" class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-[12px] uppercase active:scale-95 shadow-md flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">download</span>
+            <span id="updateActionBtnText">Update Now</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Modular Application Scripts -->
   <script src="js/supabase_auth.js"></script>

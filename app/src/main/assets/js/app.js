@@ -347,6 +347,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   setTimeout(() => {
     captureCurrentScreen('dashboard_auto');
   }, 2500);
+
+  // Background update check 3 seconds after boot
+  setTimeout(() => {
+    checkForUpdatesSilent();
+  }, 3000);
 });
 
 let activeGodown = 'ALL';
@@ -441,3 +446,165 @@ function getFilteredTransactions() {
     });
   });
 }
+
+/**
+ * ============================================================================
+ * MODULE: IN-APP UPDATE CONTROLLER
+ * ============================================================================
+ */
+let latestUpdateData = null;
+
+function checkForUpdatesManual() {
+  vibrate(20);
+  showToast("Checking GitHub for updates...");
+  if (bridge() && bridge().checkForUpdates) {
+    bridge().checkForUpdates(true);
+  } else {
+    fetch('https://api.github.com/repos/nurmd/GodownWala/releases/latest')
+      .then(res => res.json())
+      .then(data => {
+        const tagName = (data.tag_name || '').replace(/^v/, '');
+        const asset = (data.assets || []).find(a => a.name.endsWith('.apk'));
+        window.onUpdateCheckResult({
+          hasUpdate: true,
+          currentVersion: "1.0.0",
+          latestVersion: tagName,
+          releaseName: data.name || data.tag_name,
+          releaseNotes: data.body || "Latest update package from GitHub releases.",
+          downloadUrl: asset ? asset.browser_download_url : '',
+          apkSize: asset ? asset.size : 0,
+          isManual: true
+        });
+      })
+      .catch(err => {
+        showToast("Check update failed: " + err.message);
+      });
+  }
+}
+
+function checkForUpdatesSilent() {
+  if (bridge() && bridge().checkForUpdates) {
+    bridge().checkForUpdates(false);
+  }
+}
+
+window.onUpdateCheckResult = function(data) {
+  if (!data) return;
+  latestUpdateData = data;
+  
+  const banner = document.getElementById('updateNotificationBanner');
+  const badge = document.getElementById('headerUpdateBadge');
+  const bannerVer = document.getElementById('bannerNewVersion');
+
+  if (data.hasUpdate && data.downloadUrl) {
+    if (banner) banner.classList.remove('hidden');
+    if (badge) badge.classList.remove('hidden');
+    if (bannerVer) bannerVer.textContent = 'v' + data.latestVersion;
+
+    if (data.isManual) {
+      openUpdateModal();
+    }
+  } else {
+    if (banner) banner.classList.add('hidden');
+    if (badge) badge.classList.add('hidden');
+  }
+};
+
+function openUpdateModal() {
+  vibrate(20);
+  const modal = document.getElementById('updateModal');
+  if (!modal) return;
+
+  if (latestUpdateData) {
+    const curEl = document.getElementById('updateCurrentVer');
+    const latEl = document.getElementById('updateLatestVer');
+    const notesEl = document.getElementById('updateChangelog');
+    const sizeEl = document.getElementById('updateApkSize');
+
+    if (curEl) curEl.textContent = 'v' + (latestUpdateData.currentVersion || '1.0.0');
+    if (latEl) latEl.textContent = 'v' + (latestUpdateData.latestVersion || '1.0.0');
+    if (notesEl) notesEl.textContent = latestUpdateData.releaseNotes || 'Bug fixes and performance improvements.';
+    if (sizeEl && latestUpdateData.apkSize) {
+      const mb = (latestUpdateData.apkSize / (1024 * 1024)).toFixed(1);
+      sizeEl.textContent = `${mb} MB`;
+    }
+  }
+
+  // Reset progress state
+  const progContainer = document.getElementById('updateProgressContainer');
+  if (progContainer) progContainer.classList.add('hidden');
+  const actionBtn = document.getElementById('updateActionBtn');
+  const actionText = document.getElementById('updateActionBtnText');
+  if (actionBtn) actionBtn.disabled = false;
+  if (actionText) actionText.textContent = 'Update Now';
+
+  modal.classList.remove('hidden');
+}
+
+function closeUpdateModal() {
+  vibrate(15);
+  const modal = document.getElementById('updateModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function startAppUpdateDownload() {
+  vibrate(25);
+  if (!latestUpdateData || !latestUpdateData.downloadUrl) {
+    showToast("No download package available");
+    return;
+  }
+
+  const progContainer = document.getElementById('updateProgressContainer');
+  const progBar = document.getElementById('updateProgressBar');
+  const progPct = document.getElementById('updateProgressPercent');
+  const progStatus = document.getElementById('updateProgressStatus');
+  const actionBtn = document.getElementById('updateActionBtn');
+  const actionText = document.getElementById('updateActionBtnText');
+
+  if (progContainer) progContainer.classList.remove('hidden');
+  if (progBar) progBar.style.width = '0%';
+  if (progPct) progPct.textContent = '0%';
+  if (progStatus) progStatus.textContent = 'Connecting to server...';
+  if (actionBtn) actionBtn.disabled = true;
+  if (actionText) actionText.textContent = 'Downloading...';
+
+  if (bridge() && bridge().downloadAndInstallUpdate) {
+    bridge().downloadAndInstallUpdate(latestUpdateData.downloadUrl);
+  } else {
+    window.open(latestUpdateData.downloadUrl, '_blank');
+    if (progStatus) progStatus.textContent = 'Opened in browser!';
+    if (actionBtn) actionBtn.disabled = false;
+  }
+}
+
+window.onUpdateDownloadProgress = function(percent, downloaded, total, state) {
+  const progBar = document.getElementById('updateProgressBar');
+  const progPct = document.getElementById('updateProgressPercent');
+  const progStatus = document.getElementById('updateProgressStatus');
+  const actionBtn = document.getElementById('updateActionBtn');
+  const actionText = document.getElementById('updateActionBtnText');
+
+  if (state === 'downloading') {
+    if (progBar) progBar.style.width = `${percent}%`;
+    if (progPct) progPct.textContent = `${percent}%`;
+    if (progStatus) {
+      if (total > 0) {
+        const dMb = (downloaded / (1024 * 1024)).toFixed(1);
+        const tMb = (total / (1024 * 1024)).toFixed(1);
+        progStatus.textContent = `Downloading ${dMb}MB / ${tMb}MB`;
+      } else {
+        progStatus.textContent = 'Downloading GodownWala.apk...';
+      }
+    }
+  } else if (state === 'completed') {
+    if (progBar) progBar.style.width = '100%';
+    if (progPct) progPct.textContent = '100%';
+    if (progStatus) progStatus.textContent = 'Download Complete! Launching Installer...';
+    if (actionText) actionText.textContent = 'Installing...';
+  } else if (state === 'error') {
+    if (progStatus) progStatus.textContent = 'Download failed. Please check network.';
+    if (actionBtn) actionBtn.disabled = false;
+    if (actionText) actionText.textContent = 'Retry Download';
+  }
+};
+
