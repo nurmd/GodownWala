@@ -323,8 +323,24 @@ function dismissSplashScreen() {
   }, 300);
 }
 
+function loadInstalledVersion() {
+  let ver = "1.0.1";
+  if (bridge() && bridge().getAppVersionInfo) {
+    try {
+      const info = JSON.parse(bridge().getAppVersionInfo());
+      if (info && info.versionName) ver = info.versionName;
+    } catch (e) {}
+  }
+  const badge = document.getElementById('splashVersionBadge');
+  if (badge) badge.textContent = 'v' + ver + ' Stable';
+  const curVer = document.getElementById('updateCurrentVer');
+  if (curVer) curVer.textContent = 'v' + ver;
+  return ver;
+}
+
 // Application Startup Lifecycle
 window.addEventListener('DOMContentLoaded', async () => {
+  loadInstalledVersion();
   updateSplashProgress(20, "Loading options...");
   loadSavedPrintOptions();
 
