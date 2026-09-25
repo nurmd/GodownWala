@@ -47,19 +47,19 @@ d8 --lib "$ANDROID_JAR" \
 
 # 5. Package APK
 echo "[5/6] Packaging classes.dex and assets into APK..."
-cp build/base.apk build/bhpos-unaligned.apk
-(cd build/dex && zip -u ../bhpos-unaligned.apk classes.dex)
+cp build/base.apk build/godownwala-unaligned.apk
+(cd build/dex && zip -u ../godownwala-unaligned.apk classes.dex)
 
 # 6. Sign APK
 echo "[6/6] Signing APK with debug certificate..."
 if [ ! -f debug.keystore ]; then
   keytool -genkeypair -v -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
 fi
-apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out build/bhpos-debug.apk build/bhpos-unaligned.apk
+apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out build/GodownWala.apk build/godownwala-unaligned.apk
 
 # Copy to Downloads
 mkdir -p /data/data/com.termux/files/home/storage/downloads
-cp build/bhpos-debug.apk /data/data/com.termux/files/home/storage/downloads/bhpos-debug.apk
+cp build/GodownWala.apk /data/data/com.termux/files/home/storage/downloads/GodownWala.apk
 
 echo "=== APK Successfully Built & Signed! ==="
-echo "Location: /data/data/com.termux/files/home/storage/downloads/bhpos-debug.apk"
+echo "Location: /data/data/com.termux/files/home/storage/downloads/GodownWala.apk"

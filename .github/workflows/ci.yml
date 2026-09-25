@@ -43,18 +43,25 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload Debug APK Artifact
+      - name: Prepare Named APK
+        run: |
+          mkdir -p release-apks
+          APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
+          cp "$APK_PATH" release-apks/GodownWala.apk
+          echo "Prepared release APK at release-apks/GodownWala.apk"
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: godownwala-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: GodownWala-apk
+          path: release-apks/GodownWala.apk
           retention-days: 14
 
       - name: Publish GitHub Release (On Version Tag)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/debug/*.apk
+          files: release-apks/GodownWala.apk
           generate_release_notes: true
           draft: false
           prerelease: false
