@@ -51,6 +51,7 @@ class MainActivity : Activity() {
         setContentView(container)
 
         setupWebView()
+        applySystemBarsTheme("#F4FAFF")
         webView.loadUrl("file:///android_asset/index.html")
         handleIntent(intent)
     }
@@ -147,8 +148,46 @@ class MainActivity : Activity() {
 
     private var pendingInstallApkPath: String? = null
 
+    fun applySystemBarsTheme(hexColor: String = "#F4FAFF") {
+        runOnUiThread {
+            try {
+                val window = this.window
+                val color = android.graphics.Color.parseColor(hexColor)
+                window.statusBarColor = color
+                window.navigationBarColor = color
+
+                val r = android.graphics.Color.red(color)
+                val g = android.graphics.Color.green(color)
+                val b = android.graphics.Color.blue(color)
+                val lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
+                val darkIcons = lum > 0.5
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val decor = window.decorView
+                    var flags = decor.systemUiVisibility
+                    flags = if (darkIcons) {
+                        flags or android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                    } else {
+                        flags and android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        flags = if (darkIcons) {
+                            flags or android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                        } else {
+                            flags and android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                        }
+                    }
+                    decor.systemUiVisibility = flags
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("BH_STATUS_BAR", "Error setting system bars", e)
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
+        applySystemBarsTheme("#F4FAFF")
         checkPendingApkInstall()
     }
 
@@ -1533,23 +1572,13 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
-        fun setStatusBarColor(hexColor: String, lightIcons: Boolean) {
-            runOnUiThread {
-                try {
-                    val window = this@MainActivity.window
-                    window.statusBarColor = android.graphics.Color.parseColor(hexColor)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        val decor = window.decorView
-                        var flags = decor.systemUiVisibility
-                        flags = if (lightIcons) {
-                            flags and android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                        } else {
-                            flags or android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                        }
-                        decor.systemUiVisibility = flags
-                    }
-                } catch (_: Exception) {}
-            }
+        fun setStatusBarColor(hexColor: String, lightIcons: Boolean = false) {
+            this@MainActivity.applySystemBarsTheme(hexColor)
+        }
+
+        @JavascriptInterface
+        fun restoreStatusBar() {
+            this@MainActivity.applySystemBarsTheme("#F4FAFF")
         }
 
         @JavascriptInterface

@@ -312,13 +312,20 @@ function dismissSplashScreen() {
   setTimeout(() => {
     splash.classList.add('splash-exit');
     
-    // Smoothly restore light status bar icons for dashboard theme
-    if (bridge() && bridge().setStatusBarColor) {
-      bridge().setStatusBarColor("#F4FAFF", false);
+    // Explicitly restore status bar to application theme
+    if (bridge()) {
+      if (bridge().restoreStatusBar) {
+        bridge().restoreStatusBar();
+      } else if (bridge().setStatusBarColor) {
+        bridge().setStatusBarColor("#F4FAFF", false);
+      }
     }
     
     setTimeout(() => {
       splash.remove();
+      if (bridge() && bridge().restoreStatusBar) {
+        bridge().restoreStatusBar();
+      }
     }, 600);
   }, 300);
 }
