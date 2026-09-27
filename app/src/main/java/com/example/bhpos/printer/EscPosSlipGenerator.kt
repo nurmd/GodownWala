@@ -178,6 +178,12 @@ object EscPosSlipGenerator {
         return sb.toString()
     }
 
+    private val CMD_INIT = byteArrayOf(0x1B, 0x40) // ESC @
+    private val CMD_BOLD_ON = byteArrayOf(0x1B, 0x45, 0x01) // ESC E 1
+    private val CMD_BOLD_OFF = byteArrayOf(0x1B, 0x45, 0x00) // ESC E 0
+    private val CMD_DOUBLE_HEIGHT_ON = byteArrayOf(0x1D, 0x21, 0x01) // GS ! 1 (Double-Height)
+    private val CMD_NORMAL_SIZE = byteArrayOf(0x1D, 0x21, 0x00) // GS ! 0 (Normal size)
+
     @JvmOverloads
     fun generateEscPosBytes(
         tx: StockTransaction,
@@ -187,20 +193,139 @@ object EscPosSlipGenerator {
         val out = ByteArrayOutputStream()
 
         // ESC @: Initialize printer
-        out.write(byteArrayOf(0x1B, 0x40))
+        out.write(CMD_INIT)
 
-        // ESC t 0: Standard character code table (PC437)
-        // out.write(byteArrayOf(0x1B, 0x74, 0x00)) // Removed charset command for 58mm compatibility
+        val width = if (paperWidthMm == 58) 32 else 48
+        val dividerEqual = "=".repeat(width)
+        val dividerDash = "-".repeat(width)
 
-        // Print complete pre-formatted body text with active options
-        val bodyText = generatePreviewText(tx, paperWidthMm, options)
-        out.write(bodyText.toByteArray(Charsets.US_ASCII))
+        val dateStr = dateFormat.format(Date(tx.timestamp))
+        val timeStr = timeFormat.format(Date(tx.timestamp))
 
-        // Feed paper past tear bar (ESC d 5 feeds 5 lines)
+        // 1. Header & Contact
+        if (options.showHeader) {
+            out.write((dividerEqual + "\n").toByteArray(Charsets.US_ASCII))
+            out.write(CMD_BOLD_ON)
+            out.write((centerText("GODOWN MANAGER", width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write((centerText("CENTRAL DEPOT", width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write(CMD_BOLD_OFF)
+            out.write((centerText("Tel: Support / Operations", width) + "\n").toByteArray(Charsets.US_ASCII))
+        }
+
+        // Title Banner
+        out.write((dividerEqual + "\n").toByteArray(Charsets.US_ASCII))
+        out.write(CMD_BOLD_ON)
+        out.write((centerText("** GATE PASS / DISPATCH SLIP **", width) + "\n").toByteArray(Charsets.US_ASCII))
+        out.write(CMD_BOLD_OFF)
+        out.write((dividerDash + "\n").toByteArray(Charsets.US_ASCII))
+
+        // 2. Slip Meta
+        if (options.showSlipMeta) {
+            out.write((twoCol("Slip No: ${tx.slipNo}", "BAY 2 OUTWARD", width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write((twoCol("Date: $dateStr", "Time: $timeStr", width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write((dividerDash + "\n").toByteArray(Charsets.US_ASCII))
+        }
+
+        // 3. Party Details
+        val hasParty = options.showCustomer || options.showSite || options.showTransport || options.showChallanEwb
+        if (hasParty) {
+            val sb = StringBuilder()
+            sb.append("PARTY DETAILS:\n")
+            if (paperWidthMm == 58) {
+                if (options.showCustomer) {
+                    appendWrappedField(sb, "Customer: ", tx.partyName, width)
+                    if (tx.customerPhone.isNotBlank()) appendWrappedField(sb, "Cust Mob: ", tx.customerPhone, width)
+                }
+                if (options.showSite && tx.destinationSite.isNotBlank()) appendWrappedField(sb, "Site    : ", tx.destinationSite, width)
+                if (options.showTransport) {
+                    appendWrappedField(sb, "Vehicle : ", tx.vehicleNo, width)
+                    appendWrappedField(sb, "Driver  : ", tx.driverName, width)
+                    if (tx.driverPhone.isNotBlank()) appendWrappedField(sb, "Phone   : ", tx.driverPhone, width)
+                }
+                if (options.showChallanEwb) {
+                    appendWrappedField(sb, "Challan : ", tx.challanNo, width)
+                    if (tx.ewbNo.isNotBlank()) appendWrappedField(sb, "E-Way B : ", tx.ewbNo, width)
+                }
+            } else {
+                if (options.showCustomer) {
+                    appendWrappedField(sb, "  Customer: ", tx.partyName, width)
+                    if (tx.customerPhone.isNotBlank()) appendWrappedField(sb, "  Cust Mob: ", tx.customerPhone, width)
+                }
+                if (options.showSite && tx.destinationSite.isNotBlank()) appendWrappedField(sb, "  Site: ", tx.destinationSite, width)
+                if (options.showTransport) {
+                    appendWrappedField(sb, "  Vehicle : ", tx.vehicleNo, width)
+                    val driverInfo = if (tx.driverPhone.isNotBlank()) "${tx.driverName} (${tx.driverPhone})" else tx.driverName
+                    appendWrappedField(sb, "  Driver  : ", driverInfo, width)
+                }
+                if (options.showChallanEwb) {
+                    appendWrappedField(sb, "  Challan : ", tx.challanNo, width)
+                    if (tx.ewbNo.isNotBlank()) appendWrappedField(sb, "  E-Way B : ", tx.ewbNo, width)
+                }
+            }
+            sb.append(dividerDash).append("\n")
+            out.write(sb.toString().toByteArray(Charsets.US_ASCII))
+        }
+
+        // 4. Items Table Header
+        val headerCol = if (paperWidthMm == 58) threeCol("ITEM", "QTY", "WT", width) else threeCol("ITEM / BATCH", "QTY", "WEIGHT", width)
+        out.write(CMD_BOLD_ON)
+        out.write((headerCol + "\n").toByteArray(Charsets.US_ASCII))
+        out.write(CMD_BOLD_OFF)
+        out.write((dividerDash + "\n").toByteArray(Charsets.US_ASCII))
+
+        // Items and Quantity - BOLD AND LARGE
+        for (item in tx.items) {
+            val nameLine = item.productName
+            val qtyStr = "${item.quantityBags}"
+            val wtStr = String.format(Locale.ENGLISH, "%.2f", item.metricTons)
+
+            // Turn ON Double-Height and Bold for Item Line and Quantity
+            out.write(CMD_DOUBLE_HEIGHT_ON)
+            out.write(CMD_BOLD_ON)
+            out.write((threeCol(nameLine, qtyStr, wtStr, width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write(CMD_NORMAL_SIZE)
+            out.write(CMD_BOLD_OFF)
+
+            if (options.showBatchBay && paperWidthMm != 58) {
+                out.write(("  [${item.bayLocation} | Batch: ${item.batchNo}]\n").toByteArray(Charsets.US_ASCII))
+            } else if (options.showBatchBay && paperWidthMm == 58) {
+                out.write(("  [${item.batchNo}]\n").toByteArray(Charsets.US_ASCII))
+            }
+        }
+
+        out.write((dividerDash + "\n").toByteArray(Charsets.US_ASCII))
+
+        // 5. Totals (Bold)
+        out.write(CMD_BOLD_ON)
+        out.write((twoCol("TOTAL QUANTITY:", "${tx.totalBags} UNITS", width) + "\n").toByteArray(Charsets.US_ASCII))
+        out.write((twoCol("TOTAL NET WT:", String.format(Locale.ENGLISH, "%.2f MT", tx.totalMetricTons), width) + "\n").toByteArray(Charsets.US_ASCII))
+        if (options.showAmount) {
+            out.write((twoCol("TOTAL VALUE:", String.format(Locale.ENGLISH, "INR %.2f", tx.totalAmount), width) + "\n").toByteArray(Charsets.US_ASCII))
+        }
+        out.write(CMD_BOLD_OFF)
+        out.write((dividerEqual + "\n").toByteArray(Charsets.US_ASCII))
+
+        // 6. QR Code Verification
+        if (options.showQrVerification) {
+            out.write((centerText("[QR CODE VERIFICATION]", width) + "\n").toByteArray(Charsets.US_ASCII))
+            if (paperWidthMm == 58) {
+                out.write((centerText("SLIP: ${tx.slipNo}", width) + "\n").toByteArray(Charsets.US_ASCII))
+                out.write((centerText("TRUCK: ${tx.vehicleNo}", width) + "\n").toByteArray(Charsets.US_ASCII))
+            } else {
+                out.write((centerText("SLIP-ID: ${tx.slipNo} | TRUCK: ${tx.vehicleNo}", width) + "\n").toByteArray(Charsets.US_ASCII))
+            }
+            out.write((dividerDash + "\n").toByteArray(Charsets.US_ASCII))
+        }
+
+        // 7. Signatures
+        if (options.showSignatures) {
+            out.write("\n\n".toByteArray(Charsets.US_ASCII))
+            out.write((twoCol("Driver Signature", "Gate Officer", width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write((dividerEqual + "\n").toByteArray(Charsets.US_ASCII))
+        }
+
+        // Feed paper past tear bar (5 lines)
         out.write("\n\n\n\n\n".toByteArray())
-
-        // GS V 1: Partial cut
-        // out.write(byteArrayOf(0x1D, 0x56, 0x01)) // Removed cut command for 58mm compatibility
 
         return out.toByteArray()
     }

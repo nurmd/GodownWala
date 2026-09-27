@@ -43,7 +43,7 @@ function renderPosProducts() {
     const inCart = posCart[p.id] || 0;
     const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
     const tile = document.createElement('div');
-    tile.className = `bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high shadow-sm flex flex-col justify-between select-none relative ${opacity}`;
+    tile.className = `bg-surface-container-lowest rounded-xl p-2 border border-surface-container-high shadow-sm flex flex-col justify-between select-none relative aspect-square ${opacity}`;
     
     // Long-press detection for opening item editor
     let pressTimer;
@@ -61,39 +61,41 @@ function renderPosProducts() {
 
     if (editModeItemId === p.id) {
       tile.innerHTML = `
-        <div class="flex-1 flex flex-col items-center justify-center cursor-pointer min-h-[120px]" onclick="openEditItemModal('${p.id}')">
-          <span class="material-symbols-outlined text-[48px] text-primary">edit</span>
-          <span class="text-[12px] font-bold text-primary mt-2 uppercase">EDIT ITEM</span>
+        <div class="flex-1 flex flex-col items-center justify-center cursor-pointer h-full" onclick="openEditItemModal('${p.id}')">
+          <span class="material-symbols-outlined text-[36px] text-primary">edit</span>
+          <span class="text-[11px] font-bold text-primary mt-1 uppercase">EDIT ITEM</span>
         </div>
       `;
     } else {
-      const imgHtml = (p.imageUrl && p.imageUrl.trim() !== "") 
-        ? `<div class="relative w-full h-24 mb-2 rounded-lg overflow-hidden border border-surface-container bg-surface-container-low shrink-0">
-             <img src="${p.imageUrl}" class="w-full h-full object-cover" />
-             <span class="${inCart > 0 ? '' : 'hidden'} absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
-           </div>`
-        : `<div class="flex items-start justify-end min-h-[16px] mb-1">
-             <span class="${inCart > 0 ? '' : 'hidden'} px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
-           </div>`;
+      const imgHtml = `
+        <div class="relative w-full h-14 rounded-lg overflow-hidden border border-surface-container bg-surface-container-low shrink-0 flex items-center justify-center">
+          ${(p.imageUrl && p.imageUrl.trim() !== "") 
+            ? `<img src="${p.imageUrl}" class="w-full h-full object-cover" />`
+            : `<div class="w-full h-full flex items-center justify-center text-on-surface-variant/40 bg-surface-container/40">
+                 <span class="material-symbols-outlined text-[24px]">inventory_2</span>
+               </div>`
+          }
+          <span class="${inCart > 0 ? '' : 'hidden'} absolute top-1 right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
+        </div>`;
         
       tile.innerHTML = `
-        <div>
+        <div class="min-w-0">
           ${imgHtml}
-          <div>
-            <h4 class="text-[14px] font-bold text-on-surface line-clamp-1 leading-snug">${p.name}</h4>
-            <div class="flex items-baseline justify-between mt-1">
-              <div class="flex items-baseline gap-1">
-                <span class="text-[18px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
-                <span class="text-[11px] font-semibold text-on-surface-variant">${p.unit || 'Units'}</span>
+          <div class="mt-1 min-w-0">
+            <h4 class="text-[12px] font-bold text-on-surface truncate leading-tight">${p.name}</h4>
+            <div class="flex items-baseline justify-between mt-0.5">
+              <div class="flex items-baseline gap-1 min-w-0">
+                <span class="text-[14px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
+                <span class="text-[10px] font-semibold text-on-surface-variant truncate">${p.unit || 'Units'}</span>
               </div>
-              <span class="text-[11px] font-bold text-primary">₹${p.defaultRatePerBag}<span class="text-[9px] font-normal text-on-surface-variant">/${(p.unit || 'Unit').toLowerCase()}</span></span>
+              <span class="text-[10px] font-bold text-primary shrink-0">₹${p.defaultRatePerBag}<span class="text-[8px] font-normal text-on-surface-variant">/${(p.unit || 'Unit').toLowerCase()}</span></span>
             </div>
           </div>
         </div>
-        <div class="mt-2 pt-2 border-t border-surface-container grid grid-cols-3 gap-1">
-          <button onclick="addPosItem('${p.id}', 1)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+1</button>
-          <button onclick="addPosItem('${p.id}', 5)" class="h-8 rounded bg-surface-container text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+5</button>
-          <button onclick="addPosItem('${p.id}', 10)" class="h-8 rounded bg-primary-fixed text-on-primary-fixed text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center">+10</button>
+        <div class="mt-1 pt-1 border-t border-surface-container grid grid-cols-3 gap-1">
+          <button onclick="addPosItem('${p.id}', 1)" class="h-6 rounded bg-surface-container text-on-surface text-[10px] font-bold active:scale-90 transition-transform flex items-center justify-center">+1</button>
+          <button onclick="addPosItem('${p.id}', 5)" class="h-6 rounded bg-surface-container text-on-surface text-[10px] font-bold active:scale-90 transition-transform flex items-center justify-center">+5</button>
+          <button onclick="addPosItem('${p.id}', 10)" class="h-6 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold active:scale-90 transition-transform flex items-center justify-center">+10</button>
         </div>
       `;
     }
@@ -102,11 +104,11 @@ function renderPosProducts() {
 
   // "+ Add Product" quick action tile
   const addTile = document.createElement('div');
-  addTile.className = 'bg-surface-container-lowest rounded-xl p-3 border border-surface-container-high border-dashed shadow-sm flex flex-col justify-center items-center select-none relative cursor-pointer min-h-[140px] active:scale-95 transition-transform';
+  addTile.className = 'bg-surface-container-lowest rounded-xl p-2 border border-surface-container-high border-dashed shadow-sm flex flex-col justify-center items-center select-none relative cursor-pointer aspect-square active:scale-95 transition-transform';
   addTile.onclick = () => openAddItemModal();
   addTile.innerHTML = `
-    <span class="material-symbols-outlined text-[48px] text-primary/50">add</span>
-    <span class="text-[12px] font-bold text-primary/70 mt-2 uppercase tracking-wide">Add Product</span>
+    <span class="material-symbols-outlined text-[36px] text-primary/50">add</span>
+    <span class="text-[11px] font-bold text-primary/70 mt-1 uppercase tracking-wide">Add Product</span>
   `;
   grid.appendChild(addTile);
 }
@@ -289,13 +291,36 @@ function clearProductImage(hiddenInputId, previewImgId, placeholderId) {
 /**
  * Opens modal to create a new product.
  */
+function autoSuggestUnitWeight(unitElemId, weightElemId) {
+  const unitSel = document.getElementById(unitElemId);
+  const weightInput = document.getElementById(weightElemId);
+  if (!unitSel || !weightInput) return;
+  const unit = unitSel.value;
+  if (unit === 'Bags') {
+    weightInput.value = 50;
+  } else if (unit === 'Tons') {
+    weightInput.value = 1000;
+  } else if (unit === 'Kg') {
+    weightInput.value = 1;
+  } else if (unit === 'Liters') {
+    weightInput.value = 1;
+  } else if (unit === 'Boxes') {
+    weightInput.value = 25;
+  } else if (unit === 'Units') {
+    weightInput.value = 10;
+  }
+}
+
 function openAddItemModal() {
+  vibrate(25);
   const gInput = document.getElementById("addItemGodown"); if(gInput) gInput.value = (typeof activeGodown !== "undefined" && activeGodown !== "ALL") ? activeGodown : "Godown 1";
   document.getElementById('addItemName').value = '';
   document.getElementById('addItemRate').value = '';
   document.getElementById('addItemStock').value = '0';
   const unitSelect = document.getElementById('addItemUnit');
-  if (unitSelect) unitSelect.value = 'Units';
+  if (unitSelect) unitSelect.value = 'Bags';
+  const weightInput = document.getElementById('addItemWeight');
+  if (weightInput) weightInput.value = '50';
   clearProductImage('addItemImage', 'addItemImagePreview', 'addItemImagePlaceholder');
   document.getElementById('addItemModal').classList.remove('hidden');
 }
@@ -315,6 +340,8 @@ async function saveNewItem() {
   const stock = parseInt(document.getElementById('addItemStock').value) || 0;
   const unitSelect = document.getElementById('addItemUnit');
   const unit = unitSelect ? unitSelect.value : 'Units';
+  const weightInput = document.getElementById('addItemWeight');
+  const weightPerBagKg = weightInput ? (parseFloat(weightInput.value) || 50) : 50;
   const image = document.getElementById('addItemImage') ? document.getElementById('addItemImage').value.trim() : '';
 
   if (!name || isNaN(rate)) {
@@ -323,15 +350,17 @@ async function saveNewItem() {
   }
 
   const id = 'prod_' + Date.now();
+  const bayLoc = document.getElementById("addItemGodown") ? document.getElementById("addItemGodown").value.trim() || "Godown 1" : "Godown 1";
   const newProduct = {
     id: id,
     name: name,
     grade: unit,
     unit: unit,
-    weightPerBagKg: 50,
+    weightPerBagKg: weightPerBagKg,
     defaultRatePerBag: rate,
-    bayLocation: document.getElementById("addItemGodown") ? document.getElementById("addItemGodown").value.trim() || "Godown 1" : "Godown 1",
+    bayLocation: bayLoc,
     currentStockBags: stock,
+    currentStockMt: (stock * weightPerBagKg) / 1000.0,
     batchNo: "NEW",
     imageUrl: image,
     isActive: true
@@ -366,6 +395,8 @@ async function saveNewItem() {
           grade: unit,
           default_rate_per_bag: rate,
           current_stock_bags: stock,
+          weight_per_bag_kg: weightPerBagKg,
+          bay_location: bayLoc,
           image_url: image,
           is_active: true
         })
@@ -415,6 +446,8 @@ function openEditItemModal(id) {
 
   const unitSelect = document.getElementById('editItemUnit');
   if (unitSelect) unitSelect.value = product.unit || product.grade || 'Units';
+  const weightInput = document.getElementById('editItemWeight');
+  if (weightInput) weightInput.value = (product.weightPerBagKg !== undefined && product.weightPerBagKg !== null) ? product.weightPerBagKg : 50;
   
   const isAct = product.isActive !== false;
   document.getElementById('editItemId').dataset.active = isAct;
@@ -467,6 +500,8 @@ async function saveEditItem() {
   const image = document.getElementById('editItemImage').value.trim();
   const unitSelect = document.getElementById('editItemUnit');
   const unit = unitSelect ? unitSelect.value : 'Units';
+  const weightInput = document.getElementById('editItemWeight');
+  const weightPerBagKg = weightInput ? (parseFloat(weightInput.value) || 50) : 50;
 
   if (!name || isNaN(rate)) {
     alert("Please fill required fields.");
@@ -484,6 +519,8 @@ async function saveEditItem() {
     cachedProducts[pIdx].isActive = isActive;
     cachedProducts[pIdx].unit = unit;
     cachedProducts[pIdx].grade = unit;
+    cachedProducts[pIdx].weightPerBagKg = weightPerBagKg;
+    cachedProducts[pIdx].currentStockMt = ((cachedProducts[pIdx].currentStockBags || 0) * weightPerBagKg) / 1000.0;
     renderPosProducts();
     populateProductDropdowns();
     if (typeof updateGodownList === "function") updateGodownList();
@@ -494,7 +531,7 @@ async function saveEditItem() {
   // 2. Persist to bridge
   if (bridge()) {
     try {
-      const obj = { id: id, name: name, defaultRatePerBag: rate, imageUrl: image, isActive: isActive, unit: unit };
+      const obj = { id: id, name: name, defaultRatePerBag: rate, imageUrl: image, isActive: isActive, unit: unit, weightPerBagKg: weightPerBagKg };
       bridge().updateProduct(JSON.stringify(obj));
     } catch (e) {
       console.error("[Catalog] Bridge updateProduct error:", e);
@@ -511,7 +548,8 @@ async function saveEditItem() {
           grade: unit,
           default_rate_per_bag: rate,
           image_url: image,
-          is_active: isActive
+          is_active: isActive,
+          weight_per_bag_kg: weightPerBagKg
         })
       });
     }

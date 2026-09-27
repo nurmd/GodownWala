@@ -1183,13 +1183,15 @@ class MainActivity : Activity() {
                 val existing = products.find { it.id == id }
                 if (existing != null) {
                     val finalUnit = unit ?: existing.unit
+                    val weight = if (obj.has("weightPerBagKg")) obj.getDouble("weightPerBagKg") else existing.weightPerBagKg
                     val updated = existing.copy(
                         name = name,
                         defaultRatePerBag = rate,
                         imageUrl = if (hasImageKey) imageUrl else existing.imageUrl,
                         isActive = if (obj.has("isActive")) obj.getBoolean("isActive") else existing.isActive,
                         unit = finalUnit,
-                        grade = finalUnit
+                        grade = finalUnit,
+                        weightPerBagKg = weight
                     )
                     val result = runBlocking { repository.updateProduct(updated) }
                     if (result.isSuccess) {

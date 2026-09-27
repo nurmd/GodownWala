@@ -160,7 +160,7 @@
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary-container/10 rounded-full blur-2xl pointer-events-none"></div>
 
     <div class="w-full flex justify-end pt-safe">
-      <span id="splashVersionBadge" class="text-[10px] font-mono tracking-wider text-on-surface-variant font-bold bg-surface-container px-2.5 py-1 rounded-full border border-surface-container-high shadow-xs uppercase">v1.0.1 Stable</span>
+      <span id="splashVersionBadge" class="text-[10px] font-mono tracking-wider text-on-surface-variant font-bold bg-surface-container px-2.5 py-1 rounded-full border border-surface-container-high shadow-xs uppercase">v1.0.2 Stable</span>
     </div>
 
     <!-- Center Branding -->
@@ -293,7 +293,11 @@
             <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate">GodownWala</span>
             <span class="text-[9px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded">Live</span>
           </div>
-          <select id="topGodownSelector" onchange="changeGodown()" class="text-[14px] font-bold text-on-surface bg-transparent border-none p-0 focus:ring-0 truncate" style="max-width:180px;"><option value="ALL">All Godowns</option></select>
+          <div class="flex items-center gap-1 mt-0.5">
+            <select id="topGodownSelector" onchange="changeGodown()" class="text-[12px] font-bold text-on-surface bg-surface-container-low border border-surface-container-high rounded-md px-1.5 py-0.5 focus:ring-1 focus:ring-primary focus:outline-none truncate cursor-pointer shadow-sm" style="max-width:170px;">
+              <option value="ALL">All Godowns</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -347,10 +351,10 @@
             </div>
             <div>
               <div class="flex items-center gap-1.5">
-                <h2 class="text-[15px] font-bold text-on-surface">Bay 2 • Central Logistics</h2>
+                <h2 class="text-[15px] font-bold text-on-surface" id="dashGodownTitle">All Godowns</h2>
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed">Active</span>
               </div>
-              <p class="text-[12px] text-on-surface-variant" id="dashGodownSubtitle">All Godowns</p>
+              <p class="text-[12px] text-on-surface-variant" id="dashGodownSubtitle">Central Depot • Overview</p>
             </div>
           </div>
           <button onclick="refreshData()" class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-95">
@@ -750,14 +754,14 @@
           <input type="text" id="editItemName" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
           <div>
             <label class="block font-bold text-on-surface-variant mb-1">Rate / Unit (₹)</label>
-            <input type="number" id="editItemRate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold"/>
+            <input type="number" id="editItemRate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" placeholder="0.00"/>
           </div>
           <div>
             <label class="block font-bold text-on-surface-variant mb-1">Product Unit</label>
-            <select id="editItemUnit" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold">
+            <select id="editItemUnit" onchange="autoSuggestUnitWeight('editItemUnit', 'editItemWeight')" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold text-[11px]">
               <option value="Units">Units (Pcs)</option>
               <option value="Bags">Bags</option>
               <option value="Boxes">Boxes (Cartons)</option>
@@ -767,6 +771,10 @@
               <option value="Packets">Packets</option>
               <option value="Bundles">Bundles / Rolls</option>
             </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Weight (kg)</label>
+            <input type="number" id="editItemWeight" step="any" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold text-[12px]" placeholder="50"/>
           </div>
         </div>
         <div>
@@ -827,16 +835,16 @@
 
 
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
           <div>
             <label class="block font-bold text-on-surface-variant mb-1">Rate / Unit (₹)</label>
             <input type="number" id="addItemRate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold" placeholder="0.00"/>
           </div>
           <div>
             <label class="block font-bold text-on-surface-variant mb-1">Product Unit</label>
-            <select id="addItemUnit" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold">
+            <select id="addItemUnit" onchange="autoSuggestUnitWeight('addItemUnit', 'addItemWeight')" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold text-[11px]">
               <option value="Units">Units (Pcs)</option>
-              <option value="Bags">Bags</option>
+              <option value="Bags" selected>Bags</option>
               <option value="Boxes">Boxes (Cartons)</option>
               <option value="Kg">Kg (Kilograms)</option>
               <option value="Tons">Tons (MT)</option>
@@ -844,6 +852,10 @@
               <option value="Packets">Packets</option>
               <option value="Bundles">Bundles / Rolls</option>
             </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Weight (kg)</label>
+            <input type="number" id="addItemWeight" step="any" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-bold text-[12px]" placeholder="50" value="50"/>
           </div>
         </div>
         <div>

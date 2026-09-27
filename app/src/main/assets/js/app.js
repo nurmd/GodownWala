@@ -116,6 +116,7 @@ function refreshData() {
       if (telemetryStr) updateDashboardTelemetry(JSON.parse(telemetryStr));
       if (productsStr) {
         cachedProducts = JSON.parse(productsStr);
+        updateGodownList();
         renderPosProducts();
         populateProductDropdowns();
         if (typeof renderDispatchItems === 'function') renderDispatchItems();
@@ -126,6 +127,7 @@ function refreshData() {
       }
       if (txStr) {
         cachedTransactions = JSON.parse(txStr);
+        updateGodownList();
         renderDashboardActivities();
         renderLedger();
       }
@@ -331,7 +333,7 @@ function dismissSplashScreen() {
 }
 
 function loadInstalledVersion() {
-  let ver = "1.0.1";
+  let ver = "1.0.2";
   if (bridge() && bridge().getAppVersionInfo) {
     try {
       const info = JSON.parse(bridge().getAppVersionInfo());
@@ -381,12 +383,27 @@ function updateGodownList() {
   
   const godowns = new Set();
   (cachedProducts || []).forEach(p => {
-    if (p.bayLocation && p.bayLocation !== "Unassigned") {
-      godowns.add(p.bayLocation);
+    if (p.bayLocation && p.bayLocation !== "Unassigned" && p.bayLocation.trim() !== "") {
+      godowns.add(p.bayLocation.trim());
     }
   });
+
+  (cachedTransactions || []).forEach(tx => {
+    if (tx.items) {
+      tx.items.forEach(it => {
+        if (it.bayLocation && it.bayLocation !== "Unassigned" && it.bayLocation.trim() !== "") {
+          godowns.add(it.bayLocation.trim());
+        }
+      });
+    }
+  });
+
+  // Provide fallback default godowns if none defined yet
+  if (godowns.size === 0) {
+    godowns.add("Godown 1");
+  }
   
-  godowns.forEach(g => {
+  Array.from(godowns).sort().forEach(g => {
     const opt = document.createElement('option');
     opt.value = g;
     opt.textContent = g;
@@ -399,6 +416,18 @@ function updateGodownList() {
     sel.value = 'ALL';
     activeGodown = 'ALL';
   }
+  updateDashboardGodownLabels();
+}
+
+function updateDashboardGodownLabels() {
+  const title = document.getElementById('dashGodownTitle');
+  if (title) {
+    title.textContent = activeGodown === 'ALL' ? (currentBusiness?.name || 'All Godowns') : activeGodown;
+  }
+  const sub = document.getElementById('dashGodownSubtitle');
+  if (sub) {
+    sub.textContent = activeGodown === 'ALL' ? 'Central Depot • All Godowns' : (activeGodown + ' Storage Hub');
+  }
 }
 
 function changeGodown() {
@@ -406,14 +435,13 @@ function changeGodown() {
   if (!sel) return;
   activeGodown = sel.value;
   
-  const sub = document.getElementById('dashGodownSubtitle');
-  if (sub) {
-    sub.textContent = activeGodown === 'ALL' ? 'All Godowns Overview' : activeGodown;
-  }
+  updateDashboardGodownLabels();
   
   recalculateMetrics();
   if (typeof renderPosProducts === 'function') renderPosProducts();
   if (typeof populateProductDropdowns === 'function') populateProductDropdowns();
+  if (typeof renderDashboardActivities === 'function') renderDashboardActivities();
+  if (typeof renderLedger === 'function') renderLedger();
 }
 
 function recalculateMetrics() {

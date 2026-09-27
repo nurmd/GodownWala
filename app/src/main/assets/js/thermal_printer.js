@@ -243,7 +243,25 @@ function viewSlip(slipNo) {
     
     if (previewEl) {
       text = text || "No data";
-      previewEl.innerHTML = '<pre class="text-[12px] font-mono whitespace-pre-wrap">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+      let formatted = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const parts = formatted.split(/(ITEM(?:\s*\/\s*BATCH)?\s+QTY\s+(?:WEIGHT|WT)[^\n]*\n[-=]+\n)/);
+      if (parts.length >= 3) {
+        const headerPart = parts[0] + parts[1];
+        const rest = parts.slice(2).join('');
+        const endParts = rest.split(/(\n[-=]+\nTOTAL QUANTITY:)/);
+        if (endParts.length >= 2) {
+          const itemLines = endParts[0].split('\n').map(line => {
+            if (line.trim().startsWith('[') || line.trim().startsWith('//') || line.trim() === '') {
+              return line;
+            }
+            return `<strong class="text-[13px] font-black text-black leading-snug">${line}</strong>`;
+          }).join('\n');
+          formatted = headerPart + itemLines + endParts.slice(1).join('');
+        }
+      }
+      formatted = formatted.replace(/(TOTAL QUANTITY:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
+      formatted = formatted.replace(/(TOTAL NET WT:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
+      previewEl.innerHTML = '<pre class="text-[12px] font-mono whitespace-pre-wrap leading-relaxed">' + formatted + '</pre>';
     }
   }
   
