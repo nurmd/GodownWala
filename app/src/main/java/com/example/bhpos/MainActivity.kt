@@ -605,6 +605,12 @@ class MainActivity : Activity() {
             }
         }
 
+        private fun enrichTxWithCustomerPhone(tx: StockTransaction): StockTransaction {
+            if (tx.customerPhone.isNotBlank()) return tx
+            val partyPhone = repository.getParties().find { it.name.equals(tx.partyName.trim(), ignoreCase = true) }?.phone.orEmpty()
+            return if (partyPhone.isNotBlank()) tx.copy(customerPhone = partyPhone) else tx
+        }
+
         @JavascriptInterface
         fun setTransactions(jsonStr: String): String {
             return try {
@@ -630,13 +636,19 @@ class MainActivity : Activity() {
                         )
                     }
 
+                    val pName = obj.optString("partyName", "Direct Walk-in Contractor")
+                    val explicitCustPhone = obj.optString("customerPhone", "")
+                    val resolvedCustPhone = if (explicitCustPhone.isNotBlank()) explicitCustPhone else {
+                        repository.getParties().find { it.name.equals(pName, ignoreCase = true) }?.phone.orEmpty()
+                    }
+
                     list.add(
                         StockTransaction(
                             id = obj.getString("id"),
                             slipNo = obj.getString("slipNo"),
                             type = try { TransactionType.valueOf(obj.getString("type")) } catch (e: Exception) { TransactionType.OUTWARD },
                             timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
-                            partyName = obj.optString("partyName", "Direct Walk-in Contractor"),
+                            partyName = pName,
                             vehicleNo = obj.optString("vehicleNo", ""),
                             driverName = obj.optString("driverName", ""),
                             driverPhone = obj.optString("driverPhone", ""),
@@ -647,7 +659,8 @@ class MainActivity : Activity() {
                             totalMetricTons = obj.optDouble("totalMetricTons", 0.0),
                             totalAmount = obj.optDouble("totalAmount", 0.0),
                             items = txItems,
-                            dispatchedBy = obj.optString("dispatchedBy", "Admin")
+                            dispatchedBy = obj.optString("dispatchedBy", "Admin"),
+                            customerPhone = resolvedCustPhone
                         )
                     )
                 }
@@ -673,6 +686,7 @@ class MainActivity : Activity() {
                     obj.put("dateStr", dateFormat.format(Date(t.timestamp)))
                     obj.put("timeStr", timeFormat.format(Date(t.timestamp)))
                     obj.put("partyName", t.partyName)
+                    obj.put("customerPhone", t.customerPhone)
                     obj.put("vehicleNo", t.vehicleNo)
                     obj.put("driverName", t.driverName)
                     obj.put("driverPhone", t.driverPhone)
@@ -749,12 +763,15 @@ class MainActivity : Activity() {
                     bayLocation = product.bayLocation
                 )
 
+                val resolvedParty = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor"
+                val resolvedCustPhone = repository.getParties().find { it.name.equals(resolvedParty, ignoreCase = true) }?.phone.orEmpty()
+
                 val tx = StockTransaction(
                     id = "tx_${System.currentTimeMillis()}",
                     slipNo = slipNo,
                     type = TransactionType.OUTWARD,
                     timestamp = System.currentTimeMillis(),
-                    partyName = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor",
+                    partyName = resolvedParty,
                     vehicleNo = "MH-12-QZ-4891",
                     driverName = "Express Dispatch",
                     driverPhone = "+91 98220-44102",
@@ -765,7 +782,8 @@ class MainActivity : Activity() {
                     totalMetricTons = mt,
                     totalAmount = amount,
                     items = listOf(item),
-                    dispatchedBy = getCurrentUserName()
+                    dispatchedBy = getCurrentUserName(),
+                    customerPhone = resolvedCustPhone
                 )
 
                 val result = runBlocking { repository.recordDispatch(tx) }
@@ -788,6 +806,33 @@ class MainActivity : Activity() {
         fun updateDispatch(
             slipNo: String,
             partyName: String,
+            vehicleNo: String,
+            driverName: String,
+            driverPhone: String,
+            site: String,
+            challanNo: String,
+            ewbNo: String,
+            itemsJson: String
+        ): String {
+            return updateDispatchWithCustomer(
+                slipNo = slipNo,
+                partyName = partyName,
+                customerPhone = "",
+                vehicleNo = vehicleNo,
+                driverName = driverName,
+                driverPhone = driverPhone,
+                site = site,
+                challanNo = challanNo,
+                ewbNo = ewbNo,
+                itemsJson = itemsJson
+            )
+        }
+
+        @JavascriptInterface
+        fun updateDispatchWithCustomer(
+            slipNo: String,
+            partyName: String,
+            customerPhone: String,
             vehicleNo: String,
             driverName: String,
             driverPhone: String,
@@ -857,8 +902,18 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
+                val resolvedParty = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor"
+                val resolvedCustPhone = if (customerPhone.isNotBlank()) {
+                    customerPhone
+                } else if (existingTx.customerPhone.isNotBlank()) {
+                    existingTx.customerPhone
+                } else {
+                    repository.getParties().find { it.name.equals(resolvedParty.trim(), ignoreCase = true) }?.phone.orEmpty()
+                }
+
                 val tx = existingTx.copy(
-                    partyName = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor",
+                    partyName = resolvedParty,
+                    customerPhone = resolvedCustPhone,
                     vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
                     driverName = if (driverName.isNotBlank()) driverName else "-",
                     driverPhone = if (driverPhone.isNotBlank()) driverPhone else "-",
@@ -890,6 +945,31 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun recordDispatch(
             partyName: String,
+            vehicleNo: String,
+            driverName: String,
+            driverPhone: String,
+            site: String,
+            challanNo: String,
+            ewbNo: String,
+            itemsJson: String
+        ): String {
+            return recordDispatchWithCustomer(
+                partyName = partyName,
+                customerPhone = "",
+                vehicleNo = vehicleNo,
+                driverName = driverName,
+                driverPhone = driverPhone,
+                site = site,
+                challanNo = challanNo,
+                ewbNo = ewbNo,
+                itemsJson = itemsJson
+            )
+        }
+
+        @JavascriptInterface
+        fun recordDispatchWithCustomer(
+            partyName: String,
+            customerPhone: String,
             vehicleNo: String,
             driverName: String,
             driverPhone: String,
@@ -965,13 +1045,20 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
+                val resolvedParty = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor"
+                val resolvedCustPhone = if (customerPhone.isNotBlank()) {
+                    customerPhone
+                } else {
+                    repository.getParties().find { it.name.equals(resolvedParty.trim(), ignoreCase = true) }?.phone.orEmpty()
+                }
+
                 val slipNo = "GP-${System.currentTimeMillis() % 100000}"
                 val tx = StockTransaction(
                     id = "tx_${System.currentTimeMillis()}",
                     slipNo = slipNo,
                     type = TransactionType.OUTWARD,
                     timestamp = System.currentTimeMillis(),
-                    partyName = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor",
+                    partyName = resolvedParty,
                     vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
                     driverName = if (driverName.isNotBlank()) driverName else "-",
                     driverPhone = if (driverPhone.isNotBlank()) driverPhone else "-",
@@ -982,7 +1069,8 @@ class MainActivity : Activity() {
                     totalMetricTons = totalMt,
                     totalAmount = totalAmount,
                     items = txItems,
-                    dispatchedBy = getCurrentUserName()
+                    dispatchedBy = getCurrentUserName(),
+                    customerPhone = resolvedCustPhone
                 )
 
                 val result = runBlocking { repository.recordDispatch(tx) }
@@ -1132,7 +1220,8 @@ class MainActivity : Activity() {
                     }
                 }
                 if (tx != null) {
-                    EscPosSlipGenerator.generatePreviewText(tx, if (paperWidthMm == 58) 58 else 80)
+                    val effectiveTx = enrichTxWithCustomerPhone(tx)
+                    EscPosSlipGenerator.generatePreviewText(effectiveTx, if (paperWidthMm == 58) 58 else 80)
                 } else {
                     "No transaction available."
                 }
@@ -1151,8 +1240,9 @@ class MainActivity : Activity() {
                     }
                 }
                 if (tx != null) {
+                    val effectiveTx = enrichTxWithCustomerPhone(tx)
                     val opts = com.example.bhpos.printer.PrintOptions.fromJson(optionsJson)
-                    EscPosSlipGenerator.generatePreviewText(tx, if (paperWidthMm == 58) 58 else 80, opts)
+                    EscPosSlipGenerator.generatePreviewText(effectiveTx, if (paperWidthMm == 58) 58 else 80, opts)
                 } else {
                     "No transaction available."
                 }
@@ -1431,6 +1521,7 @@ class MainActivity : Activity() {
                 }
 
                 showToast("Printing slip ${tx.slipNo}...")
+                val effectiveTx = enrichTxWithCustomerPhone(tx)
                 val opts = com.example.bhpos.printer.PrintOptions.fromJson(optionsJson)
 
                 val result = BluetoothPrinterManager.print(
@@ -1445,7 +1536,7 @@ class MainActivity : Activity() {
                         } else {
                             resolvePaperWidth(devName, devAddr)
                         }
-                        com.example.bhpos.printer.EscPosSlipGenerator.generateEscPosBytes(tx, effectiveWidth, opts)
+                        com.example.bhpos.printer.EscPosSlipGenerator.generateEscPosBytes(effectiveTx, effectiveWidth, opts)
                     }
                 )
 
@@ -1502,6 +1593,7 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
+                val effectiveTx = enrichTxWithCustomerPhone(tx)
                 val result = BluetoothPrinterManager.print(
                     targetAddress = getSavedPrinterAddress(),
                     fallbackAddress = getSavedPrinterAddress(),
@@ -1514,7 +1606,7 @@ class MainActivity : Activity() {
                         } else {
                             resolvePaperWidth(devName, devAddr)
                         }
-                        EscPosSlipGenerator.generateEscPosBytes(tx, effectiveWidth)
+                        EscPosSlipGenerator.generateEscPosBytes(effectiveTx, effectiveWidth)
                     }
                 )
 

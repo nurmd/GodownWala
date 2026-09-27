@@ -95,7 +95,10 @@ object EscPosSlipGenerator {
         if (hasParty) {
             sb.append("PARTY DETAILS:\n")
             if (paperWidthMm == 58) {
-                if (options.showCustomer) appendWrappedField(sb, "Customer: ", tx.partyName, width)
+                if (options.showCustomer) {
+                    appendWrappedField(sb, "Customer: ", tx.partyName, width)
+                    if (tx.customerPhone.isNotBlank()) appendWrappedField(sb, "Cust Mob: ", tx.customerPhone, width)
+                }
                 if (options.showSite && tx.destinationSite.isNotBlank()) appendWrappedField(sb, "Site    : ", tx.destinationSite, width)
                 if (options.showTransport) {
                     appendWrappedField(sb, "Vehicle : ", tx.vehicleNo, width)
@@ -107,7 +110,10 @@ object EscPosSlipGenerator {
                     if (tx.ewbNo.isNotBlank()) appendWrappedField(sb, "E-Way B : ", tx.ewbNo, width)
                 }
             } else {
-                if (options.showCustomer) appendWrappedField(sb, "  Customer: ", tx.partyName, width)
+                if (options.showCustomer) {
+                    appendWrappedField(sb, "  Customer: ", tx.partyName, width)
+                    if (tx.customerPhone.isNotBlank()) appendWrappedField(sb, "  Cust Mob: ", tx.customerPhone, width)
+                }
                 if (options.showSite && tx.destinationSite.isNotBlank()) appendWrappedField(sb, "  Site: ", tx.destinationSite, width)
                 if (options.showTransport) {
                     appendWrappedField(sb, "  Vehicle : ", tx.vehicleNo, width)

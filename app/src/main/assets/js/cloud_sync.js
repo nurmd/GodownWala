@@ -10,7 +10,7 @@
  * Records a transaction (OUTWARD dispatch or INWARD stock-in) to Supabase.
  * Fails gracefully without interrupting the user if offline.
  */
-async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, driverPhone, challanNo, ewbNo, destinationSite, items, totals, isUpdate = false) {
+async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, driverPhone, challanNo, ewbNo, destinationSite, items, totals, isUpdate = false, customerPhone = "") {
   if (!currentBusiness || !currentBusiness.id) return;
 
   const id = 'tx_' + Date.now();
@@ -35,6 +35,10 @@ async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, dri
     dispatched_by: currentUser ? currentUser.name : "Admin",
     items: items
   };
+
+  if (customerPhone) {
+    payload.customer_phone = customerPhone;
+  }
   
   if (!isUpdate) {
     payload.id = id;
@@ -106,6 +110,7 @@ async function syncFromCloud() {
         timeStr: t.time_str || "",
         dateStr: t.date_str || "",
         partyName: t.party_name || "Direct Walk-in Contractor",
+        customerPhone: t.customer_phone || (Array.isArray(cloudParties) ? cloudParties.find(p => p.name === t.party_name)?.phone : "") || "",
         vehicleNo: t.vehicle_no || "-",
         driverName: t.driver_name || "-",
         driverPhone: t.driver_phone || "-",

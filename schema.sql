@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     date_str TEXT,
     time_str TEXT,
     party_name TEXT,
+    customer_phone TEXT,
     vehicle_no TEXT,
     driver_name TEXT,
     driver_phone TEXT,

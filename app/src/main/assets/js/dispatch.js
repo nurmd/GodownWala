@@ -21,13 +21,13 @@ function handlePartyChange(select) {
   } else {
     if (select.id === 'dispatchPartySelect') {
       const selectedOpt = select.options[select.selectedIndex];
-      const phoneInput = document.getElementById('dispatchPhone');
-      if (phoneInput) {
+      const custPhoneInput = document.getElementById('dispatchCustomerPhone');
+      if (custPhoneInput) {
         if (selectedOpt && selectedOpt.dataset.phone) {
-          phoneInput.value = selectedOpt.dataset.phone;
+          custPhoneInput.value = selectedOpt.dataset.phone;
         } else {
           const party = cachedParties.find(p => p.name === select.value);
-          if (party) phoneInput.value = party.phone;
+          custPhoneInput.value = (party && party.phone) ? party.phone : '';
         }
       }
     }
@@ -82,8 +82,8 @@ async function submitNewCustomer() {
   if (targetSelect) {
     targetSelect.value = name;
     if (targetId === 'dispatchPartySelect') {
-      const phoneInput = document.getElementById('dispatchPhone');
-      if (phoneInput) phoneInput.value = phone;
+      const custPhoneInput = document.getElementById('dispatchCustomerPhone');
+      if (custPhoneInput) custPhoneInput.value = phone;
     }
   }
   
@@ -334,7 +334,7 @@ function clearDispatchForm() {
   const btn = document.querySelector('#tab-dispatch button[onclick="submitFullDispatch()"]');
   if (btn) btn.innerHTML = '<span class="material-symbols-outlined">receipt_long</span><span>Issue Gate Pass & Print Slip</span>';
   
-  const formIds = ['dispatchVehicle', 'dispatchSite', 'dispatchDriver', 'dispatchPhone', 'dispatchChallan', 'dispatchEwb'];
+  const formIds = ['dispatchCustomerPhone', 'dispatchVehicle', 'dispatchSite', 'dispatchDriver', 'dispatchPhone', 'dispatchChallan', 'dispatchEwb'];
   formIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -372,6 +372,10 @@ function openEditDispatch(slipNo) {
     }
   }
   
+  const custPhoneEl = document.getElementById('dispatchCustomerPhone');
+  if (custPhoneEl) {
+    custPhoneEl.value = tx.customerPhone || (cachedParties.find(p => p.name === tx.partyName)?.phone) || '';
+  }
   document.getElementById('dispatchVehicle').value = tx.vehicleNo || '';
   document.getElementById('dispatchSite').value = tx.destinationSite || '';
   document.getElementById('dispatchDriver').value = tx.driverName || '';
@@ -397,6 +401,8 @@ async function submitFullDispatch() {
   vibrate(40);
   const partySelect = document.getElementById('dispatchPartySelect');
   const party = partySelect ? partySelect.value : "Direct Walk-in Contractor";
+  const customerPhoneEl = document.getElementById('dispatchCustomerPhone');
+  const customerPhone = customerPhoneEl ? customerPhoneEl.value.trim() : "";
   const vehicle = document.getElementById('dispatchVehicle').value.trim();
   const site = document.getElementById('dispatchSite').value.trim();
   const driver = document.getElementById('dispatchDriver').value.trim();
@@ -448,14 +454,20 @@ async function submitFullDispatch() {
   if (bridge()) {
     let resStr;
     if (editingSlipNo) {
-      if (bridge().updateDispatch) {
+      if (bridge().updateDispatchWithCustomer) {
+        resStr = bridge().updateDispatchWithCustomer(editingSlipNo, party, customerPhone, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
+      } else if (bridge().updateDispatch) {
         resStr = bridge().updateDispatch(editingSlipNo, party, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
       } else {
         alert("Update dispatch not supported in this version.");
         return;
       }
     } else {
-      resStr = bridge().recordDispatch(party, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
+      if (bridge().recordDispatchWithCustomer) {
+        resStr = bridge().recordDispatchWithCustomer(party, customerPhone, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
+      } else {
+        resStr = bridge().recordDispatch(party, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
+      }
     }
     
     const res = JSON.parse(resStr);
@@ -513,7 +525,7 @@ async function submitFullDispatch() {
         }
       }
 
-      await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false);
+      await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false, customerPhone);
 
       dispatchCartItems = {};
       posCart = {};

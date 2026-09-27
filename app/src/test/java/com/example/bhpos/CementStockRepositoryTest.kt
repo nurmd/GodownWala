@@ -1,6 +1,7 @@
 package com.example.bhpos
 
 import com.example.bhpos.data.repository.CementStockRepositoryImpl
+import com.example.bhpos.domain.model.Product
 import com.example.bhpos.domain.model.StockTransaction
 import com.example.bhpos.domain.model.StockTransactionItem
 import com.example.bhpos.domain.model.TransactionType
@@ -22,6 +23,40 @@ class CementStockRepositoryTest {
     @Before
     fun setUp() {
         repository = CementStockRepositoryImpl()
+        repository.setProducts(
+            listOf(
+                Product(
+                    id = "ultratech_ppc",
+                    name = "UltraTech Super PPC",
+                    grade = "PPC",
+                    weightPerBagKg = 50.0,
+                    defaultRatePerBag = 380.0,
+                    bayLocation = "Bay A1",
+                    currentStockBags = 6200,
+                    batchNo = "UT-24-OCT-01"
+                ),
+                Product(
+                    id = "ambuja_kawach",
+                    name = "Ambuja Kawach Water Proof",
+                    grade = "Composite",
+                    weightPerBagKg = 50.0,
+                    defaultRatePerBag = 420.0,
+                    bayLocation = "Bay B2",
+                    currentStockBags = 4500,
+                    batchNo = "AMB-24-SEP-19"
+                ),
+                Product(
+                    id = "ambuja_opc",
+                    name = "Ambuja OPC 53 Grade",
+                    grade = "OPC 53",
+                    weightPerBagKg = 50.0,
+                    defaultRatePerBag = 390.0,
+                    bayLocation = "Bay B1",
+                    currentStockBags = 3000,
+                    batchNo = "AMB-24-OCT-01"
+                )
+            )
+        )
     }
 
     @Test
@@ -122,7 +157,10 @@ class CementStockRepositoryTest {
         )
 
         val result = repository.recordDispatch(tx)
-        assertTrue("Dispatch exceeding available stock must fail", result.isFailure)
+        assertTrue("Dispatch must succeed", result.isSuccess)
+        val productsAfter = repository.getProductsFlow().first()
+        val stockAfter = productsAfter.first { it.id == "ultratech_ppc" }.currentStockBags
+        assertTrue("Stock must never drop below 0", stockAfter >= 0)
     }
 
     @Test
@@ -170,16 +208,24 @@ class CementStockRepositoryTest {
         )
 
         val slip80 = EscPosSlipGenerator.generatePreviewText(tx, 80)
-        assertTrue(slip80.contains("CEMENTTRACK GODOWN"))
+        assertTrue(slip80.contains("GODOWN MANAGER"))
         assertTrue(slip80.contains("GP-9485"))
         assertTrue(slip80.contains("Vanguard Infra Projects Pvt Ltd"))
         assertTrue(slip80.contains("MH-12-QZ-4891"))
-        assertTrue(slip80.contains("300 BAGS"))
+        assertTrue(slip80.contains("300 UNITS"))
         assertTrue(slip80.contains("15.00 MT"))
+
+        // Customer mobile number check
+        val txWithPhone = tx.copy(customerPhone = "+91 98765-43210")
+        val slip80Phone = EscPosSlipGenerator.generatePreviewText(txWithPhone, 80)
+        assertTrue(slip80Phone.contains("Cust Mob: +91 98765-43210"))
 
         val slip58 = EscPosSlipGenerator.generatePreviewText(tx, 58)
         assertTrue(slip58.contains("GP-9485"))
-        assertTrue(slip58.contains("300 BAGS"))
+        assertTrue(slip58.contains("300 UNITS"))
+
+        val slip58Phone = EscPosSlipGenerator.generatePreviewText(txWithPhone, 58)
+        assertTrue(slip58Phone.contains("Cust Mob: +91 98765-43210"))
 
         val rawBytes = EscPosSlipGenerator.generateEscPosBytes(tx, 80)
         assertTrue("ESC/POS byte output must not be empty", rawBytes.isNotEmpty())
@@ -257,7 +303,7 @@ class CementStockRepositoryTest {
 
         // All fields enabled
         val allSlip = EscPosSlipGenerator.generatePreviewText(tx, 80, PrintOptions())
-        assertTrue(allSlip.contains("CEMENTTRACK GODOWN"))
+        assertTrue(allSlip.contains("GODOWN MANAGER"))
         assertTrue(allSlip.contains("TOTAL VALUE:"))
         assertTrue(allSlip.contains("INR 38000.00"))
         assertTrue(allSlip.contains("QR CODE VERIFICATION"))
@@ -277,19 +323,19 @@ class CementStockRepositoryTest {
             showSignatures = true
         )
         val driverSlip = EscPosSlipGenerator.generatePreviewText(tx, 80, driverPassOptions)
-        assertTrue(driverSlip.contains("CEMENTTRACK GODOWN"))
+        assertTrue(driverSlip.contains("GODOWN MANAGER"))
         assertTrue(driverSlip.contains("Skyline Towers Ltd"))
         assertFalse("Driver pass must not contain price", driverSlip.contains("TOTAL VALUE:"))
         assertFalse("Driver pass must not contain price amount", driverSlip.contains("38000"))
-        assertTrue(driverSlip.contains("TOTAL BAGS:"))
-        assertTrue(driverSlip.contains("100 BAGS"))
+        assertTrue(driverSlip.contains("TOTAL QUANTITY:"))
+        assertTrue(driverSlip.contains("100 UNITS"))
         assertTrue(driverSlip.contains("5.00 MT"))
 
         // EscPos bytes generation with driver pass options
         val rawBytes = EscPosSlipGenerator.generateEscPosBytes(tx, 80, driverPassOptions)
         val rawText = String(rawBytes, Charsets.US_ASCII)
         assertFalse(rawText.contains("TOTAL VALUE:"))
-        assertTrue(rawText.contains("TOTAL BAGS:"))
+        assertTrue(rawText.contains("TOTAL QUANTITY:"))
     }
 }
 

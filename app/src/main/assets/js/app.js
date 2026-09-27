@@ -193,7 +193,7 @@ function renderDashboardActivities() {
             <span class="font-mono text-[12px] font-bold text-on-surface">${tx.slipNo}</span>
             <span class="text-[9px] font-bold uppercase px-1 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
           </div>
-          <span class="text-[11px] text-on-surface-variant truncate">${tx.totalBags} Units • ${tx.partyName}</span>
+          <span class="text-[11px] text-on-surface-variant truncate">${tx.totalBags} Units • ${tx.partyName}${tx.customerPhone ? ' (' + tx.customerPhone + ')' : ''}</span>
         </div>
       </div>
       <div class="text-right shrink-0">
@@ -234,7 +234,7 @@ function renderLedger() {
   const filtered = getFilteredTransactions().filter(t => {
     if (ledgerFilter !== 'ALL' && t.type !== ledgerFilter) return false;
     if (search) {
-      const hay = `${t.slipNo} ${t.partyName} ${t.vehicleNo} ${t.destinationSite}`.toLowerCase();
+      const hay = `${t.slipNo} ${t.partyName} ${t.customerPhone || ''} ${t.vehicleNo} ${t.destinationSite}`.toLowerCase();
       return hay.includes(search);
     }
     return true;
@@ -259,7 +259,7 @@ function renderLedger() {
         <span class="text-[11px] text-on-surface-variant">${t.dateStr} • ${t.timeStr}</span>
       </div>
       <div class="text-[12px] font-semibold text-on-surface truncate">
-        ${t.partyName}
+        ${t.partyName}${t.customerPhone ? ` <span class="text-[11px] font-normal text-on-surface-variant font-mono">(${t.customerPhone})</span>` : ''}
       </div>
       <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-surface-container">
         <span>Vehicle: <b class="text-on-surface">${t.vehicleNo}</b></span>
