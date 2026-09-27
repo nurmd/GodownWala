@@ -181,7 +181,8 @@ object EscPosSlipGenerator {
     private val CMD_INIT = byteArrayOf(0x1B, 0x40) // ESC @
     private val CMD_BOLD_ON = byteArrayOf(0x1B, 0x45, 0x01) // ESC E 1
     private val CMD_BOLD_OFF = byteArrayOf(0x1B, 0x45, 0x00) // ESC E 0
-    private val CMD_DOUBLE_HEIGHT_ON = byteArrayOf(0x1D, 0x21, 0x01) // GS ! 1 (Double-Height)
+    private val CMD_DOUBLE_STRIKE_ON = byteArrayOf(0x1B, 0x47, 0x01) // ESC G 1 (Extra bold double-strike)
+    private val CMD_DOUBLE_STRIKE_OFF = byteArrayOf(0x1B, 0x47, 0x00) // ESC G 0
     private val CMD_NORMAL_SIZE = byteArrayOf(0x1D, 0x21, 0x00) // GS ! 0 (Normal size)
 
     @JvmOverloads
@@ -279,11 +280,12 @@ object EscPosSlipGenerator {
             val qtyStr = "${item.quantityBags}"
             val wtStr = String.format(Locale.ENGLISH, "%.2f", item.metricTons)
 
-            // Turn ON Double-Height and Bold for Item Line and Quantity
-            out.write(CMD_DOUBLE_HEIGHT_ON)
-            out.write(CMD_BOLD_ON)
-            out.write((threeCol(nameLine, qtyStr, wtStr, width) + "\n").toByteArray(Charsets.US_ASCII))
+            // Print Item Line and Quantity in crisp, heavy bold without vertical stretching
             out.write(CMD_NORMAL_SIZE)
+            out.write(CMD_BOLD_ON)
+            out.write(CMD_DOUBLE_STRIKE_ON)
+            out.write((threeCol(nameLine, qtyStr, wtStr, width) + "\n").toByteArray(Charsets.US_ASCII))
+            out.write(CMD_DOUBLE_STRIKE_OFF)
             out.write(CMD_BOLD_OFF)
 
             if (options.showBatchBay && paperWidthMm != 58) {
@@ -297,11 +299,13 @@ object EscPosSlipGenerator {
 
         // 5. Totals (Bold)
         out.write(CMD_BOLD_ON)
+        out.write(CMD_DOUBLE_STRIKE_ON)
         out.write((twoCol("TOTAL QUANTITY:", "${tx.totalBags} UNITS", width) + "\n").toByteArray(Charsets.US_ASCII))
         out.write((twoCol("TOTAL NET WT:", String.format(Locale.ENGLISH, "%.2f MT", tx.totalMetricTons), width) + "\n").toByteArray(Charsets.US_ASCII))
         if (options.showAmount) {
             out.write((twoCol("TOTAL VALUE:", String.format(Locale.ENGLISH, "INR %.2f", tx.totalAmount), width) + "\n").toByteArray(Charsets.US_ASCII))
         }
+        out.write(CMD_DOUBLE_STRIKE_OFF)
         out.write(CMD_BOLD_OFF)
         out.write((dividerEqual + "\n").toByteArray(Charsets.US_ASCII))
 
