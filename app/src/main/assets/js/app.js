@@ -511,9 +511,17 @@ function checkForUpdatesManual() {
       .then(data => {
         const tagName = (data.tag_name || '').replace(/^v/, '');
         const asset = (data.assets || []).find(a => a.name.endsWith('.apk'));
+        let curVer = "1.0.2";
+        if (bridge() && bridge().getAppVersionInfo) {
+          try {
+            const info = JSON.parse(bridge().getAppVersionInfo());
+            if (info && info.versionName) curVer = info.versionName;
+          } catch(e) {}
+        }
+        const hasUp = tagName ? (tagName !== curVer && tagName !== ('v' + curVer)) : false;
         window.onUpdateCheckResult({
-          hasUpdate: true,
-          currentVersion: "1.0.0",
+          hasUpdate: hasUp,
+          currentVersion: curVer,
           latestVersion: tagName,
           releaseName: data.name || data.tag_name,
           releaseNotes: data.body || "Latest update package from GitHub releases.",
