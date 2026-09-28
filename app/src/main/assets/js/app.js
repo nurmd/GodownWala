@@ -333,7 +333,7 @@ function dismissSplashScreen() {
 }
 
 function loadInstalledVersion() {
-  let ver = "1.0.2";
+  let ver = "1.0.3";
   if (bridge() && bridge().getAppVersionInfo) {
     try {
       const info = JSON.parse(bridge().getAppVersionInfo());
@@ -511,7 +511,7 @@ function checkForUpdatesManual() {
       .then(data => {
         const tagName = (data.tag_name || '').replace(/^v/, '');
         const asset = (data.assets || []).find(a => a.name.endsWith('.apk'));
-        let curVer = "1.0.2";
+        let curVer = "1.0.3";
         if (bridge() && bridge().getAppVersionInfo) {
           try {
             const info = JSON.parse(bridge().getAppVersionInfo());
