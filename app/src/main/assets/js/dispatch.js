@@ -122,6 +122,7 @@ function populatePartyDropdowns() {
     if (p.name === 'Direct Walk-in Contractor') return;
     const opt = document.createElement('option');
     opt.value = p.name;
+    opt.dataset.phone = p.phone || '';
     opt.textContent = p.phone ? `${p.name} [${p.phone}]` : p.name;
     
     if (posSelect) posSelect.appendChild(opt.cloneNode(true));

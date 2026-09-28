@@ -18,11 +18,15 @@ async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, dri
   const dateStr = new Date().toLocaleDateString();
   const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
+  const combinedParty = (customerPhone && customerPhone.trim())
+    ? `${partyName.trim()}, ${customerPhone.trim()}`
+    : partyName.trim();
+
   const payload = {
     business_id: currentBusiness.id,
     slip_no: slipNo,
     type: type,
-    party_name: partyName,
+    party_name: combinedParty,
     vehicle_no: vehicleNo,
     driver_name: driverName,
     driver_phone: driverPhone,
@@ -35,10 +39,6 @@ async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, dri
     dispatched_by: currentUser ? currentUser.name : "Admin",
     items: items
   };
-
-  if (customerPhone) {
-    payload.customer_phone = customerPhone;
-  }
   
   if (!isUpdate) {
     payload.id = id;
@@ -102,27 +102,47 @@ async function syncFromCloud() {
 
     // 2. Sync Transactions & History
     if (Array.isArray(cloudTx)) {
-      cachedTransactions = cloudTx.map(t => ({
-        id: t.id,
-        slipNo: t.slip_no,
-        type: t.type,
-        timestamp: Number(t.timestamp) || Date.now(),
-        timeStr: t.time_str || "",
-        dateStr: t.date_str || "",
-        partyName: t.party_name || "Direct Walk-in Contractor",
-        customerPhone: t.customer_phone || (Array.isArray(cloudParties) ? cloudParties.find(p => p.name === t.party_name)?.phone : "") || "",
-        vehicleNo: t.vehicle_no || "-",
-        driverName: t.driver_name || "-",
-        driverPhone: t.driver_phone || "-",
-        challanNo: t.challan_no || "-",
-        ewbNo: t.ewb_no || "-",
-        destinationSite: t.destination_site || "-",
-        totalBags: Number(t.total_bags) || 0,
-        totalMetricTons: Number(t.total_metric_tons) || 0,
-        totalAmount: Number(t.total_amount) || 0,
-        dispatchedBy: t.dispatched_by || "Admin",
-        items: Array.isArray(t.items) ? t.items : []
-      }));
+      cachedTransactions = cloudTx.map(t => {
+        let pName = t.party_name || "Direct Walk-in Contractor";
+        let cPhone = t.customer_phone || "";
+
+        // Extract customer phone if linked to party_name with comma
+        const lastCommaIdx = pName.lastIndexOf(",");
+        if (lastCommaIdx !== -1) {
+          const possiblePhone = pName.substring(lastCommaIdx + 1).trim();
+          if (/\d{4,}/.test(possiblePhone)) {
+            cPhone = possiblePhone;
+            pName = pName.substring(0, lastCommaIdx).trim();
+          }
+        }
+
+        // Fallback: look up in cloudParties by party name
+        if (!cPhone && Array.isArray(cloudParties)) {
+          cPhone = cloudParties.find(p => p.name === pName)?.phone || "";
+        }
+
+        return {
+          id: t.id,
+          slipNo: t.slip_no,
+          type: t.type,
+          timestamp: Number(t.timestamp) || Date.now(),
+          timeStr: t.time_str || "",
+          dateStr: t.date_str || "",
+          partyName: pName,
+          customerPhone: cPhone,
+          vehicleNo: t.vehicle_no || "-",
+          driverName: t.driver_name || "-",
+          driverPhone: t.driver_phone || "-",
+          challanNo: t.challan_no || "-",
+          ewbNo: t.ewb_no || "-",
+          destinationSite: t.destination_site || "-",
+          totalBags: Number(t.total_bags) || 0,
+          totalMetricTons: Number(t.total_metric_tons) || 0,
+          totalAmount: Number(t.total_amount) || 0,
+          dispatchedBy: t.dispatched_by || "Admin",
+          items: Array.isArray(t.items) ? t.items : []
+        };
+      });
       if (bridge() && bridge().setTransactions) {
         bridge().setTransactions(JSON.stringify(cachedTransactions));
       }

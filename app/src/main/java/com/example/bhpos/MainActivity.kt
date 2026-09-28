@@ -605,10 +605,32 @@ class MainActivity : Activity() {
             }
         }
 
+        private fun parsePartyAndPhone(partyInput: String, defaultPhone: String = ""): Pair<String, String> {
+            var party = if (partyInput.isNotBlank()) partyInput.trim() else "Direct Walk-in Contractor"
+            var phone = defaultPhone.trim()
+            if (phone.isBlank()) {
+                val lastCommaIdx = party.lastIndexOf(',')
+                if (lastCommaIdx != -1) {
+                    val candidate = party.substring(lastCommaIdx + 1).trim()
+                    if (candidate.matches(Regex("\\d{4,}"))) {
+                        phone = candidate
+                        party = party.substring(0, lastCommaIdx).trim()
+                    }
+                }
+            }
+            if (phone.isBlank()) {
+                phone = repository.getParties().find { it.name.equals(party, ignoreCase = true) }?.phone.orEmpty()
+            }
+            return Pair(party, phone)
+        }
+
         private fun enrichTxWithCustomerPhone(tx: StockTransaction): StockTransaction {
-            if (tx.customerPhone.isNotBlank()) return tx
-            val partyPhone = repository.getParties().find { it.name.equals(tx.partyName.trim(), ignoreCase = true) }?.phone.orEmpty()
-            return if (partyPhone.isNotBlank()) tx.copy(customerPhone = partyPhone) else tx
+            val (pName, cPhone) = parsePartyAndPhone(tx.partyName, tx.customerPhone)
+            return if (pName != tx.partyName || cPhone != tx.customerPhone) {
+                tx.copy(partyName = pName, customerPhone = cPhone)
+            } else {
+                tx
+            }
         }
 
         @JavascriptInterface
@@ -636,11 +658,9 @@ class MainActivity : Activity() {
                         )
                     }
 
-                    val pName = obj.optString("partyName", "Direct Walk-in Contractor")
-                    val explicitCustPhone = obj.optString("customerPhone", "")
-                    val resolvedCustPhone = if (explicitCustPhone.isNotBlank()) explicitCustPhone else {
-                        repository.getParties().find { it.name.equals(pName, ignoreCase = true) }?.phone.orEmpty()
-                    }
+                    val rawParty = obj.optString("partyName", "Direct Walk-in Contractor")
+                    val rawCustPhone = obj.optString("customerPhone", "")
+                    val (pName, resolvedCustPhone) = parsePartyAndPhone(rawParty, rawCustPhone)
 
                     list.add(
                         StockTransaction(
@@ -664,7 +684,10 @@ class MainActivity : Activity() {
                         )
                     )
                 }
-                repository.setTransactions(list)
+                val currentLocal = repository.getCurrentTransactions()
+                val incomingSlipNos = list.map { it.slipNo }.toSet()
+                val localOnly = currentLocal.filter { it.slipNo !in incomingSlipNos }
+                repository.setTransactions(localOnly + list)
                 "ok"
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -763,8 +786,7 @@ class MainActivity : Activity() {
                     bayLocation = product.bayLocation
                 )
 
-                val resolvedParty = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor"
-                val resolvedCustPhone = repository.getParties().find { it.name.equals(resolvedParty, ignoreCase = true) }?.phone.orEmpty()
+                val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName)
 
                 val tx = StockTransaction(
                     id = "tx_${System.currentTimeMillis()}",
@@ -902,14 +924,8 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
-                val resolvedParty = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor"
-                val resolvedCustPhone = if (customerPhone.isNotBlank()) {
-                    customerPhone
-                } else if (existingTx.customerPhone.isNotBlank()) {
-                    existingTx.customerPhone
-                } else {
-                    repository.getParties().find { it.name.equals(resolvedParty.trim(), ignoreCase = true) }?.phone.orEmpty()
-                }
+                val existingPhone = if (customerPhone.isNotBlank()) customerPhone else existingTx.customerPhone
+                val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName, existingPhone)
 
                 val tx = existingTx.copy(
                     partyName = resolvedParty,
@@ -1045,12 +1061,7 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
-                val resolvedParty = if (partyName.isNotBlank()) partyName else "Direct Walk-in Contractor"
-                val resolvedCustPhone = if (customerPhone.isNotBlank()) {
-                    customerPhone
-                } else {
-                    repository.getParties().find { it.name.equals(resolvedParty.trim(), ignoreCase = true) }?.phone.orEmpty()
-                }
+                val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName, customerPhone)
 
                 val slipNo = "GP-${System.currentTimeMillis() % 100000}"
                 val tx = StockTransaction(
