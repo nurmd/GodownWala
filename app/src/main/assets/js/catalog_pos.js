@@ -43,7 +43,7 @@ function renderPosProducts() {
     const inCart = posCart[p.id] || 0;
     const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
     const tile = document.createElement('div');
-    tile.className = `bg-surface-container-lowest rounded-xl p-2 border border-surface-container-high shadow-sm flex flex-col justify-between select-none relative aspect-square ${opacity}`;
+    tile.className = `bg-surface-container-lowest rounded-xl p-2.5 border border-surface-container-high shadow-sm flex flex-col justify-between select-none relative min-h-[205px] ${opacity}`;
     
     // Long-press detection for opening item editor
     let pressTimer;
@@ -61,41 +61,41 @@ function renderPosProducts() {
 
     if (editModeItemId === p.id) {
       tile.innerHTML = `
-        <div class="flex-1 flex flex-col items-center justify-center cursor-pointer h-full" onclick="openEditItemModal('${p.id}')">
-          <span class="material-symbols-outlined text-[36px] text-primary">edit</span>
-          <span class="text-[11px] font-bold text-primary mt-1 uppercase">EDIT ITEM</span>
+        <div class="flex-1 flex flex-col items-center justify-center cursor-pointer min-h-[190px]" onclick="openEditItemModal('${p.id}')">
+          <span class="material-symbols-outlined text-[38px] text-primary">edit</span>
+          <span class="text-[12px] font-bold text-primary mt-1.5 uppercase">EDIT ITEM</span>
         </div>
       `;
     } else {
       const imgHtml = `
-        <div class="relative w-full h-14 rounded-lg overflow-hidden border border-surface-container bg-surface-container-low shrink-0 flex items-center justify-center">
+        <div class="relative w-full h-16 rounded-lg overflow-hidden border border-surface-container bg-surface-container-low shrink-0 flex items-center justify-center">
           ${(p.imageUrl && p.imageUrl.trim() !== "") 
             ? `<img src="${p.imageUrl}" class="w-full h-full object-cover" />`
             : `<div class="w-full h-full flex items-center justify-center text-on-surface-variant/40 bg-surface-container/40">
-                 <span class="material-symbols-outlined text-[24px]">inventory_2</span>
+                 <span class="material-symbols-outlined text-[26px]">inventory_2</span>
                </div>`
           }
-          <span class="${inCart > 0 ? '' : 'hidden'} absolute top-1 right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
+          <span class="${inCart > 0 ? '' : 'hidden'} absolute top-1 right-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-primary text-on-primary shadow-sm" id="posBadge-${p.id}">${inCart} in cart</span>
         </div>`;
         
       tile.innerHTML = `
         <div class="min-w-0">
           ${imgHtml}
-          <div class="mt-1 min-w-0">
-            <h4 class="text-[12px] font-bold text-on-surface truncate leading-tight">${p.name}</h4>
-            <div class="flex items-baseline justify-between mt-0.5">
+          <div class="mt-1.5 min-w-0">
+            <h4 class="text-[13px] font-bold text-on-surface truncate leading-tight">${p.name}</h4>
+            <div class="flex items-baseline justify-between mt-1">
               <div class="flex items-baseline gap-1 min-w-0">
-                <span class="text-[14px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
-                <span class="text-[10px] font-semibold text-on-surface-variant truncate">${p.unit || 'Units'}</span>
+                <span class="text-[16px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
+                <span class="text-[11px] font-semibold text-on-surface-variant truncate">${p.unit || 'Units'}</span>
               </div>
-              <span class="text-[10px] font-bold text-primary shrink-0">₹${p.defaultRatePerBag}<span class="text-[8px] font-normal text-on-surface-variant">/${(p.unit || 'Unit').toLowerCase()}</span></span>
+              <span class="text-[12px] font-bold text-primary shrink-0">₹${p.defaultRatePerBag}<span class="text-[10px] font-normal text-on-surface-variant">/${(p.unit || 'Unit').toLowerCase()}</span></span>
             </div>
           </div>
         </div>
-        <div class="mt-1 pt-1 border-t border-surface-container grid grid-cols-3 gap-1">
-          <button onclick="addPosItem('${p.id}', 1)" class="h-6 rounded bg-surface-container text-on-surface text-[10px] font-bold active:scale-90 transition-transform flex items-center justify-center">+1</button>
-          <button onclick="addPosItem('${p.id}', 5)" class="h-6 rounded bg-surface-container text-on-surface text-[10px] font-bold active:scale-90 transition-transform flex items-center justify-center">+5</button>
-          <button onclick="addPosItem('${p.id}', 10)" class="h-6 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold active:scale-90 transition-transform flex items-center justify-center">+10</button>
+        <div class="mt-2 pt-1.5 border-t border-surface-container grid grid-cols-3 gap-1.5">
+          <button onclick="addPosItem('${p.id}', 1)" class="h-10 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[14px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-xs border border-surface-container-high">+1</button>
+          <button onclick="addPosItem('${p.id}', 5)" class="h-10 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[14px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-xs border border-surface-container-high">+5</button>
+          <button onclick="addPosItem('${p.id}', 10)" class="h-10 rounded-lg bg-primary-container text-on-primary text-[14px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-sm">+10</button>
         </div>
       `;
     }
@@ -104,11 +104,11 @@ function renderPosProducts() {
 
   // "+ Add Product" quick action tile
   const addTile = document.createElement('div');
-  addTile.className = 'bg-surface-container-lowest rounded-xl p-2 border border-surface-container-high border-dashed shadow-sm flex flex-col justify-center items-center select-none relative cursor-pointer aspect-square active:scale-95 transition-transform';
+  addTile.className = 'bg-surface-container-lowest rounded-xl p-2.5 border border-surface-container-high border-dashed shadow-sm flex flex-col justify-center items-center select-none relative cursor-pointer min-h-[205px] active:scale-95 transition-transform';
   addTile.onclick = () => openAddItemModal();
   addTile.innerHTML = `
-    <span class="material-symbols-outlined text-[36px] text-primary/50">add</span>
-    <span class="text-[11px] font-bold text-primary/70 mt-1 uppercase tracking-wide">Add Product</span>
+    <span class="material-symbols-outlined text-[42px] text-primary/50">add</span>
+    <span class="text-[13px] font-bold text-primary/80 mt-1 uppercase tracking-wide">Add Product</span>
   `;
   grid.appendChild(addTile);
 }

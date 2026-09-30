@@ -187,20 +187,20 @@ function renderDashboardActivities() {
     card.onclick = () => viewSlip(tx.slipNo);
     card.innerHTML = `
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-lg ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'} flex items-center justify-center shrink-0">
-          <span class="material-symbols-outlined text-[20px]">${isOut ? 'local_shipping' : 'archive'}</span>
+        <div class="w-10 h-10 rounded-lg ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'} flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[22px]">${isOut ? 'local_shipping' : 'archive'}</span>
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="font-mono text-[12px] font-bold text-on-surface">${tx.slipNo}</span>
-            <span class="text-[9px] font-bold uppercase px-1 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
+            <span class="font-mono text-[13px] font-bold text-on-surface">${tx.slipNo}</span>
+            <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
           </div>
-          <span class="text-[11px] text-on-surface-variant truncate">${tx.totalBags} Units • ${tx.partyName}${tx.customerPhone ? ' (' + tx.customerPhone + ')' : ''}</span>
+          <span class="text-[12px] text-on-surface-variant truncate">${tx.totalBags} Units • ${tx.partyName}${tx.customerPhone ? ' (' + tx.customerPhone + ')' : ''}</span>
         </div>
       </div>
       <div class="text-right shrink-0">
-        <span class="text-[10px] text-on-surface-variant">${tx.timeStr}</span>
-        <span class="block text-[11px] font-bold text-primary">₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}</span>
+        <span class="text-[11px] text-on-surface-variant">${tx.timeStr}</span>
+        <span class="block text-[13px] font-bold text-primary">₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}</span>
       </div>
     `;
     list.appendChild(card);
@@ -255,15 +255,15 @@ function renderLedger() {
     card.innerHTML = `
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="font-mono text-[13px] font-bold text-on-surface">${t.slipNo}</span>
-          <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock In'}</span>
+          <span class="font-mono text-[14px] font-bold text-on-surface">${t.slipNo}</span>
+          <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock In'}</span>
         </div>
-        <span class="text-[11px] text-on-surface-variant">${t.dateStr} • ${t.timeStr}</span>
+        <span class="text-[12px] text-on-surface-variant">${t.dateStr} • ${t.timeStr}</span>
       </div>
-      <div class="text-[12px] font-semibold text-on-surface truncate">
-        ${t.partyName}${t.customerPhone ? ` <span class="text-[11px] font-normal text-on-surface-variant font-mono">(${t.customerPhone})</span>` : ''}
+      <div class="text-[13px] font-semibold text-on-surface truncate">
+        ${t.partyName}${t.customerPhone ? ` <span class="text-[12px] font-normal text-on-surface-variant font-mono">(${t.customerPhone})</span>` : ''}
       </div>
-      <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-surface-container">
+      <div class="flex items-center justify-between text-[12px] text-on-surface-variant pt-1 border-t border-surface-container">
         <span>Vehicle: <b class="text-on-surface">${t.vehicleNo}</b></span>
         <span>Total: <b class="text-primary font-bold">${t.totalBags} Units</b> (₹${(Number(t.totalAmount) || 0).toLocaleString('en-IN')})</span>
       </div>

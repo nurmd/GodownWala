@@ -185,25 +185,25 @@ function renderDispatchItems() {
     const subtotal = qty * rate;
 
     const row = document.createElement('div');
-    row.className = 'bg-surface-container-low border border-surface-container-high rounded-xl p-2.5 flex items-center justify-between gap-2 shadow-xs';
+    row.className = 'bg-surface-container-low border border-surface-container-high rounded-xl p-3 flex items-center justify-between gap-2 shadow-xs';
     row.innerHTML = `
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <h4 class="text-[12px] font-bold text-on-surface leading-tight truncate">${name}</h4>
-          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-surface-container-high text-on-surface-variant">Stock: ${stock}</span>
+          <h4 class="text-[14px] font-bold text-on-surface leading-tight truncate">${name}</h4>
+          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">Stock: ${stock}</span>
         </div>
-        <div class="text-[11px] text-on-surface-variant font-medium mt-0.5">
+        <div class="text-[12px] text-on-surface-variant font-medium mt-0.5">
           ₹${rate.toLocaleString('en-IN')}/${unit.toLowerCase()} • <span class="text-primary font-bold">₹${subtotal.toLocaleString('en-IN')}</span>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div class="flex items-center gap-2 shrink-0">
         <div class="flex items-center bg-surface-container-lowest rounded-lg border border-surface-container-high p-0.5">
-          <button type="button" onclick="stepDispatchItem('${pId}', -1)" class="w-6 h-6 rounded bg-surface-container text-on-surface font-bold text-[14px] flex items-center justify-center active:scale-90">-</button>
-          <input type="number" min="1" max="${stock}" value="${qty}" onchange="updateDispatchItemQty('${pId}', this.value)" class="w-12 text-center text-[12px] font-bold bg-transparent border-0 p-0 focus:ring-0 text-on-surface"/>
-          <button type="button" onclick="stepDispatchItem('${pId}', 1)" class="w-6 h-6 rounded bg-surface-container text-on-surface font-bold text-[14px] flex items-center justify-center active:scale-90">+</button>
+          <button type="button" onclick="stepDispatchItem('${pId}', -1)" class="w-8 h-8 rounded-lg bg-surface-container text-on-surface font-extrabold text-[16px] flex items-center justify-center active:scale-90">-</button>
+          <input type="number" min="1" max="${stock}" value="${qty}" onchange="updateDispatchItemQty('${pId}', this.value)" class="w-14 text-center text-[14px] font-bold bg-transparent border-0 p-0 focus:ring-0 text-on-surface"/>
+          <button type="button" onclick="stepDispatchItem('${pId}', 1)" class="w-8 h-8 rounded-lg bg-surface-container text-on-surface font-extrabold text-[16px] flex items-center justify-center active:scale-90">+</button>
         </div>
-        <button type="button" onclick="removeDispatchItem('${pId}')" class="w-7 h-7 rounded-lg text-error hover:bg-error-container/20 flex items-center justify-center active:scale-90" title="Remove item">
-          <span class="material-symbols-outlined text-[18px]">delete</span>
+        <button type="button" onclick="removeDispatchItem('${pId}')" class="w-8 h-8 rounded-lg text-error hover:bg-error-container/20 flex items-center justify-center active:scale-90" title="Remove item">
+          <span class="material-symbols-outlined text-[20px]">delete</span>
         </button>
       </div>
     `;
