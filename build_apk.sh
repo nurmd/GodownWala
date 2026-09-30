@@ -13,7 +13,7 @@ aapt2 compile --dir app/src/main/res -o build/compiled-res/
 
 VERSION_CODE=$(grep 'android:versionCode=' app/src/main/AndroidManifest.xml | head -n 1 | sed -E 's/.*android:versionCode="([^"]+)".*/\1/')
 VERSION_NAME=$(grep 'android:versionName=' app/src/main/AndroidManifest.xml | head -n 1 | sed -E 's/.*android:versionName="([^"]+)".*/\1/')
-echo "Target Build Version: ${VERSION_NAME:-1.0.3} (Code: ${VERSION_CODE:-4})"
+echo "Target Build Version: ${VERSION_NAME:-1.0.4} (Code: ${VERSION_CODE:-5})"
 
 # 2. Link APK with assets
 echo "[2/6] Linking base APK with assets..."
@@ -22,8 +22,8 @@ aapt2 link -I /system/framework/framework-res.apk \
   --manifest app/src/main/AndroidManifest.xml \
   --min-sdk-version 24 \
   --target-sdk-version 35 \
-  --version-code "${VERSION_CODE:-4}" \
-  --version-name "${VERSION_NAME:-1.0.3}" \
+  --version-code "${VERSION_CODE:-5}" \
+  --version-name "${VERSION_NAME:-1.0.4}" \
   -o build/base.apk \
   build/compiled-res/*.flat \
   --java build/gen \

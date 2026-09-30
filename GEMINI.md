@@ -30,7 +30,7 @@
 - **Failover Logic**: Direct test print buttons must disable failover (`allowFailover = false`) to accurately diagnose offline devices; slip printing should fail over seamlessly to online paired printers.
 
 ## 5. Synchronized Release Versioning Checklist
-When releasing or bumping versions (e.g., `1.0.3` / code `4`), update all 5 files in lockstep:
+When releasing or bumping versions (e.g., `1.0.4` / code `5`), update all 5 files in lockstep:
 1. `app/src/main/AndroidManifest.xml`: `android:versionCode` and `android:versionName`.
 2. `app/build.gradle.kts`: fallback `vCode` and `vName`.
 3. `build_apk.sh`: fallback version code and name flags.
