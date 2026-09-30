@@ -626,8 +626,9 @@ class MainActivity : Activity() {
 
         private fun enrichTxWithCustomerPhone(tx: StockTransaction): StockTransaction {
             val (pName, cPhone) = parsePartyAndPhone(tx.partyName, tx.customerPhone)
-            return if (pName != tx.partyName || cPhone != tx.customerPhone) {
-                tx.copy(partyName = pName, customerPhone = cPhone)
+            val operator = if (tx.dispatchedBy.isNotBlank()) tx.dispatchedBy else getCurrentUserName().ifBlank { "Admin" }
+            return if (pName != tx.partyName || cPhone != tx.customerPhone || operator != tx.dispatchedBy) {
+                tx.copy(partyName = pName, customerPhone = cPhone, dispatchedBy = operator)
             } else {
                 tx
             }

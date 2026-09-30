@@ -75,7 +75,8 @@ object EscPosSlipGenerator {
             sb.append(dividerEqual).append("\n")
             sb.append(centerText("GODOWN MANAGER", width)).append("\n")
             sb.append(centerText("CENTRAL DEPOT", width)).append("\n")
-            sb.append(centerText("Tel: Support / Operations", width)).append("\n")
+            val operator = tx.dispatchedBy.ifBlank { "Admin" }
+            sb.append(centerText("Operator: $operator", width)).append("\n")
         }
 
         // Title Banner
@@ -210,7 +211,8 @@ object EscPosSlipGenerator {
             out.write((centerText("GODOWN MANAGER", width) + "\n").toByteArray(Charsets.US_ASCII))
             out.write((centerText("CENTRAL DEPOT", width) + "\n").toByteArray(Charsets.US_ASCII))
             out.write(CMD_BOLD_OFF)
-            out.write((centerText("Tel: Support / Operations", width) + "\n").toByteArray(Charsets.US_ASCII))
+            val operator = tx.dispatchedBy.ifBlank { "Admin" }
+            out.write((centerText("Operator: $operator", width) + "\n").toByteArray(Charsets.US_ASCII))
         }
 
         // Title Banner
