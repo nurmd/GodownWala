@@ -36,17 +36,17 @@ class CementStockRepositoryImpl : CementStockRepository {
     override fun getDashboardTelemetry(): Flow<DashboardTelemetry> {
         return _products.map { products ->
             val totalBags = products.sumOf { it.currentStockBags }
-            val totalMt = (totalBags * 50.0) / 1000.0
+            val totalMt = products.sumOf { (it.currentStockBags * it.weightPerBagKg) / 1000.0 }
 
             DashboardTelemetry(
                 totalStoredBags = totalBags,
                 totalMetricTons = totalMt,
-                inwardDayBags = 1200,
-                inwardDayMt = 60.0,
-                dispatchedBags = 850,
-                dispatchedMt = 42.5,
-                pendingSlipsCount = 1,
-                netTallyBags = 350
+                inwardDayBags = 0,
+                inwardDayMt = 0.0,
+                dispatchedBags = 0,
+                dispatchedMt = 0.0,
+                pendingSlipsCount = 0,
+                netTallyBags = 0
             )
         }
     }
@@ -59,7 +59,7 @@ class CementStockRepositoryImpl : CementStockRepository {
 
     override suspend fun getLastSlip(): StockTransaction? {
         mutex.withLock {
-            return _transactions.value.firstOrNull()
+            return _transactions.value.maxByOrNull { it.timestamp }
         }
     }
 
@@ -67,28 +67,18 @@ class CementStockRepositoryImpl : CementStockRepository {
         mutex.withLock {
             val currentList = _products.value.toMutableList()
 
-            // Validate inventory sufficiency
+            // Validate inventory sufficiency (no phantom stock, no silent overselling)
             for (item in transaction.items) {
-                var index = currentList.indexOfFirst { it.id == item.productId }
+                val index = currentList.indexOfFirst { it.id == item.productId }
                 if (index == -1) {
-                    val fallbackWeight = if (item.quantityBags > 0 && item.metricTons > 0) (item.metricTons * 1000.0) / item.quantityBags else 50.0
-                    val adHoc = Product(
-                        id = item.productId,
-                        name = item.productName,
-                        grade = "Standard",
-                        weightPerBagKg = fallbackWeight,
-                        defaultRatePerBag = item.ratePerBag,
-                        bayLocation = item.bayLocation,
-                        currentStockBags = item.quantityBags.coerceAtLeast(100),
-                        batchNo = item.batchNo
-                    )
-                    currentList.add(adHoc)
-                    index = currentList.size - 1
+                    return Result.failure(IllegalArgumentException("Product ${item.productId} not found in inventory"))
                 }
                 val product = currentList[index]
+                if (item.quantityBags <= 0) {
+                    return Result.failure(IllegalArgumentException("Dispatch quantity must be positive"))
+                }
                 if (product.currentStockBags < item.quantityBags) {
-                    // Auto-adjust stock if it was tracked elsewhere to prevent hard block
-                    currentList[index] = product.copy(currentStockBags = item.quantityBags)
+                    return Result.failure(IllegalArgumentException("Insufficient stock for ${product.name}: requested ${item.quantityBags}, available ${product.currentStockBags}"))
                 }
             }
 
@@ -182,16 +172,18 @@ class CementStockRepositoryImpl : CementStockRepository {
             }
 
             val product = currentList[index]
+            val effectiveWeight = product.weightPerBagKg
             currentList[index] = product.copy(
                 currentStockBags = product.currentStockBags + bags,
                 batchNo = if (batchNo.isNotBlank()) batchNo else product.batchNo,
-                bayLocation = if (bayLocation.isNotBlank()) bayLocation else product.bayLocation
+                bayLocation = if (bayLocation.isNotBlank()) bayLocation else product.bayLocation,
+                weightPerBagKg = effectiveWeight
             )
             _products.value = currentList
 
-            val newSlipNo = "GRN-${System.currentTimeMillis() % 100000}"
+            val newSlipNo = "GRN-${System.currentTimeMillis()}"
             val newTx = StockTransaction(
-                id = "tx_${System.currentTimeMillis()}",
+                id = "tx_${System.currentTimeMillis()}_${(0..9999).random()}",
                 slipNo = newSlipNo,
                 type = TransactionType.INWARD,
                 timestamp = System.currentTimeMillis(),
@@ -203,14 +195,14 @@ class CementStockRepositoryImpl : CementStockRepository {
                 ewbNo = "-",
                 destinationSite = "Godown #4 - ${product.bayLocation}",
                 totalBags = bags,
-                totalMetricTons = (bags * 50.0) / 1000.0,
+                totalMetricTons = (bags * product.weightPerBagKg) / 1000.0,
                 totalAmount = bags * product.defaultRatePerBag,
                 items = listOf(
                     StockTransactionItem(
                         productId = product.id,
                         productName = product.name,
                         quantityBags = bags,
-                        metricTons = (bags * 50.0) / 1000.0,
+                        metricTons = (bags * product.weightPerBagKg) / 1000.0,
                         ratePerBag = product.defaultRatePerBag,
                         batchNo = product.batchNo,
                         bayLocation = product.bayLocation

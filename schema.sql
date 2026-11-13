@@ -88,6 +88,25 @@ ALTER PUBLICATION supabase_realtime ADD TABLE products;
 ALTER PUBLICATION supabase_realtime ADD TABLE transactions;
 ALTER PUBLICATION supabase_realtime ADD TABLE parties;
 
+-- 7. Row Level Security (baseline)
+-- NOTE: The app currently authenticates tenants with a shared anon/publishable key
+-- and a custom business name + password. True per-tenant isolation requires
+-- migrating to Supabase Auth (or SECURITY DEFINER RPCs) and scoping policies to
+-- auth.jwt() ->> 'business_id'. Until then, enable RLS with permissive policies
+-- so the tables are not left fully open, and replace these with strict policies
+-- during the auth migration.
+ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE parties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "anon_all_businesses" ON businesses FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_all_staff" ON staff FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_all_products" ON products FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_all_parties" ON parties FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "anon_all_transactions" ON transactions FOR ALL TO anon USING (true) WITH CHECK (true);
+
 -- 7. Indexes for High-Concurrency Multi-Tenant Lookups
 CREATE INDEX IF NOT EXISTS idx_products_business_id ON products(business_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_business_id ON transactions(business_id);

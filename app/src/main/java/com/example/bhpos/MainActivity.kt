@@ -2,6 +2,9 @@ package com.example.bhpos
 
 import android.app.Activity
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.BroadcastReceiver
+import android.bluetooth.BluetoothDevice
 import android.content.pm.PackageManager
 import android.content.Context
 import android.os.Build
@@ -52,6 +55,13 @@ class MainActivity : Activity() {
 
         setupWebView()
         applySystemBarsTheme("#F4FAFF")
+        try {
+            val filter = IntentFilter().apply {
+                addAction(BluetoothDevice.ACTION_FOUND)
+                addAction(android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+            }
+            registerReceiver(bluetoothDiscoveryReceiver, filter)
+        } catch (_: Exception) {}
         webView.loadUrl("file:///android_asset/index.html")
         handleIntent(intent)
     }
@@ -67,12 +77,8 @@ class MainActivity : Activity() {
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
 
-        val js = intent.getStringExtra("eval_js")
-        if (!js.isNullOrBlank()) {
-            runOnUiThread {
-                webView.evaluateJavascript(js, null)
-            }
-        }
+        // Security: never execute JavaScript supplied via an Intent in production.
+        // (Removed eval_js handling; only trusted in-app flows may drive the WebView.)
 
         val testPrint = intent.getBooleanExtra("test_print", false)
         if (testPrint) {
@@ -147,6 +153,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        try { unregisterReceiver(bluetoothDiscoveryReceiver) } catch (_: Exception) {}
         try {
             webView.stopLoading()
             webView.loadUrl("about:blank")
@@ -271,8 +278,45 @@ class MainActivity : Activity() {
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val granted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+        runOnUiThread {
+            webView.evaluateJavascript("window.onBluetoothPermissionsResult && window.onBluetoothPermissionsResult($granted);", null)
+        }
+    }
+
     private val discoveredDevices = java.util.concurrent.ConcurrentHashMap<String, String>()
     private var isScanning = false
+
+    private val bluetoothDiscoveryReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: Intent?) {
+            when (intent?.action) {
+                BluetoothDevice.ACTION_FOUND -> {
+                    val device = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    }
+                    val name = try { device?.name } catch (_: SecurityException) { null }
+                    val addr = device?.address
+                    if (!addr.isNullOrBlank()) {
+                        discoveredDevices[addr] = name ?: "Unknown Device"
+                        runOnUiThread {
+                            webView.evaluateJavascript("window.onBluetoothDeviceDiscovered && window.onBluetoothDeviceDiscovered(${org.json.JSONObject.quote(name ?: "Unknown Device")}, ${org.json.JSONObject.quote(addr)});", null)
+                        }
+                    }
+                }
+                android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
+                    isScanning = false
+                    runOnUiThread {
+                        webView.evaluateJavascript("window.onBluetoothScanFinished && window.onBluetoothScanFinished();", null)
+                    }
+                }
+            }
+        }
+    }
 
     companion object {
         private const val PREFS_NAME = "bhpos_bluetooth_prefs"
@@ -473,24 +517,27 @@ class MainActivity : Activity() {
                 val products = repository.getCurrentProducts()
                 val totalUnits = products.filter { it.isActive }.sumOf { it.currentStockBags }
                 val activeCount = products.count { it.isActive }
-                val totalMt = (totalUnits * 50.0) / 1000.0
+                val totalMt = products.filter { it.isActive }.sumOf { (it.currentStockBags * it.weightPerBagKg) / 1000.0 }
 
                 val txs = repository.getCurrentTransactions()
                 var inwardUnits = 0
                 var dispatchedUnits = 0
+                var inwardMt = 0.0
+                var dispatchedMt = 0.0
                 val now = System.currentTimeMillis()
                 val dayStart = now - (24 * 60 * 60 * 1000)
                 for (tx in txs) {
                     if (tx.timestamp >= dayStart) {
                         if (tx.type == com.example.bhpos.domain.model.TransactionType.INWARD) {
                             inwardUnits += tx.totalBags
+                            inwardMt += tx.totalMetricTons
                         } else if (tx.type == com.example.bhpos.domain.model.TransactionType.OUTWARD) {
                             dispatchedUnits += tx.totalBags
+                            dispatchedMt += tx.totalMetricTons
                         }
                     }
                 }
-                if (inwardUnits == 0 && txs.isEmpty()) inwardUnits = 1200
-                if (dispatchedUnits == 0 && txs.isEmpty()) dispatchedUnits = 850
+                // No demo fallbacks: report real zeros when there is no data
 
                 val root = JSONObject()
                 root.put("totalStoredBags", totalUnits)
@@ -499,11 +546,11 @@ class MainActivity : Activity() {
                 root.put("totalMetricTons", totalMt)
                 root.put("inwardDayBags", inwardUnits)
                 root.put("inwardDayUnits", inwardUnits)
-                root.put("inwardDayMt", (inwardUnits * 50.0) / 1000.0)
+                root.put("inwardDayMt", inwardMt)
                 root.put("dispatchedBags", dispatchedUnits)
                 root.put("dispatchedUnits", dispatchedUnits)
-                root.put("dispatchedMt", (dispatchedUnits * 50.0) / 1000.0)
-                root.put("pendingSlipsCount", if (txs.isNotEmpty()) txs.count { it.type == com.example.bhpos.domain.model.TransactionType.OUTWARD } else 1)
+                root.put("dispatchedMt", dispatchedMt)
+                root.put("pendingSlipsCount", txs.count { it.type == com.example.bhpos.domain.model.TransactionType.OUTWARD })
                 root.put("netTallyBags", inwardUnits - dispatchedUnits)
 
                 root.toString()
@@ -699,7 +746,7 @@ class MainActivity : Activity() {
                 val currentLocal = repository.getCurrentTransactions()
                 val incomingSlipNos = list.map { it.slipNo }.toSet()
                 val localOnly = currentLocal.filter { it.slipNo !in incomingSlipNos }
-                repository.setTransactions(localOnly + list)
+                repository.setTransactions((localOnly + list).sortedByDescending { it.timestamp })
                 "ok"
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -769,22 +816,12 @@ class MainActivity : Activity() {
                     product = products.find { it.name.equals(productId, ignoreCase = true) }
                 }
                 if (product == null) {
-                    val fallback = Product(
-                        id = productId,
-                        name = "Product $productId",
-                        grade = "Standard",
-                        weightPerBagKg = 50.0,
-                        defaultRatePerBag = 0.0,
-                        bayLocation = "Unassigned",
-                        currentStockBags = bags.coerceAtLeast(100),
-                        batchNo = "AUTO",
-                        imageUrl = null
-                    )
-                    runBlocking { repository.addProduct(fallback) }
-                    product = fallback
+                    response.put("success", false)
+                    response.put("error", "Product not found: $productId")
+                    return response.toString()
                 }
 
-                val slipNo = "GP-${System.currentTimeMillis() % 100000}"
+                val slipNo = "GP-${System.currentTimeMillis()}"
                 val mt = (bags * product.weightPerBagKg) / 1000.0
                 val amount = bags * product.defaultRatePerBag
 
@@ -801,7 +838,7 @@ class MainActivity : Activity() {
                 val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName)
 
                 val tx = StockTransaction(
-                    id = "tx_${System.currentTimeMillis()}",
+                    id = "tx_${System.currentTimeMillis()}_${(0..9999).random()}",
                     slipNo = slipNo,
                     type = TransactionType.OUTWARD,
                     timestamp = System.currentTimeMillis(),
@@ -809,8 +846,8 @@ class MainActivity : Activity() {
                     vehicleNo = "MH-12-QZ-4891",
                     driverName = "Express Dispatch",
                     driverPhone = "+91 98220-44102",
-                    challanNo = "DC-${System.currentTimeMillis() % 10000}",
-                    ewbNo = "EWB-${System.currentTimeMillis() % 1000000}",
+                    challanNo = "DC-${System.currentTimeMillis()}",
+                    ewbNo = "EWB-${System.currentTimeMillis()}",
                     destinationSite = "Central Industrial Area Bay 2",
                     totalBags = bags,
                     totalMetricTons = mt,
@@ -899,13 +936,9 @@ class MainActivity : Activity() {
                     var p = products.find { it.id == pId }
                     if (p == null) p = products.find { it.name.equals(pId, ignoreCase = true) }
                     if (p == null) {
-                        val fallback = Product(
-                            id = pId, name = "Product $pId", grade = "Standard", weightPerBagKg = 50.0,
-                            defaultRatePerBag = 0.0, bayLocation = "Unassigned", currentStockBags = bags.coerceAtLeast(100),
-                            batchNo = "AUTO", imageUrl = null
-                        )
-                        runBlocking { repository.addProduct(fallback) }
-                        p = fallback
+                        response.put("success", false)
+                        response.put("error", "Product not found: $pId")
+                        return response.toString()
                     }
 
                     val lineMt = (bags * p.weightPerBagKg) / 1000.0
@@ -1032,19 +1065,9 @@ class MainActivity : Activity() {
                         p = products.find { it.name.equals(pId, ignoreCase = true) }
                     }
                     if (p == null) {
-                        val fallback = Product(
-                            id = pId,
-                            name = "Product $pId",
-                            grade = "Standard",
-                            weightPerBagKg = 50.0,
-                            defaultRatePerBag = 0.0,
-                            bayLocation = "Unassigned",
-                            currentStockBags = bags.coerceAtLeast(100),
-                            batchNo = "AUTO",
-                            imageUrl = null
-                        )
-                        runBlocking { repository.addProduct(fallback) }
-                        p = fallback
+                        response.put("success", false)
+                        response.put("error", "Product not found: $pId")
+                        return response.toString()
                     }
 
                     val lineMt = (bags * p.weightPerBagKg) / 1000.0
@@ -1075,9 +1098,9 @@ class MainActivity : Activity() {
 
                 val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName, customerPhone)
 
-                val slipNo = "GP-${System.currentTimeMillis() % 100000}"
+                val slipNo = "GP-${System.currentTimeMillis()}"
                 val tx = StockTransaction(
-                    id = "tx_${System.currentTimeMillis()}",
+                    id = "tx_${System.currentTimeMillis()}_${(0..9999).random()}",
                     slipNo = slipNo,
                     type = TransactionType.OUTWARD,
                     timestamp = System.currentTimeMillis(),
@@ -1085,7 +1108,7 @@ class MainActivity : Activity() {
                     vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
                     driverName = if (driverName.isNotBlank()) driverName else "-",
                     driverPhone = if (driverPhone.isNotBlank()) driverPhone else "-",
-                    challanNo = if (challanNo.isNotBlank()) challanNo else "DC-${System.currentTimeMillis() % 10000}",
+                    challanNo = if (challanNo.isNotBlank()) challanNo else "DC-${System.currentTimeMillis()}",
                     ewbNo = if (ewbNo.isNotBlank()) ewbNo else "-",
                     destinationSite = if (site.isNotBlank()) site else "-",
                     totalBags = totalBags,
@@ -1214,7 +1237,8 @@ class MainActivity : Activity() {
                         isActive = if (obj.has("isActive")) obj.getBoolean("isActive") else existing.isActive,
                         unit = finalUnit,
                         grade = finalUnit,
-                        weightPerBagKg = weight
+                        weightPerBagKg = weight,
+                        currentStockBags = if (obj.has("currentStockBags")) obj.optInt("currentStockBags", existing.currentStockBags) else existing.currentStockBags
                     )
                     val result = runBlocking { repository.updateProduct(updated) }
                     if (result.isSuccess) {
@@ -1239,7 +1263,7 @@ class MainActivity : Activity() {
             return try {
                 val tx = runBlocking {
                     if (slipNo.isNotBlank()) {
-                        repository.getTransactionBySlipNo(slipNo) ?: repository.getLastSlip()
+                        repository.getTransactionBySlipNo(slipNo)
                     } else {
                         repository.getLastSlip()
                     }
@@ -1248,7 +1272,7 @@ class MainActivity : Activity() {
                     val effectiveTx = enrichTxWithCustomerPhone(tx)
                     EscPosSlipGenerator.generatePreviewText(effectiveTx, if (paperWidthMm == 58) 58 else 80)
                 } else {
-                    "No transaction available."
+                    "No transaction available for slip ${slipNo}."
                 }
             } catch (e: Exception) {
                 "Error generating slip: ${e.message}"
@@ -1259,7 +1283,7 @@ class MainActivity : Activity() {
             return try {
                 val tx = runBlocking {
                     if (slipNo.isNotBlank()) {
-                        repository.getTransactionBySlipNo(slipNo) ?: repository.getLastSlip()
+                        repository.getTransactionBySlipNo(slipNo)
                     } else {
                         repository.getLastSlip()
                     }
@@ -1269,7 +1293,7 @@ class MainActivity : Activity() {
                     val opts = com.example.bhpos.printer.PrintOptions.fromJson(optionsJson)
                     EscPosSlipGenerator.generatePreviewText(effectiveTx, if (paperWidthMm == 58) 58 else 80, opts)
                 } else {
-                    "No transaction available."
+                    "No transaction available for slip ${slipNo}."
                 }
             } catch (e: Exception) {
                 "Error generating slip: ${e.message}"
@@ -1530,7 +1554,7 @@ class MainActivity : Activity() {
             try {
                 val tx = runBlocking {
                     if (slipNo.isNotBlank()) {
-                        repository.getTransactionBySlipNo(slipNo) ?: repository.getLastSlip()
+                        repository.getTransactionBySlipNo(slipNo)
                     } else {
                         repository.getLastSlip()
                     }
@@ -1607,7 +1631,7 @@ class MainActivity : Activity() {
             try {
                 val tx = runBlocking {
                     if (slipNo.isNotBlank()) {
-                        repository.getTransactionBySlipNo(slipNo) ?: repository.getLastSlip()
+                        repository.getTransactionBySlipNo(slipNo)
                     } else {
                         repository.getLastSlip()
                     }
@@ -1663,9 +1687,9 @@ class MainActivity : Activity() {
         fun getLastSlipNo(): String {
             return try {
                 val tx = runBlocking { repository.getLastSlip() }
-                tx?.slipNo ?: "GP-9485"
+                tx?.slipNo ?: ""
             } catch (e: Exception) {
-                "GP-9485"
+                ""
             }
         }
 

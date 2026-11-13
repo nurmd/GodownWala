@@ -9,7 +9,7 @@ window.onerror = function(msg, url, lineNo, columnNo, error) { console.error("[A
 
 // Core Application State
 let activeTab = 'dashboard';
-let currentLastSlipNo = 'GP-9485';
+let currentLastSlipNo = '';
 let cachedTransactions = [];
 let ledgerFilter = 'ALL';
 
@@ -18,6 +18,20 @@ let ledgerFilter = 'ALL';
  */
 function bridge() {
   return window.AndroidBridge || null;
+}
+
+/**
+ * Escapes HTML special characters to prevent XSS when interpolating
+ * untrusted data (product names, party names, device names, etc.) into innerHTML.
+ */
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
@@ -111,7 +125,7 @@ function refreshData() {
       const productsStr = bridge().getProducts();
       const partiesStr = bridge().getParties();
       const txStr = bridge().getTransactions();
-      currentLastSlipNo = bridge().getLastSlipNo() || 'GP-9485';
+      currentLastSlipNo = bridge().getLastSlipNo() || '';
 
       if (telemetryStr) updateDashboardTelemetry(JSON.parse(telemetryStr));
       if (productsStr) {
@@ -192,10 +206,10 @@ function renderDashboardActivities() {
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="font-mono text-[12px] font-bold text-on-surface">${tx.slipNo}</span>
+            <span class="font-mono text-[12px] font-bold text-on-surface">${escapeHtml(tx.slipNo)}</span>
             <span class="text-[9px] font-bold uppercase px-1 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
           </div>
-          <span class="text-[11px] text-on-surface-variant truncate">${tx.totalBags} Units • ${tx.partyName}${tx.customerPhone ? ' (' + tx.customerPhone + ')' : ''}</span>
+          <span class="text-[11px] text-on-surface-variant truncate">${Number(tx.totalBags) || 0} Units • ${escapeHtml(tx.partyName)}${tx.customerPhone ? ' (' + escapeHtml(tx.customerPhone) + ')' : ''}</span>
         </div>
       </div>
       <div class="text-right shrink-0">
@@ -255,16 +269,16 @@ function renderLedger() {
     card.innerHTML = `
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="font-mono text-[13px] font-bold text-on-surface">${t.slipNo}</span>
+          <span class="font-mono text-[13px] font-bold text-on-surface">${escapeHtml(t.slipNo)}</span>
           <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock In'}</span>
         </div>
         <span class="text-[11px] text-on-surface-variant">${t.dateStr} • ${t.timeStr}</span>
       </div>
       <div class="text-[12px] font-semibold text-on-surface truncate">
-        ${t.partyName}${t.customerPhone ? ` <span class="text-[11px] font-normal text-on-surface-variant font-mono">(${t.customerPhone})</span>` : ''}
+        ${escapeHtml(t.partyName)}${t.customerPhone ? ` <span class="text-[11px] font-normal text-on-surface-variant font-mono">(${escapeHtml(t.customerPhone)})</span>` : ''}
       </div>
       <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-surface-container">
-        <span>Vehicle: <b class="text-on-surface">${t.vehicleNo}</b></span>
+        <span>Vehicle: <b class="text-on-surface">${escapeHtml(t.vehicleNo)}</b></span>
         <span>Total: <b class="text-primary font-bold">${t.totalBags} Units</b> (₹${(Number(t.totalAmount) || 0).toLocaleString('en-IN')})</span>
       </div>
     `;

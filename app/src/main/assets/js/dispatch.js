@@ -56,6 +56,7 @@ async function submitNewCustomer() {
   }
   
   const newId = 'party_' + Date.now();
+  const partyType = (targetId === 'stockInVendorSelect') ? 'vendor' : 'customer';
   try {
     if (currentBusiness && currentBusiness.id) {
       await sFetch(`parties`, {
@@ -63,7 +64,7 @@ async function submitNewCustomer() {
         body: JSON.stringify({
           id: newId,
           business_id: currentBusiness.id,
-          type: 'customer',
+          type: partyType,
           name: name,
           phone: phone,
           is_active: true
@@ -528,6 +529,7 @@ async function submitFullDispatch() {
 
       await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false, customerPhone);
 
+      const wasEditing = !!editingSlipNo;
       dispatchCartItems = {};
       posCart = {};
       renderPosProducts();
@@ -539,7 +541,7 @@ async function submitFullDispatch() {
       switchTab('ledger');
       
       viewSlip(res.slipNo);
-      showToast(editingSlipNo ? `Gate Pass ${res.slipNo} Updated!` : `Gate Pass ${res.slipNo} Created!`);
+      showToast(wasEditing ? `Gate Pass ${res.slipNo} Updated!` : `Gate Pass ${res.slipNo} Created!`);
     } else {
       alert(res.error || "Dispatch failed");
     }

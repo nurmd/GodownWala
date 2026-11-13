@@ -157,10 +157,10 @@ class CementStockRepositoryTest {
         )
 
         val result = repository.recordDispatch(tx)
-        assertTrue("Dispatch must succeed", result.isSuccess)
+        assertFalse("Dispatch must fail when quantity exceeds available stock", result.isSuccess)
         val productsAfter = repository.getProductsFlow().first()
         val stockAfter = productsAfter.first { it.id == "ultratech_ppc" }.currentStockBags
-        assertTrue("Stock must never drop below 0", stockAfter >= 0)
+        assertEquals(ultraTech.currentStockBags, stockAfter) // stock unchanged on failure
     }
 
     @Test

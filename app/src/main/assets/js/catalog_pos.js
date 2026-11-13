@@ -82,7 +82,7 @@ function renderPosProducts() {
         <div class="min-w-0">
           ${imgHtml}
           <div class="mt-1 min-w-0">
-            <h4 class="text-[12px] font-bold text-on-surface truncate leading-tight">${p.name}</h4>
+            <h4 class="text-[12px] font-bold text-on-surface truncate leading-tight">${escapeHtml(p.name)}</h4>
             <div class="flex items-baseline justify-between mt-0.5">
               <div class="flex items-baseline gap-1 min-w-0">
                 <span class="text-[14px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
@@ -391,8 +391,9 @@ async function saveNewItem() {
         body: JSON.stringify({
           id: id,
           business_id: currentBusiness.id,
-          name: name, 
+          name: name,
           grade: unit,
+          unit: unit,
           default_rate_per_bag: rate,
           current_stock_bags: stock,
           weight_per_bag_kg: weightPerBagKg,
@@ -546,6 +547,7 @@ async function saveEditItem() {
         body: JSON.stringify({
           name: name,
           grade: unit,
+          unit: unit,
           default_rate_per_bag: rate,
           image_url: image,
           is_active: isActive,

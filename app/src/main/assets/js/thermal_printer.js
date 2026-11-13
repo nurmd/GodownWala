@@ -408,7 +408,7 @@ function loadPairedPrinters() {
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
-                <span class="text-[13px] font-bold text-on-surface truncate">${dev.name}</span>
+                <span class="text-[13px] font-bold text-on-surface truncate">${escapeHtml(dev.name)}</span>
                 ${dev.isPrinter ? '<span class="px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed text-[8px] font-bold uppercase rounded">Thermal</span>' : ''}
                 ${isCurrent ? '<span class="px-1.5 py-0.2 bg-primary text-on-primary text-[8px] font-bold uppercase rounded">Active</span>' : ''}
               </div>
@@ -578,7 +578,7 @@ function renderDiscoveredPrinters() {
           <span class="material-symbols-outlined text-[18px]">bluetooth_searching</span>
         </div>
         <div class="min-w-0">
-          <span class="text-[13px] font-bold text-on-surface truncate block">${name}</span>
+          <span class="text-[13px] font-bold text-on-surface truncate block">${escapeHtml(name)}</span>
           <span class="text-[10px] font-mono text-on-surface-variant">${addr}</span>
         </div>
       </div>
