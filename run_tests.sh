@@ -1,23 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-echo "=== Running CementTrack Unit Test Suite ==="
-cd /data/data/com.termux/files/home/bhpos
+echo "=== Running GodownWala Unit Tests (Gradle) ==="
+cd "$(dirname "$0")"
 
-mkdir -p build/test-classes build/app-classes
-kotlinc -cp "test-libs/coroutines.jar" \
-  app/src/main/java/com/example/bhpos/domain/model/Models.kt \
-  app/src/main/java/com/example/bhpos/data/repository/CementStockRepository.kt \
-  app/src/main/java/com/example/bhpos/data/repository/CementStockRepositoryImpl.kt \
-  app/src/main/java/com/example/bhpos/printer/EscPosSlipGenerator.kt \
-  -d build/app-classes
+export JAVA_HOME="${JAVA_HOME:-/data/data/com.termux/files/usr/lib/jvm/java-17-openjdk}"
+export ANDROID_HOME="${ANDROID_HOME:-/data/data/com.termux/files/home/android-sdk}"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
-kotlinc -cp "test-libs/junit.jar:test-libs/hamcrest.jar:test-libs/coroutines.jar:build/app-classes" \
-  app/src/test/java/com/example/bhpos/CementStockRepositoryTest.kt \
-  -d build/test-classes
-
-java -cp "build/test-classes:build/app-classes:test-libs/junit.jar:test-libs/hamcrest.jar:test-libs/coroutines.jar:/data/data/com.termux/files/usr/opt/kotlin/lib/kotlin-stdlib.jar" \
-  org.junit.runner.JUnitCore com.example.bhpos.CementStockRepositoryTest
+chmod +x ./gradlew
+./gradlew test --stacktrace
 
 echo "=== All Tests Passed! ==="
-

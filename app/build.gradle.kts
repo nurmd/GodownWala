@@ -7,8 +7,8 @@ android {
     namespace = "com.example.bhpos"
     compileSdk = 35
 
-    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 5
-    val vName = System.getenv("VERSION_NAME") ?: "1.0.4"
+    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 6
+    val vName = System.getenv("VERSION_NAME") ?: "1.0.5"
 
     defaultConfig {
         applicationId = "com.example.bhpos"
@@ -48,6 +48,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

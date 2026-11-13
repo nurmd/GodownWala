@@ -58,7 +58,6 @@ recover_main_activity.py
 name_helper.kt
 auth_js.js
 auth_ui.html
-cloud_sync.js
 dispatch_sync.js
 supabase_logic.js
 GetIP.*

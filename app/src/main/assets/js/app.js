@@ -1,4 +1,4 @@
-window.onerror = function(msg, url, lineNo, columnNo, error) { alert("JS Error: " + msg + " at " + lineNo + ":" + columnNo); };
+window.onerror = function(msg, url, lineNo, columnNo, error) { console.error("[App] JS Error:", msg, "at", lineNo + ":" + columnNo, error); };
 /**
  * ============================================================================
  * MODULE: MAIN APPLICATION CONTROLLER
@@ -333,7 +333,7 @@ function dismissSplashScreen() {
 }
 
 function loadInstalledVersion() {
-  let ver = "1.0.4";
+  let ver = "1.0.5";
   if (bridge() && bridge().getAppVersionInfo) {
     try {
       const info = JSON.parse(bridge().getAppVersionInfo());
@@ -511,7 +511,7 @@ function checkForUpdatesManual() {
       .then(data => {
         const tagName = (data.tag_name || '').replace(/^v/, '');
         const asset = (data.assets || []).find(a => a.name.endsWith('.apk'));
-        let curVer = "1.0.4";
+        let curVer = "1.0.5";
         if (bridge() && bridge().getAppVersionInfo) {
           try {
             const info = JSON.parse(bridge().getAppVersionInfo());

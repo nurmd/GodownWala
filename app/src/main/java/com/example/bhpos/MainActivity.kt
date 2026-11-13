@@ -99,7 +99,7 @@ class MainActivity : Activity() {
         settings.setSupportZoom(false)
 
         try {
-            WebView.setWebContentsDebuggingEnabled(true)
+            WebView.setWebContentsDebuggingEnabled(com.example.bhpos.BuildConfig.DEBUG)
         } catch (_: Exception) {}
 
         webView.webViewClient = object : WebViewClient() {
@@ -144,6 +144,17 @@ class MainActivity : Activity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        try {
+            webView.stopLoading()
+            webView.loadUrl("about:blank")
+            webView.clearHistory()
+            webView.removeAllViews()
+            webView.destroy()
+        } catch (_: Exception) {}
+        super.onDestroy()
     }
 
     private var pendingInstallApkPath: String? = null

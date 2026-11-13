@@ -215,6 +215,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE parties;
 ```
 
 3. Update `SUPABASE_URL` and `SUPABASE_KEY` in `app/src/main/assets/js/supabase_auth.js`.
+4. **Security:** enable Row Level Security on every table and add tenant-scoped policies before any production use. The client currently relies on the anon/publishable key; without RLS all tenant data is exposed. Never store or compare business passwords / staff PINs in plaintext.
 
 ---
 
