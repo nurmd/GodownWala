@@ -45,6 +45,9 @@ class MainActivity : Activity() {
 
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
+        // Hydrate local (Room) persistence before the WebView loads data
+        (repository as? com.example.bhpos.data.repository.CementStockRepositoryImpl)?.init(this)
+
         webView = WebView(this)
         
         val container = android.widget.FrameLayout(this)
@@ -1153,6 +1156,24 @@ class MainActivity : Activity() {
                 } else {
                     response.put("success", false)
                     response.put("error", result.exceptionOrNull()?.message ?: "Stock in failed")
+                }
+            } catch (e: Exception) {
+                response.put("success", false)
+                response.put("error", e.message ?: "Unknown error")
+            }
+            return response.toString()
+        }
+
+        @JavascriptInterface
+        fun deleteDispatch(slipNo: String): String {
+            val response = JSONObject()
+            try {
+                val result = runBlocking { repository.deleteDispatch(slipNo) }
+                if (result.isSuccess) {
+                    response.put("success", true)
+                } else {
+                    response.put("success", false)
+                    response.put("error", result.exceptionOrNull()?.message ?: "Delete failed")
                 }
             } catch (e: Exception) {
                 response.put("success", false)

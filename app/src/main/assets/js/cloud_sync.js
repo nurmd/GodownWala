@@ -260,6 +260,15 @@ async function deleteCurrentSlip() {
   } catch (e) {
     console.error("Error deleting slip from cloud:", e);
   }
+
+  // 2b. Remove from native (Room) repository so local state stays consistent
+  try {
+    if (bridge() && bridge().deleteDispatch) {
+      bridge().deleteDispatch(slipNo);
+    }
+  } catch (e) {
+    console.error("Error deleting slip from native repository:", e);
+  }
   
   // 3. Remove locally
   cachedTransactions.splice(txIndex, 1);

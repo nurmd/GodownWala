@@ -23,4 +23,5 @@ interface CementStockRepository {
     suspend fun getLastSlip(): StockTransaction?
     suspend fun updateProduct(product: Product): Result<Unit>
     suspend fun addProduct(product: Product): Result<Unit>
+    suspend fun deleteDispatch(slipNo: String): Result<Unit>
 }
