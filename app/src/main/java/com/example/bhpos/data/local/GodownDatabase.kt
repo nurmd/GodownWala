@@ -25,7 +25,7 @@ abstract class GodownDatabase : RoomDatabase() {
                     context.applicationContext,
                     GodownDatabase::class.java,
                     "godownwala.db"
-                ).fallbackToDestructiveMigration().build().also { instance = it }
+                ).fallbackToDestructiveMigration(true).build().also { instance = it }
             }
     }
 }
