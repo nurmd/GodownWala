@@ -1,12 +1,10 @@
-name: Build & Release CI
+name: Build & Test CI
 
 on:
   push:
     branches:
       - main
       - master
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
@@ -14,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,14 +20,12 @@ concurrency:
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -44,86 +40,20 @@ jobs:
       - name: Grant Execute Permission to Gradlew
         run: chmod +x gradlew
 
-      - name: Determine Version Name
-        id: version
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo "name=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-          else
-            echo "name=1.1.0" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Run Unit Tests
         run: ./gradlew test --stacktrace
 
       - name: Run Lint
         run: ./gradlew lint --stacktrace
 
-      # ---------------------------------------------------------------------
-      # Non-tag builds: debug APK only (no signing secrets required).
-      # ---------------------------------------------------------------------
+      # CI does not sign release APKs. Release builds are produced locally with
+      # the maintainer's keystore and uploaded manually.
       - name: Build Debug APK
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: ./gradlew assembleDebug --stacktrace
 
-      # ---------------------------------------------------------------------
-      # Tag builds: signed release APK. Requires repository secrets:
-      #   GODOWNWALA_KEYSTORE_BASE64  (base64 -w0 of the .jks)
-      #   GODOWNWALA_STORE_PASSWORD
-      #   GODOWNWALA_KEY_ALIAS
-      #   GODOWNWALA_KEY_PASSWORD
-      # ---------------------------------------------------------------------
-      - name: Decode Release Keystore
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          KEYSTORE_BASE64: ${{ secrets.GODOWNWALA_KEYSTORE_BASE64 }}
-        run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "::error::Missing repository secret GODOWNWALA_KEYSTORE_BASE64"
-            exit 1
-          fi
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-          echo "GODOWNWALA_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-
-      - name: Build Signed Release APK
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          VERSION_CODE: ${{ github.run_number }}
-          VERSION_NAME: ${{ steps.version.outputs.name }}
-          GODOWNWALA_STORE_PASSWORD: ${{ secrets.GODOWNWALA_STORE_PASSWORD }}
-          GODOWNWALA_KEY_ALIAS: ${{ secrets.GODOWNWALA_KEY_ALIAS }}
-          GODOWNWALA_KEY_PASSWORD: ${{ secrets.GODOWNWALA_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --stacktrace
-
-      - name: Prepare Named APK
-        run: |
-          mkdir -p release-apks
-          if [ "${GITHUB_REF#refs/tags/}" != "$GITHUB_REF" ]; then
-            APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          else
-            APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
-          fi
-          cp "$APK_PATH" release-apks/GodownWala.apk
-          echo "Prepared APK from: $APK_PATH"
-
-      - name: Verify Release APK Signature
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
-          "$APKSIGNER" verify --print-certs release-apks/GodownWala.apk
-
-      - name: Upload APK Artifact
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GodownWala-apk
-          path: release-apks/GodownWala.apk
+          name: GodownWala-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
-
-      - name: Publish GitHub Release (On Version Tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: release-apks/GodownWala.apk
-          generate_release_notes: true
-          draft: false
-          prerelease: false
