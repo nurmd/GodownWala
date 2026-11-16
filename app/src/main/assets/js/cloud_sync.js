@@ -297,7 +297,10 @@ function initRealtimeSync() {
   if (!currentBusiness || !currentBusiness.id) return;
   
   if (!realtimeClient) {
-    realtimeClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Reuse the shared auth client so the realtime subscription carries the
+    // per-device session JWT (required under migration 002's strict RLS).
+    realtimeClient = (typeof getSupabaseAuthClient === 'function' && getSupabaseAuthClient())
+      || supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
   if (realtimeChannel) {

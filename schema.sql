@@ -6,22 +6,34 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- pgcrypto: bcrypt password/PIN hashing used by the auth RPCs
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 1. Businesses Table (Tenants)
+-- Passwords are bcrypt-hashed server-side (pgcrypto); plaintext is never stored.
+-- Verification happens in the SECURITY DEFINER RPCs defined in
+-- supabase/migrations/001_hashed_credentials.sql (connect_business).
 CREATE TABLE IF NOT EXISTS businesses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 2. Staff Accounts Table (PIN-Based Authentication)
+-- PINs are bcrypt-hashed server-side; never stored or transferred in plaintext.
+-- auth_user_id binds a staff profile to the device's Supabase auth uid
+-- (anonymous sign-in); migration 002's RLS scopes all data to this binding.
 CREATE TABLE IF NOT EXISTS staff (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     business_id UUID REFERENCES businesses(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
-    pin TEXT NOT NULL,
+    pin_hash TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'staff',
     is_active BOOLEAN DEFAULT true,
+    auth_user_id UUID,
+    failed_attempts INT NOT NULL DEFAULT 0,
+    locked_until TIMESTAMPTZ,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -88,13 +100,13 @@ ALTER PUBLICATION supabase_realtime ADD TABLE products;
 ALTER PUBLICATION supabase_realtime ADD TABLE transactions;
 ALTER PUBLICATION supabase_realtime ADD TABLE parties;
 
--- 7. Row Level Security (baseline)
--- NOTE: The app currently authenticates tenants with a shared anon/publishable key
--- and a custom business name + password. True per-tenant isolation requires
--- migrating to Supabase Auth (or SECURITY DEFINER RPCs) and scoping policies to
--- auth.jwt() ->> 'business_id'. Until then, enable RLS with permissive policies
--- so the tables are not left fully open, and replace these with strict policies
--- during the auth migration.
+-- 7. Row Level Security (baseline, pre-auth)
+-- NOTE: The app authenticates tenants through SECURITY DEFINER RPCs
+-- (supabase/migrations/001_hashed_credentials.sql) with server-side bcrypt
+-- verification. Strict per-tenant isolation is applied by
+-- supabase/migrations/002_strict_tenant_rls.sql, which replaces the permissive
+-- policies below with policies scoped to staff.auth_user_id = auth.uid().
+-- Do NOT run 002 until every device runs the RPC-based app version.
 ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
