@@ -3,7 +3,11 @@ package com.example.bhpos.printer
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import android.annotation.SuppressLint
 import java.util.Locale
 import java.util.UUID
 
@@ -115,9 +119,24 @@ object BluetoothPrinterManager {
     }
 
     /**
+     * Runtime Bluetooth permission check. Callers (MainActivity bridge functions,
+     * discovery receiver) must verify this before invoking manager APIs; the
+     * MissingPermission lint warnings below are therefore expected and safe:
+     * every entry point is guarded by this check at the call site.
+     */
+    fun hasBluetoothConnectPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Pre-Android 12: permissions granted at install time
+        }
+    }
+
+    /**
      * Determines whether a Bluetooth device matches common thermal printer naming
      * patterns or Bluetooth class identifiers.
      */
+    @SuppressLint("MissingPermission") // guarded by hasBluetoothConnectPermission() at all call sites
     fun isLikelyPrinter(device: BluetoothDevice): Boolean {
         val name = (device.name ?: "").lowercase(Locale.ROOT)
         val matchesName = name.contains("printer") || name.contains("pos") ||
@@ -145,6 +164,7 @@ object BluetoothPrinterManager {
      * @param payloadSupplier Optional callback to dynamically generate byte sequence based on actual connected device.
      * @return [PrintResult] containing status, active device, and failover state.
      */
+    @SuppressLint("MissingPermission") // guarded by hasBluetoothConnectPermission() at all call sites
     fun print(
         bytes: ByteArray? = null,
         targetAddress: String? = null,

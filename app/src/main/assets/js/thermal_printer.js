@@ -412,25 +412,36 @@ function loadPairedPrinters() {
                 ${dev.isPrinter ? '<span class="px-1 py-0.2 bg-tertiary-fixed text-on-tertiary-fixed text-[8px] font-bold uppercase rounded">Thermal</span>' : ''}
                 ${isCurrent ? '<span class="px-1.5 py-0.2 bg-primary text-on-primary text-[8px] font-bold uppercase rounded">Active</span>' : ''}
               </div>
-              <p class="text-[10px] font-mono text-on-surface-variant truncate">${dev.address}</p>
+              <p class="text-[10px] font-mono text-on-surface-variant truncate"></p>
             </div>
           </div>
           <div class="flex items-center gap-1 shrink-0">
             ${!isCurrent ? `
-              <button onclick="selectPrinter('${dev.name.replace(/'/g, "\\'")}', '${dev.address}')" class="px-2.5 py-1 bg-primary text-on-primary font-bold text-[11px] rounded-lg uppercase tracking-wide active:scale-95 shadow-xs">
+              <button data-action="select" class="px-2.5 py-1 bg-primary text-on-primary font-bold text-[11px] rounded-lg uppercase tracking-wide active:scale-95 shadow-xs">
                 Select
               </button>
             ` : ''}
-            <button onclick="testPrintSpecific('${dev.name.replace(/'/g, "\\'")}', '${dev.address}')" class="p-1 rounded-lg bg-surface-container text-on-surface-variant active:scale-95" title="Test Print">
+            <button data-action="test" class="p-1 rounded-lg bg-surface-container text-on-surface-variant active:scale-95" title="Test Print">
               <span class="material-symbols-outlined text-[16px]">receipt</span>
             </button>
           </div>
         </div>
       `;
+      // Set untrusted values via DOM APIs (safe against attribute injection)
+      item.querySelector('p.font-mono').textContent = dev.address;
+      item.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (btn.dataset.action === 'select') {
+            selectPrinter(dev.name, dev.address);
+          } else {
+            testPrintSpecific(dev.name, dev.address);
+          }
+        });
+      });
       list.appendChild(item);
     });
   } catch (e) {
-    list.innerHTML = `<div class="text-[11px] text-error text-center py-2">Error loading devices: ${e.message}</div>`;
+    list.innerHTML = `<div class="text-[11px] text-error text-center py-2">Error loading devices: ${escapeHtml(e && e.message ? e.message : e)}</div>`;
   }
 }
 
@@ -543,7 +554,12 @@ window.onPrinterSizeDetected = function(width, name, address) {
 window.onPrinterOffline = function(name, address) {
   const tMac = document.getElementById('thermalCardPrinterMac');
   if (tMac) {
-    tMac.innerHTML = `<span class="text-error font-bold">● Offline</span> • ${name || address}`;
+    tMac.textContent = '';
+    const status = document.createElement('span');
+    status.className = 'text-error font-bold';
+    status.textContent = '● Offline';
+    tMac.appendChild(status);
+    tMac.appendChild(document.createTextNode(` • ${name || address}`));
   }
   const dLabel = document.getElementById('dashPrinterLabel');
   if (dLabel) {
@@ -579,16 +595,20 @@ function renderDiscoveredPrinters() {
         </div>
         <div class="min-w-0">
           <span class="text-[13px] font-bold text-on-surface truncate block">${escapeHtml(name)}</span>
-          <span class="text-[10px] font-mono text-on-surface-variant">${addr}</span>
+          <span class="text-[10px] font-mono text-on-surface-variant"></span>
         </div>
       </div>
       <div class="flex items-center gap-1 shrink-0">
-        <button onclick="pairAndSelectDevice('${name.replace(/'/g, "\\'")}', '${addr}')" class="px-2.5 py-1 bg-tertiary text-on-tertiary font-bold text-[11px] rounded-lg uppercase tracking-wide active:scale-95 shadow-xs flex items-center gap-1">
+        <button data-action="pair" class="px-2.5 py-1 bg-tertiary text-on-tertiary font-bold text-[11px] rounded-lg uppercase tracking-wide active:scale-95 shadow-xs flex items-center gap-1">
           <span class="material-symbols-outlined text-[14px]">link</span>
           <span>Pair</span>
         </button>
       </div>
     `;
+    item.querySelector('span.font-mono').textContent = addr;
+    item.querySelector('button[data-action="pair"]').addEventListener('click', () => {
+      pairAndSelectDevice(name, addr);
+    });
     list.appendChild(item);
   });
 }

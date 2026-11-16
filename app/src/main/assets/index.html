@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://sklzrmubjeotbanagsag.supabase.co wss://sklzrmubjeotbanagsag.supabase.co https://api.github.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; object-src 'none'; frame-src 'none'; base-uri 'self'"/>
   <title>GodownWala</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -1349,6 +1351,7 @@
   </div>
 
   <!-- Modular Application Scripts -->
+  <script src="js/common.js"></script>
   <script src="js/supabase_auth.js"></script>
   <script src="js/cloud_sync.js"></script>
   <script src="js/catalog_pos.js"></script>

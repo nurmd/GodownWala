@@ -21,20 +21,6 @@ function bridge() {
 }
 
 /**
- * Escapes HTML special characters to prevent XSS when interpolating
- * untrusted data (product names, party names, device names, etc.) into innerHTML.
- */
-function escapeHtml(value) {
-  if (value === null || value === undefined) return '';
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/**
  * Dispatches tactile haptic vibration via bridge or browser API.
  */
 function vibrate(ms = 30) {
@@ -213,7 +199,7 @@ function renderDashboardActivities() {
         </div>
       </div>
       <div class="text-right shrink-0">
-        <span class="text-[10px] text-on-surface-variant">${tx.timeStr}</span>
+        <span class="text-[10px] text-on-surface-variant">${escapeHtml(tx.timeStr)}</span>
         <span class="block text-[11px] font-bold text-primary">₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}</span>
       </div>
     `;
@@ -272,7 +258,7 @@ function renderLedger() {
           <span class="font-mono text-[13px] font-bold text-on-surface">${escapeHtml(t.slipNo)}</span>
           <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock In'}</span>
         </div>
-        <span class="text-[11px] text-on-surface-variant">${t.dateStr} • ${t.timeStr}</span>
+        <span class="text-[11px] text-on-surface-variant">${escapeHtml(t.dateStr)} • ${escapeHtml(t.timeStr)}</span>
       </div>
       <div class="text-[12px] font-semibold text-on-surface truncate">
         ${escapeHtml(t.partyName)}${t.customerPhone ? ` <span class="text-[11px] font-normal text-on-surface-variant font-mono">(${escapeHtml(t.customerPhone)})</span>` : ''}

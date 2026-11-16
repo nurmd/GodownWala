@@ -58,7 +58,6 @@ jobs:
 
       - name: Run Lint
         run: ./gradlew lint --stacktrace
-        continue-on-error: true
 
       - name: Build Release APK
         env:

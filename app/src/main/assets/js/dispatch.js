@@ -190,24 +190,30 @@ function renderDispatchItems() {
     row.innerHTML = `
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <h4 class="text-[12px] font-bold text-on-surface leading-tight truncate">${name}</h4>
+          <h4 class="text-[12px] font-bold text-on-surface leading-tight truncate">${escapeHtml(name)}</h4>
           <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-surface-container-high text-on-surface-variant">Stock: ${stock}</span>
         </div>
         <div class="text-[11px] text-on-surface-variant font-medium mt-0.5">
-          ₹${rate.toLocaleString('en-IN')}/${unit.toLowerCase()} • <span class="text-primary font-bold">₹${subtotal.toLocaleString('en-IN')}</span>
+          ₹${rate.toLocaleString('en-IN')}/${escapeHtml(unit.toLowerCase())} • <span class="text-primary font-bold">₹${subtotal.toLocaleString('en-IN')}</span>
         </div>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
         <div class="flex items-center bg-surface-container-lowest rounded-lg border border-surface-container-high p-0.5">
-          <button type="button" onclick="stepDispatchItem('${pId}', -1)" class="w-6 h-6 rounded bg-surface-container text-on-surface font-bold text-[14px] flex items-center justify-center active:scale-90">-</button>
-          <input type="number" min="1" max="${stock}" value="${qty}" onchange="updateDispatchItemQty('${pId}', this.value)" class="w-12 text-center text-[12px] font-bold bg-transparent border-0 p-0 focus:ring-0 text-on-surface"/>
-          <button type="button" onclick="stepDispatchItem('${pId}', 1)" class="w-6 h-6 rounded bg-surface-container text-on-surface font-bold text-[14px] flex items-center justify-center active:scale-90">+</button>
+          <button type="button" data-step="-1" class="w-6 h-6 rounded bg-surface-container text-on-surface font-bold text-[14px] flex items-center justify-center active:scale-90">-</button>
+          <input type="number" min="1" max="${stock}" value="${qty}" data-role="qty" class="w-12 text-center text-[12px] font-bold bg-transparent border-0 p-0 focus:ring-0 text-on-surface"/>
+          <button type="button" data-step="1" class="w-6 h-6 rounded bg-surface-container text-on-surface font-bold text-[14px] flex items-center justify-center active:scale-90">+</button>
         </div>
-        <button type="button" onclick="removeDispatchItem('${pId}')" class="w-7 h-7 rounded-lg text-error hover:bg-error-container/20 flex items-center justify-center active:scale-90" title="Remove item">
+        <button type="button" data-action="remove" class="w-7 h-7 rounded-lg text-error hover:bg-error-container/20 flex items-center justify-center active:scale-90" title="Remove item">
           <span class="material-symbols-outlined text-[18px]">delete</span>
         </button>
       </div>
     `;
+    row.querySelectorAll('button[data-step]').forEach(btn => {
+      btn.addEventListener('click', () => stepDispatchItem(pId, parseInt(btn.dataset.step, 10)));
+    });
+    const qtyInput = row.querySelector('input[data-role="qty"]');
+    qtyInput.addEventListener('change', () => updateDispatchItemQty(pId, qtyInput.value));
+    row.querySelector('button[data-action="remove"]').addEventListener('click', () => removeDispatchItem(pId));
     container.appendChild(row);
   });
 

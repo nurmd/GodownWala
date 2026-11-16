@@ -1409,6 +1409,19 @@ class MainActivity : Activity() {
                     res.put("error", "Bluetooth is disabled.")
                     return res.toString()
                 }
+                val connectGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED
+                } else true
+                val scanGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_SCAN") == PackageManager.PERMISSION_GRANTED
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                } else true
+                if (!connectGranted || !scanGranted) {
+                    res.put("success", false)
+                    res.put("error", "Bluetooth permissions not granted. Please allow Nearby devices access.")
+                    return res.toString()
+                }
                 discoveredDevices.clear()
                 try {
                     if (adapter.isDiscovering) adapter.cancelDiscovery()
@@ -1426,9 +1439,14 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun stopBluetoothScan(): String {
             try {
-                val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
-                if (adapter?.isDiscovering == true) {
-                    adapter.cancelDiscovery()
+                val connectGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED
+                } else true
+                if (connectGranted) {
+                    val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
+                    if (adapter?.isDiscovering == true) {
+                        adapter.cancelDiscovery()
+                    }
                 }
                 isScanning = false
             } catch (_: Exception) {}
@@ -1493,6 +1511,13 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun pairBluetoothDevice(address: String) {
             try {
+                val connectGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED
+                } else true
+                if (!connectGranted) {
+                    showToast("Bluetooth permission required to pair devices")
+                    return
+                }
                 val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
                 val device = adapter?.getRemoteDevice(address)
                 device?.createBond()
@@ -1507,6 +1532,14 @@ class MainActivity : Activity() {
         fun testPrintPrinter(name: String, address: String, paperWidthMm: Int): String {
             val response = JSONObject()
             try {
+                val connectGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED
+                } else true
+                if (!connectGranted) {
+                    response.put("success", false)
+                    response.put("message", "Bluetooth permission not granted")
+                    return response.toString()
+                }
                 val isSpecificTarget = address.isNotBlank()
                 val targetAddr = if (isSpecificTarget) address else getSavedPrinterAddress()
                 val targetName = if (isSpecificTarget) name else getSavedPrinterName()
@@ -1590,6 +1623,15 @@ class MainActivity : Activity() {
                     this@MainActivity.savePrintOptions(optionsJson)
                 }
 
+                val connectGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED
+                } else true
+                if (!connectGranted) {
+                    response.put("success", false)
+                    response.put("error", "Bluetooth permission not granted")
+                    return response.toString()
+                }
+
                 showToast("Printing slip ${tx.slipNo}...")
                 val effectiveTx = enrichTxWithCustomerPhone(tx)
                 val opts = com.example.bhpos.printer.PrintOptions.fromJson(optionsJson)
@@ -1664,6 +1706,14 @@ class MainActivity : Activity() {
                 }
 
                 val effectiveTx = enrichTxWithCustomerPhone(tx)
+                val connectGranted = if (Build.VERSION.SDK_INT >= 31) {
+                    checkSelfPermission("android.permission.BLUETOOTH_CONNECT") == PackageManager.PERMISSION_GRANTED
+                } else true
+                if (!connectGranted) {
+                    response.put("success", false)
+                    response.put("error", "Bluetooth permission not granted")
+                    return response.toString()
+                }
                 val result = BluetoothPrinterManager.print(
                     targetAddress = getSavedPrinterAddress(),
                     fallbackAddress = getSavedPrinterAddress(),
