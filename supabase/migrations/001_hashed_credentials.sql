@@ -86,7 +86,7 @@ CREATE OR REPLACE FUNCTION public.connect_business(p_name TEXT, p_password TEXT)
 RETURNS TABLE (out_id UUID, out_name TEXT, out_created_at TIMESTAMPTZ)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_id UUID;
@@ -130,7 +130,7 @@ CREATE OR REPLACE FUNCTION public.create_staff(
 RETURNS TABLE (out_id UUID, out_business_id UUID, out_name TEXT, out_role TEXT, out_is_active BOOLEAN)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_staff_id UUID;
@@ -176,7 +176,7 @@ CREATE OR REPLACE FUNCTION public.verify_staff_pin(p_staff_id UUID, p_pin TEXT)
 RETURNS TABLE (out_id UUID, out_business_id UUID, out_name TEXT, out_role TEXT, out_is_active BOOLEAN)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_staff public.staff%ROWTYPE;
@@ -220,7 +220,7 @@ CREATE OR REPLACE FUNCTION public.list_staff(
 RETURNS TABLE (out_id UUID, out_name TEXT, out_role TEXT, out_is_active BOOLEAN)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_password_ok BOOLEAN;
@@ -253,3 +253,7 @@ GRANT EXECUTE ON FUNCTION public.connect_business(TEXT, TEXT) TO anon, authentic
 GRANT EXECUTE ON FUNCTION public.create_staff(UUID, TEXT, TEXT, TEXT) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.verify_staff_pin(UUID, TEXT) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.list_staff(UUID, TEXT) TO anon, authenticated;
+
+-- Ask PostgREST to reload its schema cache immediately so the new RPCs are
+-- callable without waiting for the automatic reload.
+NOTIFY pgrst, 'reload schema';

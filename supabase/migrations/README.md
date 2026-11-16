@@ -41,6 +41,11 @@ a per-device JWT used for tenant binding.
 
 ## Notes
 
+- If `CREATE EXTENSION pgcrypto` fails with a permission error, enable it in
+  Dashboard → Database → Extensions → `pgcrypto`, then re-run the migration.
+- The RPCs use `search_path = public, extensions` so `crypt()`/`gen_salt()`
+  resolve whether pgcrypto is installed in `public` or `extensions`.
+- Migration 001 is idempotent — safe to re-run if something fails partway.
 - Lockout: 10 failed PIN attempts locks the staff account for 15 minutes.
 - Binding: `verify_staff_pin` binds the verifying device's auth uid to the staff
   row. Clearing WebView storage creates a new anonymous uid → the device must

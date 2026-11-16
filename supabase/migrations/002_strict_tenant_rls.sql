@@ -27,7 +27,7 @@ CREATE OR REPLACE FUNCTION public.create_staff(
 RETURNS TABLE (out_id UUID, out_business_id UUID, out_name TEXT, out_role TEXT, out_is_active BOOLEAN)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_staff_id UUID;
@@ -77,7 +77,7 @@ RETURNS UUID
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
   SELECT business_id FROM public.staff WHERE auth_user_id = auth.uid() LIMIT 1;
 $$;
