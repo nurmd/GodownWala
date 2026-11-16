@@ -47,8 +47,12 @@ a per-device JWT used for tenant binding.
   resolve whether pgcrypto is installed in `public` or `extensions`.
 - Migration 001 is idempotent — safe to re-run if something fails partway.
 - Lockout: 10 failed PIN attempts locks the staff account for 15 minutes.
-- Binding: `verify_staff_pin` binds the verifying device's auth uid to the staff
-  row. Clearing WebView storage creates a new anonymous uid → the device must
-  log in again with the PIN (which rebinds). This is expected.
-- Multi-device per staff profile: the device that last verified the PIN owns the
-  binding; other devices must re-verify with the PIN to take it over.
+- Binding model (002): each **device** (auth uid) gets a row in
+  `device_bindings(auth_user_id → business_id, staff_id)`. Several devices may
+  share one staff profile without stealing each other's access. Existing
+  `staff.auth_user_id` values are backfilled into `device_bindings`.
+- A device that restored a saved login gets its auth session on startup; if it
+  has no valid binding under strict RLS, it is returned to the login screen and
+  must enter the PIN once (which creates the binding).
+- Clearing WebView storage creates a new anonymous uid → log in again with the
+  PIN to rebind.

@@ -157,6 +157,9 @@ async function checkAuthOnStartup() {
     try {
       const authData = JSON.parse(savedUserStr);
       if (authData.business && authData.user) {
+        // Ensure this device has an auth session before probing, so a device
+        // that restored a saved login also gets bound (migration 002 RLS).
+        await ensureAuthSession();
         // Probe data access: under strict RLS a device whose staff binding was
         // invalidated (e.g. WebView storage cleared, rebind on another device)
         // cannot read tenant data and must log in again.
