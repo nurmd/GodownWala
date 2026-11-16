@@ -65,3 +65,9 @@ parties.sql
 alter.sql
 rename.sql
 screenshot.png
+
+# Signing material — never commit keystores or passwords
+*.keystore
+*.jks
+keystore.properties
+*.keystore.properties

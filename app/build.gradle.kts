@@ -8,8 +8,8 @@ android {
     namespace = "com.example.bhpos"
     compileSdk = 35
 
-    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 6
-    val vName = System.getenv("VERSION_NAME") ?: "1.0.5"
+    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 7
+    val vName = System.getenv("VERSION_NAME") ?: "1.1.0"
 
     defaultConfig {
         applicationId = "com.example.bhpos"
@@ -21,22 +21,35 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Release signing credentials come from local Gradle properties
+    // (~/.gradle/gradle.properties, never committed) or environment variables
+    // (CI secrets). If absent, release builds are left unsigned.
+    fun signingProp(name: String): String? =
+        (project.findProperty(name) as String?)?.takeIf { it.isNotBlank() }
+            ?: System.getenv(name)?.takeIf { it.isNotBlank() }
+
+    val releaseStorePath = signingProp("GODOWNWALA_STORE_FILE")
+
     signingConfigs {
-        create("sharedKey") {
-            storeFile = file("${rootDir}/keystore/app-key.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
+        create("releaseConfig") {
+            if (releaseStorePath != null) {
+                storeFile = file(releaseStorePath)
+                storePassword = signingProp("GODOWNWALA_STORE_PASSWORD")
+                keyAlias = signingProp("GODOWNWALA_KEY_ALIAS")
+                keyPassword = signingProp("GODOWNWALA_KEY_PASSWORD")
+            }
         }
     }
 
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("sharedKey")
+            // Uses the standard Android debug keystore.
         }
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("sharedKey")
+            if (releaseStorePath != null) {
+                signingConfig = signingConfigs.getByName("releaseConfig")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
