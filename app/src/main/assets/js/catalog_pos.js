@@ -185,7 +185,7 @@ function updatePosCartBar() {
   if (amtEl) amtEl.textContent = totalAmount.toLocaleString('en-IN');
 
   if (bar) {
-    if (activeTab === 'pos' && totalBags > 0) {
+    if (activeTab === 'new' && newView === 'quick' && totalBags > 0) {
       bar.classList.remove('hidden');
     } else {
       bar.classList.add('hidden');
@@ -207,7 +207,8 @@ function forwardPosToDispatch() {
   if (typeof loadCartIntoDispatch === 'function') {
     loadCartIntoDispatch(posCart);
   }
-  switchTab('dispatch');
+  switchTab('new');
+  setNewView('dispatch');
   showToast(`${totalBags} item(s) forwarded to Dispatch`);
 }
 

@@ -9,6 +9,7 @@ window.onerror = function(msg, url, lineNo, columnNo, error) { console.error("[A
 
 // Core Application State
 let activeTab = 'dashboard';
+let newView = 'quick'; // 'quick' | 'dispatch' — sub-view inside the New tab
 let currentLastSlipNo = '';
 let cachedTransactions = [];
 let ledgerFilter = 'ALL';
@@ -43,7 +44,7 @@ function showToast(msg) {
 }
 
 /**
- * Switches the active viewport tab (Dashboard, POS, Dispatch, Thermal, Ledger).
+ * Switches the active viewport tab (Home, New, Stock, More).
  */
 function switchTab(tabId) {
   vibrate(25);
@@ -65,27 +66,29 @@ function switchTab(tabId) {
 
   const subtitles = {
     'dashboard': 'Central Depot - Godown Overview',
-    'pos': 'Quick Dispatch Terminal',
-    'dispatch': 'Issue Gate Pass & Unload',
-    'thermal': 'Thermal Print Spooler',
-    'ledger': 'Stock Ledger & Audit Log'
+    'new': 'New Slip - Quick Dispatch or Full Gate Pass',
+    'stock': 'Stock Ledger & Audit Log',
+    'more': 'Print Spooler & Settings'
   };
   const subEl = document.getElementById('topSubtitle');
   if (subEl && subtitles[tabId]) {
     subEl.textContent = subtitles[tabId];
   }
 
+  // Keep the New tab's segmented view in sync with the visible section.
+  if (tabId === 'new') setNewView(newView, true);
+
   // Toggle floating POS Cart bar visibility
   const cartBar = document.getElementById('posCartBottomBar');
   if (cartBar) {
-    if (tabId === 'pos' && getTotalCartBags() > 0) {
+    if (tabId === 'new' && newView === 'quick' && getTotalCartBags() > 0) {
       cartBar.classList.remove('hidden');
     } else {
       cartBar.classList.add('hidden');
     }
   }
 
-  if (tabId === 'dispatch') {
+  if (tabId === 'new' && newView === 'dispatch') {
     if (typeof renderDispatchItems === 'function') {
       if (typeof getTotalCartBags === 'function' && getTotalCartBags() > 0 && typeof dispatchCartItems !== 'undefined' && Object.keys(dispatchCartItems).length === 0) {
         loadCartIntoDispatch(posCart);
@@ -93,10 +96,42 @@ function switchTab(tabId) {
         renderDispatchItems();
       }
     }
-  } else if (tabId === 'thermal') {
+  } else if (tabId === 'more') {
     loadSlipPreview(currentLastSlipNo);
-  } else if (tabId === 'ledger') {
+  } else if (tabId === 'stock') {
     renderLedger();
+  }
+}
+
+/**
+ * Switches between the Quick Dispatch grid and the Full Slip form inside the
+ * New tab. `silent` skips the haptic when called from switchTab.
+ */
+function setNewView(view, silent) {
+  newView = view === 'dispatch' ? 'dispatch' : 'quick';
+  if (!silent) vibrate(20);
+
+  const quick = document.getElementById('tab-pos');
+  const full = document.getElementById('tab-dispatch');
+  if (quick) quick.classList.toggle('hidden', newView !== 'quick');
+  if (full) full.classList.toggle('hidden', newView !== 'dispatch');
+
+  const quickBtn = document.getElementById('newViewQuickBtn');
+  const fullBtn = document.getElementById('newViewFullBtn');
+  if (quickBtn) quickBtn.classList.toggle('seg-active', newView === 'quick');
+  if (fullBtn) fullBtn.classList.toggle('seg-active', newView === 'dispatch');
+
+  const cartBar = document.getElementById('posCartBottomBar');
+  if (cartBar) {
+    if (newView === 'quick' && getTotalCartBags() > 0) {
+      cartBar.classList.remove('hidden');
+    } else {
+      cartBar.classList.add('hidden');
+    }
+  }
+
+  if (newView === 'dispatch' && typeof renderDispatchItems === 'function') {
+    renderDispatchItems();
   }
 }
 

@@ -399,7 +399,8 @@ function openEditDispatch(slipNo) {
   }
   
   renderDispatchItems();
-  switchTab('dispatch');
+  switchTab('new');
+  setNewView('dispatch');
 }
 
 /**
@@ -544,7 +545,7 @@ async function submitFullDispatch() {
 
       await syncFromCloud();
       
-      switchTab('ledger');
+      switchTab('stock');
       
       viewSlip(res.slipNo);
       showToast(wasEditing ? `Gate Pass ${res.slipNo} Updated!` : `Gate Pass ${res.slipNo} Created!`);

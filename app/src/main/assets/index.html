@@ -109,6 +109,37 @@
       pointer-events: none !important;
       transition: all 0.55s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+
+    /* ---------- Fresh neutral UI polish ---------- */
+    html { -webkit-tap-highlight-color: transparent; }
+    body { font-feature-settings: "tnum" 1, "cv05" 1; }
+
+    /* Bottom navigation: pill highlight for the active item */
+    .nav-btn { position: relative; border-radius: 1rem; }
+    .nav-btn.text-primary { background: rgba(15,118,110,0.10); }
+    .nav-btn.text-primary .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+
+    /* Segmented control (New Slip view switcher) */
+    .seg-btn { color: #6B6A66; background: transparent; }
+    .seg-btn.seg-active { color: #0F766E; background: #FFFFFF; box-shadow: 0 1px 3px rgba(28,27,25,0.10); }
+
+    /* Cards: softer, more consistent elevation */
+    .shadow-sm { box-shadow: 0 1px 2px rgba(28,27,25,0.05), 0 6px 18px -10px rgba(28,27,25,0.14) !important; }
+    .shadow-md { box-shadow: 0 2px 6px rgba(28,27,25,0.08), 0 14px 30px -14px rgba(28,27,25,0.22) !important; }
+    .shadow-xl, .shadow-2xl { box-shadow: 0 8px 24px -8px rgba(28,27,25,0.22), 0 24px 60px -24px rgba(28,27,25,0.30) !important; }
+
+    /* Inputs: cleaner focus state */
+    input:focus, select:focus, textarea:focus { outline: none; }
+
+    /* Slim scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #D8D5CE; border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    /* Hide number input spinners for a cleaner look */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
   </style>
   <script src="tailwind.js"></script>
   <script>
@@ -117,36 +148,47 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#964900",
-            "primary-container": "#f57c00",
+            // Single accent: deep teal. Everything else is neutral.
+            "primary": "#0F766E",
+            "primary-container": "#D7EFEB",
             "on-primary": "#ffffff",
-            "primary-fixed": "#ffdcc6",
-            "on-primary-fixed": "#311300",
-            "primary-fixed-dim": "#ffb786",
-            "secondary": "#506169",
-            "secondary-container": "#d1e2ec",
-            "secondary-fixed": "#d4e5ef",
-            "secondary-fixed-dim": "#b8c9d3",
-            "tertiary": "#1b6d24",
-            "tertiary-container": "#5faf5d",
-            "tertiary-fixed": "#a3f69c",
-            "on-tertiary-fixed": "#002204",
-            "surface": "#f4faff",
-            "surface-dim": "#cfdce4",
-            "surface-bright": "#f4faff",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-low": "#e9f6fd",
-            "surface-container": "#e3f0f8",
-            "surface-container-high": "#ddeaf2",
-            "surface-container-highest": "#d7e4ec",
-            "on-surface": "#111d23",
-            "on-surface-variant": "#574235",
-            "outline": "#8b7263",
-            "outline-variant": "#dec1af",
-            "error": "#ba1a1a",
-            "error-container": "#ffdad6",
-            "inverse-surface": "#263238",
-            "inverse-on-surface": "#e6f3fb"
+            "primary-fixed": "#CCE8E4",
+            "on-primary-fixed": "#0A2E2A",
+            "primary-fixed-dim": "#A9D8D2",
+            "primary-dim": "#115E59",
+            "on-primary-container": "#0B3B36",
+            "secondary": "#57534E",
+            "secondary-container": "#E7E5E4",
+            "secondary-fixed": "#E7E5E4",
+            "secondary-fixed-dim": "#D6D3D1",
+            "tertiary": "#57534E",
+            "tertiary-container": "#EDEBE7",
+            "tertiary-fixed": "#EDEBE7",
+            "on-tertiary-fixed": "#292524",
+            // Warm paper neutrals.
+            "surface": "#F6F6F4",
+            "surface-dim": "#E8E6E1",
+            "surface-bright": "#FFFFFF",
+            "surface-container-lowest": "#FFFFFF",
+            "surface-container-low": "#FBFAF8",
+            "surface-container": "#F1EFEB",
+            "surface-container-high": "#E9E6E0",
+            "surface-container-highest": "#E0DCD4",
+            "on-surface": "#1C1B19",
+            "on-surface-variant": "#6B6A66",
+            "outline": "#D8D5CE",
+            "outline-variant": "#E7E4DC",
+            "error": "#B3261E",
+            "error-container": "#F9DEDC",
+            "inverse-surface": "#292524",
+            "inverse-on-surface": "#F5F5F4"
+          },
+          fontFamily: {
+            sans: ["Roboto", "system-ui", "-apple-system", "Segoe UI", "sans-serif"]
+          },
+          boxShadow: {
+            card: "0 1px 2px rgba(28,27,25,0.05), 0 10px 30px -14px rgba(28,27,25,0.18)",
+            lift: "0 2px 6px rgba(28,27,25,0.08), 0 18px 40px -18px rgba(28,27,25,0.28)"
           }
         }
       }
@@ -287,13 +329,13 @@
   <header class="flex-shrink-0 w-full z-40 bg-surface border-b border-surface-container-high shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
     <div class="h-16 px-4 flex items-center justify-between">
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+        <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
           <span class="material-symbols-outlined text-[24px]">warehouse</span>
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
             <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate">GodownWala</span>
-            <span class="text-[9px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed px-1.5 py-0.2 rounded">Live</span>
+            <span class="text-[9px] font-bold uppercase bg-primary/10 text-primary px-1.5 py-0.2 rounded-full">Live</span>
           </div>
           <div class="flex items-center gap-1 mt-0.5">
             <select id="topGodownSelector" onchange="changeGodown()" class="text-[12px] font-bold text-on-surface bg-surface-container-low border border-surface-container-high rounded-md px-1.5 py-0.5 focus:ring-1 focus:ring-primary focus:outline-none truncate cursor-pointer shadow-sm" style="max-width:170px;">
@@ -383,7 +425,7 @@
           <span class="material-symbols-outlined text-[20px]">archive</span>
           <span>+ Stock In (Unload)</span>
         </button>
-        <button onclick="switchTab('pos')" class="h-13 py-3 rounded-xl bg-primary-container text-on-primary font-bold text-[13px] uppercase tracking-wide flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm">
+        <button onclick="switchTab('new'); setNewView('quick');" class="h-13 py-3 rounded-xl bg-primary-container text-on-primary font-bold text-[13px] uppercase tracking-wide flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm">
           <span class="material-symbols-outlined text-[20px]">point_of_sale</span>
           <span>Quick Dispatch</span>
         </button>
@@ -447,20 +489,27 @@
       <div class="space-y-2">
         <div class="flex items-center justify-between px-1">
           <h3 class="text-[13px] font-bold text-on-surface uppercase tracking-wider">Recent Activity</h3>
-          <button onclick="switchTab('ledger')" class="text-[11px] font-bold text-primary uppercase">View Ledger</button>
+          <button onclick="switchTab('stock')" class="text-[11px] font-bold text-primary uppercase">View Ledger</button>
         </div>
         <div class="space-y-1.5" id="dashActivityList"></div>
       </div>
     </section>
 
-    <!-- ==================== TAB 2: POS TERMINAL (QUICK DISPATCH) ==================== -->
-    <section id="tab-pos" class="tab-page hidden px-4 py-3 space-y-3">
-      <!-- Products Grid (Responsive: 2 cols on mobile, up to 6 on wide screens) -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5" id="posProductsGrid"></div>
-    </section>
+    <!-- ==================== TAB 2: NEW SLIP (QUICK + FULL) ==================== -->
+    <section id="tab-new" class="tab-page hidden px-4 py-3 space-y-3">
+      <!-- View switcher -->
+      <div class="grid grid-cols-2 gap-1 p-1 bg-surface-container rounded-2xl border border-outline-variant shadow-sm" id="newViewSwitcher">
+        <button type="button" id="newViewQuickBtn" onclick="setNewView('quick')" class="seg-btn seg-active py-2 rounded-xl text-[12px] font-bold uppercase tracking-wide transition-all">Quick Dispatch</button>
+        <button type="button" id="newViewFullBtn" onclick="setNewView('dispatch')" class="seg-btn py-2 rounded-xl text-[12px] font-bold uppercase tracking-wide transition-all">Full Slip</button>
+      </div>
 
-    <!-- ==================== TAB 3: NEW DISPATCH ==================== -->
-    <section id="tab-dispatch" class="tab-page hidden px-4 py-3 space-y-3">
+      <!-- QUICK: Products grid (responsive: 2 cols on mobile, up to 6 on wide screens) -->
+      <div id="tab-pos">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5" id="posProductsGrid"></div>
+      </div>
+
+      <!-- FULL: Issue Gate Pass / Dispatch form -->
+      <div id="tab-dispatch" class="hidden space-y-3">
       <div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm border border-surface-container-high space-y-3">
         <div class="flex items-center justify-between border-b border-surface-container pb-2">
           <div class="flex items-center gap-2">
@@ -557,10 +606,47 @@
           </button>
         </div>
       </div>
+      </div>
     </section>
 
-    <!-- ==================== TAB 4: THERMAL PRINT PREVIEW ==================== -->
-    <section id="tab-thermal" class="tab-page hidden px-4 py-3 space-y-3">
+    <!-- ==================== TAB 4: MORE (PRINT / SETTINGS) ==================== -->
+    <section id="tab-more" class="tab-page hidden px-4 py-3 space-y-3">
+      <!-- Quick settings -->
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm overflow-hidden divide-y divide-outline-variant">
+        <button onclick="openBluetoothModal()" class="w-full flex items-center gap-3 p-3.5 active:bg-surface-container transition-colors">
+          <span class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-[20px]">print</span>
+          </span>
+          <span class="flex-1 text-left">
+            <span class="block text-[13px] font-bold text-on-surface">Thermal Printer</span>
+            <span class="block text-[11px] text-on-surface-variant">Pair, select and test your printer</span>
+          </span>
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">chevron_right</span>
+        </button>
+        <button onclick="openPrintSettingsModal()" class="w-full flex items-center gap-3 p-3.5 active:bg-surface-container transition-colors">
+          <span class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-[20px]">tune</span>
+          </span>
+          <span class="flex-1 text-left">
+            <span class="block text-[13px] font-bold text-on-surface">Print Settings</span>
+            <span class="block text-[11px] text-on-surface-variant">Paper width, fields, signatures</span>
+          </span>
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">chevron_right</span>
+        </button>
+        <button onclick="refreshData()" class="w-full flex items-center gap-3 p-3.5 active:bg-surface-container transition-colors">
+          <span class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-[20px]">cloud_sync</span>
+          </span>
+          <span class="flex-1 text-left">
+            <span class="block text-[13px] font-bold text-on-surface">Sync Now</span>
+            <span class="block text-[11px] text-on-surface-variant">Pull latest cloud data</span>
+          </span>
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">chevron_right</span>
+        </button>
+      </div>
+
+      <!-- Thermal print preview & spooler -->
+      <div id="tab-thermal" class="space-y-3">
       <!-- Hardware Link Status & Controls -->
       <div class="bg-surface-container p-3 rounded-xl border border-surface-container-high shadow-sm space-y-2.5">
         <div class="flex items-center justify-between">
@@ -654,10 +740,11 @@
           <span class="material-symbols-outlined text-[20px]">content_copy</span>
         </button>
       </div>
+      </div>
     </section>
 
-    <!-- ==================== TAB 5: STOCK LEDGER ==================== -->
-    <section id="tab-ledger" class="tab-page hidden px-4 py-3 space-y-3">
+    <!-- ==================== TAB 3: STOCK LEDGER ==================== -->
+    <section id="tab-stock" class="tab-page hidden px-4 py-3 space-y-3">
       <!-- Search & Filters -->
       <div class="flex gap-2">
         <div class="flex-1 bg-surface-container-lowest rounded-xl p-2.5 border border-surface-container-high shadow-sm flex items-center gap-2">
@@ -1253,28 +1340,24 @@
   </div>
 
 
-  <!-- Bottom Navigation Bar (Fixed 5 Items) -->
-  <nav class="fixed bottom-0 w-full z-40 pb-safe bg-surface/95 backdrop-blur-xl border-t border-surface-container-high shadow-[0_-2px_12px_rgba(0,0,0,0.05)]">
+  <!-- Bottom Navigation Bar (Fixed 4 Items) -->
+  <nav class="fixed bottom-0 w-full z-40 pb-safe bg-surface/95 backdrop-blur-xl border-t border-outline-variant shadow-[0_-2px_12px_rgba(0,0,0,0.05)]">
     <div class="flex justify-around items-center h-16 px-1">
       <button onclick="switchTab('dashboard')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-primary" data-tab="dashboard">
         <span class="material-symbols-outlined text-[22px]">warehouse</span>
-        <span class="text-[10px] font-bold">Dashboard</span>
+        <span class="text-[10px] font-bold">Home</span>
       </button>
-      <button onclick="switchTab('pos')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="pos">
-        <span class="material-symbols-outlined text-[22px]">point_of_sale</span>
-        <span class="text-[10px] font-bold">POS Quick</span>
+      <button onclick="switchTab('new')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="new">
+        <span class="material-symbols-outlined text-[22px]">add_circle</span>
+        <span class="text-[10px] font-bold">New</span>
       </button>
-      <button onclick="switchTab('dispatch')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="dispatch">
-        <span class="material-symbols-outlined text-[22px]">local_shipping</span>
-        <span class="text-[10px] font-bold">Dispatch</span>
-      </button>
-      <button onclick="switchTab('thermal')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="thermal">
-        <span class="material-symbols-outlined text-[22px]">receipt_long</span>
-        <span class="text-[10px] font-bold">Thermal</span>
-      </button>
-      <button onclick="switchTab('ledger')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="ledger">
+      <button onclick="switchTab('stock')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="stock">
         <span class="material-symbols-outlined text-[22px]">inventory_2</span>
-        <span class="text-[10px] font-bold">Ledger</span>
+        <span class="text-[10px] font-bold">Stock</span>
+      </button>
+      <button onclick="switchTab('more')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="more">
+        <span class="material-symbols-outlined text-[22px]">menu</span>
+        <span class="text-[10px] font-bold">More</span>
       </button>
     </div>
   </nav>
