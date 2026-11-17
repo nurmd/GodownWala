@@ -83,20 +83,20 @@ function renderPosProducts() {
         <div class="min-w-0">
           ${imgHtml}
           <div class="mt-1 min-w-0">
-            <h4 class="text-[12px] font-bold text-on-surface truncate leading-tight">${escapeHtml(p.name)}</h4>
+            <h4 class="text-[13px] font-black text-on-surface truncate leading-tight">${escapeHtml(p.name)}</h4>
             <div class="flex items-baseline justify-between mt-0.5">
               <div class="flex items-baseline gap-1 min-w-0">
-                <span class="text-[14px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
-                <span class="text-[10px] font-semibold text-on-surface-variant truncate">${escapeHtml(p.unit || 'Units')}</span>
+                <span class="text-[16px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
+                <span class="text-[10px] font-bold text-on-surface-variant truncate">${escapeHtml(p.unit || 'Units')}</span>
               </div>
-              <span class="text-[10px] font-bold text-primary shrink-0">₹${p.defaultRatePerBag}<span class="text-[8px] font-normal text-on-surface-variant">/${escapeHtml((p.unit || 'Unit').toLowerCase())}</span></span>
+              <span class="text-[12px] font-black text-primary shrink-0">₹${p.defaultRatePerBag}<span class="text-[8px] font-bold text-on-surface-variant">/${escapeHtml((p.unit || 'Unit').toLowerCase())}</span></span>
             </div>
           </div>
         </div>
         <div class="mt-1 pt-1 border-t border-surface-container grid grid-cols-3 gap-1">
-          <button data-qty="1" class="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center shadow-xs">+1</button>
-          <button data-qty="5" class="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-bold active:scale-90 transition-transform flex items-center justify-center shadow-xs">+5</button>
-          <button data-qty="10" class="h-8 rounded-lg bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed text-[11px] font-extrabold active:scale-90 transition-transform flex items-center justify-center shadow-xs">+10</button>
+          <button data-qty="1" class="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-xs">+1</button>
+          <button data-qty="5" class="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-xs">+5</button>
+          <button data-qty="10" class="h-8 rounded-lg bg-primary text-on-primary text-[11px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-[0_2px_10px_rgba(245,165,36,0.35)]">+10</button>
         </div>
       `;
       tile.querySelectorAll('button[data-qty]').forEach(btn => {

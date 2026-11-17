@@ -110,33 +110,41 @@
       transition: all 0.55s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    /* ---------- Fresh neutral UI polish ---------- */
+    /* ---------- Bold charcoal + amber UI ---------- */
     html { -webkit-tap-highlight-color: transparent; }
     body { font-feature-settings: "tnum" 1, "cv05" 1; }
 
-    /* Bottom navigation: pill highlight for the active item */
+    /* Bottom navigation: bold amber pill for the active item */
     .nav-btn { position: relative; border-radius: 1rem; }
-    .nav-btn.text-primary { background: rgba(15,118,110,0.10); }
+    .nav-btn.text-primary { background: rgba(245,165,36,0.16); }
     .nav-btn.text-primary .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
 
     /* Segmented control (New Slip view switcher) */
-    .seg-btn { color: #6B6A66; background: transparent; }
-    .seg-btn.seg-active { color: #0F766E; background: #FFFFFF; box-shadow: 0 1px 3px rgba(28,27,25,0.10); }
+    .seg-btn { color: #A8A69F; background: transparent; letter-spacing: 0.02em; }
+    .seg-btn.seg-active { color: #1A1200; background: #F5A524; box-shadow: 0 2px 10px rgba(245,165,36,0.35); }
 
-    /* Cards: softer, more consistent elevation */
-    .shadow-sm { box-shadow: 0 1px 2px rgba(28,27,25,0.05), 0 6px 18px -10px rgba(28,27,25,0.14) !important; }
-    .shadow-md { box-shadow: 0 2px 6px rgba(28,27,25,0.08), 0 14px 30px -14px rgba(28,27,25,0.22) !important; }
-    .shadow-xl, .shadow-2xl { box-shadow: 0 8px 24px -8px rgba(28,27,25,0.22), 0 24px 60px -24px rgba(28,27,25,0.30) !important; }
+    /* Cards: dark elevation with warm shadow */
+    .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 8px 22px -12px rgba(0,0,0,0.7) !important; }
+    .shadow-md { box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 16px 34px -16px rgba(0,0,0,0.75) !important; }
+    .shadow-xl, .shadow-2xl { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.65), 0 28px 70px -28px rgba(0,0,0,0.8) !important; }
 
-    /* Inputs: cleaner focus state */
-    input:focus, select:focus, textarea:focus { outline: none; }
+    /* Bold oversized stat numerals */
+    .stat-num { font-weight: 900; letter-spacing: -0.03em; line-height: 0.9; font-variant-numeric: tabular-nums; }
 
-    /* Slim scrollbars */
+    /* Inputs: amber focus state */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #F5A524 !important;
+      box-shadow: 0 0 0 3px rgba(245,165,36,0.18);
+    }
+
+    /* Dark slim scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-thumb { background: #D8D5CE; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: #3B3A35; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #F5A524; }
     ::-webkit-scrollbar-track { background: transparent; }
 
-    /* Hide number input spinners for a cleaner look */
+    /* Hide number input spinners */
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
@@ -148,40 +156,41 @@
       theme: {
         extend: {
           colors: {
-            // Single accent: deep teal. Everything else is neutral.
-            "primary": "#0F766E",
-            "primary-container": "#D7EFEB",
-            "on-primary": "#ffffff",
-            "primary-fixed": "#CCE8E4",
-            "on-primary-fixed": "#0A2E2A",
-            "primary-fixed-dim": "#A9D8D2",
-            "primary-dim": "#115E59",
-            "on-primary-container": "#0B3B36",
-            "secondary": "#57534E",
-            "secondary-container": "#E7E5E4",
-            "secondary-fixed": "#E7E5E4",
-            "secondary-fixed-dim": "#D6D3D1",
-            "tertiary": "#57534E",
-            "tertiary-container": "#EDEBE7",
-            "tertiary-fixed": "#EDEBE7",
-            "on-tertiary-fixed": "#292524",
-            // Warm paper neutrals.
-            "surface": "#F6F6F4",
-            "surface-dim": "#E8E6E1",
-            "surface-bright": "#FFFFFF",
-            "surface-container-lowest": "#FFFFFF",
-            "surface-container-low": "#FBFAF8",
-            "surface-container": "#F1EFEB",
-            "surface-container-high": "#E9E6E0",
-            "surface-container-highest": "#E0DCD4",
-            "on-surface": "#1C1B19",
-            "on-surface-variant": "#6B6A66",
-            "outline": "#D8D5CE",
-            "outline-variant": "#E7E4DC",
-            "error": "#B3261E",
-            "error-container": "#F9DEDC",
-            "inverse-surface": "#292524",
-            "inverse-on-surface": "#F5F5F4"
+            // Bold accent: amber on charcoal.
+            "primary": "#F5A524",
+            "primary-container": "#3D2E0C",
+            "on-primary": "#1A1200",
+            "primary-fixed": "#3D2E0C",
+            "on-primary-fixed": "#FFD98A",
+            "primary-fixed-dim": "#5A4312",
+            "primary-dim": "#FFC24D",
+            "on-primary-container": "#FFD48A",
+            "secondary": "#C9C5BC",
+            "secondary-container": "#2E2D29",
+            "secondary-fixed": "#2E2D29",
+            "secondary-fixed-dim": "#44423C",
+            "tertiary": "#E8D9B0",
+            "tertiary-container": "#33312B",
+            "tertiary-fixed": "#33312B",
+            "on-tertiary": "#241A00",
+            "on-tertiary-fixed": "#E8D9B0",
+            // Charcoal surfaces.
+            "surface": "#141413",
+            "surface-dim": "#0E0E0D",
+            "surface-bright": "#1F1F1D",
+            "surface-container-lowest": "#1B1B19",
+            "surface-container-low": "#232320",
+            "surface-container": "#262623",
+            "surface-container-high": "#2E2D2A",
+            "surface-container-highest": "#383733",
+            "on-surface": "#F5F4F0",
+            "on-surface-variant": "#A8A69F",
+            "outline": "#3B3A35",
+            "outline-variant": "#2C2B28",
+            "error": "#FF6B5E",
+            "error-container": "#3A1A17",
+            "inverse-surface": "#F5F4F0",
+            "inverse-on-surface": "#171613"
           },
           fontFamily: {
             sans: ["Roboto", "system-ui", "-apple-system", "Segoe UI", "sans-serif"]
@@ -326,16 +335,16 @@
   </div>
 
   <!-- Universal Header & Hardware Status Bar (In Document Flow: Never overlaps content) -->
-  <header class="flex-shrink-0 w-full z-40 bg-surface border-b border-surface-container-high shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+  <header class="flex-shrink-0 w-full z-40 bg-surface-dim border-b border-outline-variant shadow-[0_1px_10px_rgba(0,0,0,0.5)]">
     <div class="h-16 px-4 flex items-center justify-between">
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0 text-on-primary shadow-[0_4px_14px_rgba(245,165,36,0.35)]">
           <span class="material-symbols-outlined text-[24px]">warehouse</span>
         </div>
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-primary truncate">GodownWala</span>
-            <span class="text-[9px] font-bold uppercase bg-primary/10 text-primary px-1.5 py-0.2 rounded-full">Live</span>
+            <span class="text-[13px] font-black uppercase tracking-widest text-on-surface truncate">GodownWala</span>
+            <span class="text-[9px] font-black uppercase bg-primary text-on-primary px-1.5 py-0.2 rounded-full">Live</span>
           </div>
           <div class="flex items-center gap-1 mt-0.5">
             <select id="topGodownSelector" onchange="changeGodown()" class="text-[12px] font-bold text-on-surface bg-surface-container-low border border-surface-container-high rounded-md px-1.5 py-0.5 focus:ring-1 focus:ring-primary focus:outline-none truncate cursor-pointer shadow-sm" style="max-width:170px;">
@@ -425,7 +434,7 @@
           <span class="material-symbols-outlined text-[20px]">archive</span>
           <span>+ Stock In (Unload)</span>
         </button>
-        <button onclick="switchTab('new'); setNewView('quick');" class="h-13 py-3 rounded-xl bg-primary-container text-on-primary font-bold text-[13px] uppercase tracking-wide flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-sm">
+        <button onclick="switchTab('new'); setNewView('quick');" class="h-13 py-3 rounded-xl bg-primary text-on-primary font-black text-[13px] uppercase tracking-wider flex items-center justify-center gap-1.5 active:scale-[0.98] shadow-[0_4px_16px_rgba(245,165,36,0.35)]">
           <span class="material-symbols-outlined text-[20px]">point_of_sale</span>
           <span>Quick Dispatch</span>
         </button>
@@ -435,14 +444,14 @@
       <div class="bg-surface-container-lowest rounded-xl p-3.5 shadow-sm border border-surface-container-high space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-[11px] text-on-surface-variant uppercase font-bold tracking-wider">Total Inventory Stock</span>
-            <div class="flex items-baseline gap-1.5 mt-0.5">
-              <span class="text-[32px] font-extrabold text-on-surface leading-none" id="metricTotalBags">0</span>
-              <span class="text-[13px] text-on-surface-variant font-semibold" id="metricStockUnitLabel">Units</span>
+            <span class="text-[11px] text-on-surface-variant uppercase font-black tracking-[0.14em]">Total Inventory Stock</span>
+            <div class="flex items-baseline gap-1.5 mt-1">
+              <span class="stat-num text-[44px] text-on-surface" id="metricTotalBags">0</span>
+              <span class="text-[13px] text-primary font-bold uppercase tracking-wide" id="metricStockUnitLabel">Units</span>
             </div>
           </div>
           <div class="text-right">
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[11px] font-bold">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary text-on-primary text-[11px] font-black uppercase tracking-wide shadow-[0_2px_10px_rgba(245,165,36,0.3)]">
               <span class="material-symbols-outlined text-[13px]">trending_up</span> Live
             </span>
             <p class="font-medium text-[12px] text-on-surface-variant mt-1" id="metricNetMt">Catalog Active</p>
@@ -452,18 +461,18 @@
         <!-- Bento Grid: Inward, Dispatched, Slips -->
         <div class="grid grid-cols-3 gap-2 pt-1 border-t border-surface-container">
           <div class="bg-surface-container-low rounded-lg p-2 flex flex-col">
-            <span class="text-[10px] font-bold uppercase text-on-surface-variant">Inward (Day)</span>
-            <span class="text-[18px] font-bold text-tertiary mt-0.5" id="metricInwardBags">0</span>
+            <span class="text-[10px] font-black uppercase tracking-wider text-on-surface-variant">Inward (Day)</span>
+            <span class="stat-num text-[22px] text-tertiary mt-1" id="metricInwardBags">0</span>
             <span class="text-[10px] text-on-surface-variant">Received</span>
           </div>
           <div class="bg-surface-container-low rounded-lg p-2 flex flex-col">
-            <span class="text-[10px] font-bold uppercase text-on-surface-variant">Dispatched</span>
-            <span class="text-[18px] font-bold text-primary mt-0.5" id="metricDispatchedBags">0</span>
+            <span class="text-[10px] font-black uppercase tracking-wider text-on-surface-variant">Dispatched</span>
+            <span class="stat-num text-[22px] text-primary mt-1" id="metricDispatchedBags">0</span>
             <span class="text-[10px] text-on-surface-variant">Fulfilled</span>
           </div>
           <div class="bg-surface-container-low rounded-lg p-2 flex flex-col">
-            <span class="text-[10px] font-bold uppercase text-on-surface-variant">Total Slips</span>
-            <span class="text-[18px] font-bold text-on-surface mt-0.5" id="metricPendingSlips">0</span>
+            <span class="text-[10px] font-black uppercase tracking-wider text-on-surface-variant">Total Slips</span>
+            <span class="stat-num text-[22px] text-on-surface mt-1" id="metricPendingSlips">0</span>
             <span class="text-[10px] text-on-surface-variant">Issued</span>
           </div>
         </div>
@@ -480,7 +489,7 @@
             <span class="text-[10px] text-on-surface-variant truncate">Quick reprint for security gate</span>
           </div>
         </div>
-        <button onclick="viewSlip(currentLastSlipNo)" class="h-8 px-3 rounded-lg bg-primary-container text-on-primary text-[11px] font-bold uppercase tracking-wider shrink-0 active:scale-95 shadow-sm">
+        <button onclick="viewSlip(currentLastSlipNo)" class="h-8 px-3 rounded-lg bg-primary text-on-primary text-[11px] font-black uppercase tracking-widest shrink-0 active:scale-95 shadow-[0_2px_8px_rgba(245,165,36,0.3)]">
           Print
         </button>
       </div>
@@ -600,7 +609,7 @@
             </div>
           </div>
 
-          <button onclick="submitFullDispatch()" class="w-full mt-3 h-12 rounded-xl bg-primary-container text-on-primary font-bold text-[14px] uppercase tracking-wide flex items-center justify-center gap-2 active:scale-[0.98] shadow-md">
+          <button onclick="submitFullDispatch()" class="w-full mt-3 h-12 rounded-xl bg-primary text-on-primary font-black text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.98] shadow-[0_4px_16px_rgba(245,165,36,0.35)]">
             <span class="material-symbols-outlined">receipt_long</span>
             <span>Issue Gate Pass & Print Slip</span>
           </button>
@@ -757,7 +766,7 @@
       </div>
 
       <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-        <button onclick="filterLedgerType('ALL', this)" class="ledger-pill px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-primary-container text-on-primary shadow-sm shrink-0">
+        <button onclick="filterLedgerType('ALL', this)" class="ledger-pill px-3 py-1 rounded-full text-[11px] font-black uppercase bg-primary text-on-primary shadow-[0_2px_10px_rgba(245,165,36,0.3)] shrink-0">
           All Records
         </button>
         <button onclick="filterLedgerType('OUTWARD', this)" class="ledger-pill px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-surface-container-lowest text-on-surface-variant border border-surface-container-high shrink-0">
@@ -789,7 +798,7 @@
           </div>
         </div>
       </div>
-      <button onclick="forwardPosToDispatch()" class="h-9 px-4 rounded-lg bg-primary-container text-on-primary font-bold text-[12px] uppercase tracking-wider active:scale-95 shadow-md flex items-center gap-1.5">
+      <button onclick="forwardPosToDispatch()" class="h-9 px-4 rounded-lg bg-primary text-on-primary font-black text-[12px] uppercase tracking-wider active:scale-95 shadow-[0_2px_8px_rgba(245,165,36,0.3)] flex items-center gap-1.5">
         <span>Proceed to Dispatch</span>
         <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
       </button>
@@ -1103,7 +1112,7 @@
               <h4 id="btActiveName" class="text-[14px] font-bold text-on-surface truncate">POS-80C Mobile Thermal</h4>
               <p id="btActiveAddress" class="text-[11px] font-mono text-on-surface-variant truncate">ESC/POS 80mm • Direct Link</p>
             </div>
-            <button onclick="testPrintCurrent()" class="px-3 py-1.5 rounded-lg bg-primary-container text-on-primary font-bold text-[11px] uppercase tracking-wide flex items-center gap-1 active:scale-95 shadow-xs shrink-0">
+            <button onclick="testPrintCurrent()" class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-black text-[11px] uppercase tracking-wide flex items-center justify-center gap-1 active:scale-95 shadow-[0_2px_8px_rgba(245,165,36,0.3)] shrink-0">
               <span class="material-symbols-outlined text-[15px]">print</span>
               <span>Test Print</span>
             </button>
@@ -1345,19 +1354,19 @@
     <div class="flex justify-around items-center h-16 px-1">
       <button onclick="switchTab('dashboard')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-primary" data-tab="dashboard">
         <span class="material-symbols-outlined text-[22px]">warehouse</span>
-        <span class="text-[10px] font-bold">Home</span>
+        <span class="text-[10px] font-black">Home</span>
       </button>
       <button onclick="switchTab('new')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="new">
         <span class="material-symbols-outlined text-[22px]">add_circle</span>
-        <span class="text-[10px] font-bold">New</span>
+        <span class="text-[10px] font-black">New</span>
       </button>
       <button onclick="switchTab('stock')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="stock">
         <span class="material-symbols-outlined text-[22px]">inventory_2</span>
-        <span class="text-[10px] font-bold">Stock</span>
+        <span class="text-[10px] font-black">Stock</span>
       </button>
       <button onclick="switchTab('more')" class="nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant" data-tab="more">
         <span class="material-symbols-outlined text-[22px]">menu</span>
-        <span class="text-[10px] font-bold">More</span>
+        <span class="text-[10px] font-black">More</span>
       </button>
     </div>
   </nav>
