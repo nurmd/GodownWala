@@ -8,7 +8,21 @@ window.onerror = function(msg, url, lineNo, columnNo, error) { console.error("[A
  */
 
 // Core Application State
-let activeTab = 'dashboard';
+/**
+ * Toggles between light and dark mode (Apple-inspired).
+ */
+function toggleTheme() {
+  var isDark = document.documentElement.classList.toggle('dark');
+  try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+  var icon = document.getElementById('themeToggleIcon');
+  if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+}
+
+(function() {
+  var isDark = document.documentElement.classList.contains('dark');
+  var icon = document.getElementById('themeToggleIcon');
+  if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+})();
 let newView = 'quick'; // 'quick' | 'dispatch' — sub-view inside the New tab
 let currentLastSlipNo = '';
 let cachedTransactions = [];

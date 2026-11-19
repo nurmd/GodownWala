@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <title>GodownWala — UI Mockup (Apple-inspired)</title>
+  <link rel="stylesheet" href="css/theme-mockup.css"/>
+  <style>
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      src: url('material-symbols.ttf') format('truetype');
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #F2F2F7;
+      color: #000;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-left">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined">warehouse</span>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">GodownWala</div>
+        <div class="brand-sub">Central Depot</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+      </button>
+      <button class="icon-btn" title="Sync">
+        <span class="material-symbols-outlined">cloud_sync</span>
+        <span class="sync-dot"></span>
+      </button>
+      <button class="icon-btn" title="Printer">
+        <span class="material-symbols-outlined">print</span>
+      </button>
+      <button class="icon-btn" title="Settings">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- ===== TAB: HOME ===== -->
+    <section id="tab-home" class="tab-page">
+      <!-- Hero metric card -->
+      <div class="card hero-card">
+        <div class="hero-label">Total Inventory</div>
+        <div class="hero-value">1,248 <span class="hero-unit">Units</span></div>
+        <div class="hero-sub">12.48 MT · 3 godowns</div>
+        <div class="hero-badge">
+          <span class="material-symbols-outlined">trending_up</span>
+          Live
+        </div>
+      </div>
+
+      <!-- Bento grid -->
+      <div class="bento-grid">
+        <div class="card bento-card">
+          <div class="bento-icon" style="background:#E8F5E9;color:#34C759;">
+            <span class="material-symbols-outlined">arrow_downward</span>
+          </div>
+          <div class="bento-value" style="color:#34C759;">480</div>
+          <div class="bento-label">Inward (Day)</div>
+        </div>
+        <div class="card bento-card">
+          <div class="bento-icon" style="background:#FFF3E0;color:#FF9500;">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </div>
+          <div class="bento-value" style="color:#FF9500;">320</div>
+          <div class="bento-label">Dispatched</div>
+        </div>
+        <div class="card bento-card">
+          <div class="bento-icon" style="background:#E3F2FD;color:#007AFF;">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="bento-value" style="color:#007AFF;">42</div>
+          <div class="bento-label">Total Slips</div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="card action-card">
+        <div class="action-row">
+          <button class="action-btn action-primary">
+            <span class="material-symbols-outlined">point_of_sale</span>
+            <span>Quick Dispatch</span>
+          </button>
+          <button class="action-btn action-secondary">
+            <span class="material-symbols-outlined">archive</span>
+            <span>Stock In</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="section-header">
+        <span class="section-title">Recent Activity</span>
+        <button class="section-link">View All</button>
+      </div>
+      <div class="card list-card">
+        <div class="list-item">
+          <div class="list-icon" style="background:#FFF3E0;color:#FF9500;">
+            <span class="material-symbols-outlined">local_shipping</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">SLIP-0042 · ABC Traders</div>
+            <div class="list-sub">48 Units · ₹12,480 · Site Delivery</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-time">2:34 PM</div>
+            <span class="list-badge badge-dispatch">Dispatched</span>
+          </div>
+        </div>
+        <div class="list-divider"></div>
+        <div class="list-item">
+          <div class="list-icon" style="background:#E8F5E9;color:#34C759;">
+            <span class="material-symbols-outlined">archive</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">GRN-0018 · Factory Delivery</div>
+            <div class="list-sub">100 Units · ₹25,000 · Godown #4</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-time">11:20 AM</div>
+            <span class="list-badge badge-inward">Stock-In</span>
+          </div>
+        </div>
+        <div class="list-divider"></div>
+        <div class="list-item">
+          <div class="list-icon" style="background:#E3F2FD;color:#007AFF;">
+            <span class="material-symbols-outlined">local_shipping</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">SLIP-0041 · XYZ Corp</div>
+            <div class="list-sub">24 Units · ₹6,240 · Site Delivery</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-time">10:05 AM</div>
+            <span class="list-badge badge-dispatch">Dispatched</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Printer status -->
+      <div class="card printer-card">
+        <div class="flex items-center gap-3">
+          <div class="printer-dot"></div>
+          <div class="flex-1">
+            <div class="text-[13px] font-semibold text-black">ESC/POS Spooler • POS-80C</div>
+            <div class="text-[11px] text-secondary">Ready · 80mm</div>
+          </div>
+          <button class="text-btn">Change</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: NEW ===== -->
+    <section id="tab-new" class="tab-page hidden">
+      <!-- Segmented control -->
+      <div class="segmented-control">
+        <button class="seg-btn seg-active" onclick="setNewView('quick')">Quick Dispatch</button>
+        <button class="seg-btn" onclick="setNewView('full')">Full Slip</button>
+      </div>
+
+      <!-- Quick view -->
+      <div id="new-quick">
+        <!-- Search -->
+        <div class="search-bar">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" placeholder="Search products..." class="search-input"/>
+        </div>
+
+        <!-- Product grid -->
+        <div class="product-grid">
+          <div class="card product-card">
+            <div class="product-img">
+              <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div class="product-name">Cement Grade A</div>
+            <div class="product-meta">
+              <span class="product-stock">120 Units</span>
+              <span class="product-price">₹260</span>
+            </div>
+            <div class="product-actions">
+              <button class="qty-btn">+1</button>
+              <button class="qty-btn">+5</button>
+              <button class="qty-btn qty-btn-primary">+10</button>
+            </div>
+          </div>
+          <div class="card product-card">
+            <div class="product-img">
+              <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div class="product-name">Cement Grade B</div>
+            <div class="product-meta">
+              <span class="product-stock">85 Units</span>
+              <span class="product-price">₹240</span>
+            </div>
+            <div class="product-actions">
+              <button class="qty-btn">+1</button>
+              <button class="qty-btn">+5</button>
+              <button class="qty-btn qty-btn-primary">+10</button>
+            </div>
+          </div>
+          <div class="card product-card">
+            <div class="product-img">
+              <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div class="product-name">Sand (Fine)</div>
+            <div class="product-meta">
+              <span class="product-stock">200 Units</span>
+              <span class="product-price">₹180</span>
+            </div>
+            <div class="product-actions">
+              <button class="qty-btn">+1</button>
+              <button class="qty-btn">+5</button>
+              <button class="qty-btn qty-btn-primary">+10</button>
+            </div>
+          </div>
+          <div class="card product-card">
+            <div class="product-img">
+              <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div class="product-name">Bricks (Red)</div>
+            <div class="product-meta">
+              <span class="product-stock">500 Units</span>
+              <span class="product-price">₹8</span>
+            </div>
+            <div class="product-actions">
+              <button class="qty-btn">+1</button>
+              <button class="qty-btn">+5</button>
+              <button class="qty-btn qty-btn-primary">+10</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating cart bar -->
+        <div class="cart-bar">
+          <div class="cart-info">
+            <span class="cart-count">3 items</span>
+            <span class="cart-total">₹1,240</span>
+          </div>
+          <button class="cart-btn">Review & Dispatch</button>
+        </div>
+      </div>
+
+      <!-- Full slip view -->
+      <div id="new-full" class="hidden">
+        <div class="card form-card">
+          <div class="form-header">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span>Issue Gate Pass</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Party / Customer</label>
+            <select class="form-select">
+              <option>ABC Traders</option>
+              <option>XYZ Corp</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Vehicle No</label>
+              <input type="text" class="form-input" placeholder="AS-01-AB-1234"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Driver Name</label>
+              <input type="text" class="form-input" placeholder="Driver name"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destination</label>
+            <input type="text" class="form-input" placeholder="Site delivery address"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dispatch Items</label>
+            <div class="dispatch-items">
+              <div class="dispatch-item">
+                <span class="dispatch-item-name">Cement Grade A</span>
+                <div class="dispatch-item-qty">
+                  <button class="qty-stepper">−</button>
+                  <span class="qty-value">48</span>
+                  <button class="qty-stepper">+</button>
+                </div>
+                <span class="dispatch-item-subtotal">₹12,480</span>
+              </div>
+              <div class="dispatch-item">
+                <span class="dispatch-item-name">Sand (Fine)</span>
+                <div class="dispatch-item-qty">
+                  <button class="qty-stepper">−</button>
+                  <span class="qty-value">10</span>
+                  <button class="qty-stepper">+</button>
+                </div>
+                <span class="dispatch-item-subtotal">₹1,800</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-totals">
+            <div class="total-row">
+              <span>Total Bags</span>
+              <span class="total-value">58</span>
+            </div>
+            <div class="total-row">
+              <span>Total Amount</span>
+              <span class="total-value">₹14,280</span>
+            </div>
+          </div>
+          <button class="submit-btn">
+            <span class="material-symbols-outlined">receipt_long</span>
+            Issue Gate Pass & Print
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: STOCK ===== -->
+    <section id="tab-stock" class="tab-page hidden">
+      <!-- Search -->
+      <div class="search-bar">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input type="text" placeholder="Search slip #, party, or truck..." class="search-input"/>
+      </div>
+
+      <!-- Filter pills -->
+      <div class="filter-pills">
+        <button class="pill pill-active">All</button>
+        <button class="pill">Dispatched</button>
+        <button class="pill">Stock-In</button>
+      </div>
+
+      <!-- Stock summary -->
+      <div class="card stock-summary">
+        <div class="stock-summary-row">
+          <div class="stock-stat">
+            <div class="stock-stat-value">1,248</div>
+            <div class="stock-stat-label">Total Units</div>
+          </div>
+          <div class="stock-divider"></div>
+          <div class="stock-stat">
+            <div class="stock-stat-value">4</div>
+            <div class="stock-stat-label">Products</div>
+          </div>
+          <div class="stock-divider"></div>
+          <div class="stock-stat">
+            <div class="stock-stat-value">12.48</div>
+            <div class="stock-stat-label">MT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction list -->
+      <div class="card list-card">
+        <div class="list-item">
+          <div class="list-icon" style="background:#FFF3E0;color:#FF9500;">
+            <span class="material-symbols-outlined">local_shipping</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">SLIP-0042 · ABC Traders</div>
+            <div class="list-sub">48 Units · ₹12,480 · Site Delivery</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-time">2:34 PM</div>
+            <span class="list-badge badge-dispatch">Dispatched</span>
+          </div>
+        </div>
+        <div class="list-divider"></div>
+        <div class="list-item">
+          <div class="list-icon" style="background:#E8F5E9;color:#34C759;">
+            <span class="material-symbols-outlined">archive</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">GRN-0018 · Factory Delivery</div>
+            <div class="list-sub">100 Units · ₹25,000 · Godown #4</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-time">11:20 AM</div>
+            <span class="list-badge badge-inward">Stock-In</span>
+          </div>
+        </div>
+        <div class="list-divider"></div>
+        <div class="list-item">
+          <div class="list-icon" style="background:#E3F2FD;color:#007AFF;">
+            <span class="material-symbols-outlined">local_shipping</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">SLIP-0041 · XYZ Corp</div>
+            <div class="list-sub">24 Units · ₹6,240 · Site Delivery</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-time">10:05 AM</div>
+            <span class="list-badge badge-dispatch">Dispatched</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock levels -->
+      <div class="section-header">
+        <span class="section-title">Stock Levels</span>
+      </div>
+      <div class="card list-card">
+        <div class="list-item">
+          <div class="list-icon" style="background:#E3F2FD;color:#007AFF;">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">Cement Grade A</div>
+            <div class="list-sub">₹260/Unit · Godown 1</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-value">120</div>
+            <div class="list-sub-label">Units</div>
+          </div>
+        </div>
+        <div class="list-divider"></div>
+        <div class="list-item">
+          <div class="list-icon" style="background:#E3F2FD;color:#007AFF;">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">Cement Grade B</div>
+            <div class="list-sub">₹240/Unit · Godown 2</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-value">85</div>
+            <div class="list-sub-label">Units</div>
+          </div>
+        </div>
+        <div class="list-divider"></div>
+        <div class="list-item">
+          <div class="list-icon" style="background:#FFF3E0;color:#FF9500;">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="list-content">
+            <div class="list-title">Sand (Fine)</div>
+            <div class="list-sub">₹180/Unit · Godown 3</div>
+          </div>
+          <div class="list-meta">
+            <div class="list-value">200</div>
+            <div class="list-sub-label">Units</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: MORE ===== -->
+    <section id="tab-more" class="tab-page hidden">
+      <!-- Settings list -->
+      <div class="card settings-card">
+        <div class="settings-row">
+          <div class="settings-icon" style="background:#E3F2FD;color:#007AFF;">
+            <span class="material-symbols-outlined">print</span>
+          </div>
+          <div class="settings-content">
+            <div class="settings-title">Thermal Printer</div>
+            <div class="settings-sub">POS-80C · 80mm · Ready</div>
+          </div>
+          <span class="material-symbols-outlined settings-chevron">chevron_right</span>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <div class="settings-icon" style="background:#F3E5F5;color:#AF52DE;">
+            <span class="material-symbols-outlined">tune</span>
+          </div>
+          <div class="settings-content">
+            <div class="settings-title">Print Settings</div>
+            <div class="settings-sub">Paper width, fields, signatures</div>
+          </div>
+          <span class="material-symbols-outlined settings-chevron">chevron_right</span>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <div class="settings-icon" style="background:#E8F5E9;color:#34C759;">
+            <span class="material-symbols-outlined">cloud_sync</span>
+          </div>
+          <div class="settings-content">
+            <div class="settings-title">Sync Now</div>
+            <div class="settings-sub">Pull latest cloud data</div>
+          </div>
+          <span class="material-symbols-outlined settings-chevron">chevron_right</span>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <div class="settings-icon" style="background:#FFF3E0;color:#FF9500;">
+            <span class="material-symbols-outlined">info</span>
+          </div>
+          <div class="settings-content">
+            <div class="settings-title">About GodownWala</div>
+            <div class="settings-sub">v1.1.2 · Build 9</div>
+          </div>
+          <span class="material-symbols-outlined settings-chevron">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- Thermal preview -->
+      <div class="section-header">
+        <span class="section-title">Thermal Slip Spooler</span>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[13px] font-semibold text-black">ESC/POS Spooler</span>
+          <span class="list-badge badge-dispatch">Ready</span>
+        </div>
+        <div class="thermal-preview">
+          <pre>  GODOWNWALA
+  ----------------
+  Slip: SLIP-0042
+  Party: ABC Traders
+  Bags: 48
+  Amount: ₹12,480
+  ----------------
+  Thank you!</pre>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="action-btn action-secondary" style="flex:1;">
+            <span class="material-symbols-outlined">content_copy</span>
+            <span>Copy</span>
+          </button>
+          <button class="action-btn action-primary" style="flex:1;">
+            <span class="material-symbols-outlined">print</span>
+            <span>Print</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sync health -->
+      <div class="section-header">
+        <span class="section-title">Sync Health</span>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div class="flex items-center gap-3">
+          <div class="sync-status-dot"></div>
+          <div class="flex-1">
+            <div class="text-[13px] font-semibold text-black">All writes synced</div>
+            <div class="text-[11px] text-secondary">0 pending · 0 failed · 0 conflicts</div>
+          </div>
+          <button class="text-btn">Details</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== BOTTOM TAB BAR ===== -->
+  <nav class="tab-bar">
+    <button class="tab-item tab-active" onclick="switchTab('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span>Home</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('new')">
+      <span class="material-symbols-outlined">add_circle</span>
+      <span>New</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('stock')">
+      <span class="material-symbols-outlined">inventory_2</span>
+      <span>Stock</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('more')">
+      <span class="material-symbols-outlined">settings</span>
+      <span>More</span>
+    </button>
+  </nav>
+
+  <script>
+    // Dark mode
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      document.getElementById('themeIcon').textContent = isDark ? 'light_mode' : 'dark_mode';
+    }
+    // Apply saved theme on load
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.body.classList.add('dark');
+        document.getElementById('themeIcon').textContent = 'light_mode';
+      }
+    })();
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-page').forEach(p => p.classList.add('hidden'));
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.remove('hidden');
+      document.querySelectorAll('.tab-item').forEach(btn => {
+        btn.classList.toggle('tab-active', btn.getAttribute('onclick').includes("'" + tabId + "'"));
+      });
+    }
+    function setNewView(view) {
+      const quick = document.getElementById('new-quick');
+      const full = document.getElementById('new-full');
+      if (quick) quick.classList.toggle('hidden', view !== 'quick');
+      if (full) full.classList.toggle('hidden', view !== 'full');
+      document.querySelectorAll('.seg-btn').forEach(btn => {
+        btn.classList.toggle('seg-active', btn.textContent.toLowerCase().includes(view === 'quick' ? 'quick' : 'full'));
+      });
+    }
+    // Start on Home
+    switchTab('home');
+  </script>
+
+</body>
+</html>
