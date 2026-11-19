@@ -15,10 +15,21 @@ function toggleTheme() {
   var root = document.documentElement;
   var body = document.body;
   if (body) body.classList.add('theme-transition');
-  var isDark = root.classList.toggle('dark');
-  try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+  var isDark = root.classList.contains('dark') ||
+    (!root.classList.contains('light') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  if (isDark) {
+    root.classList.remove('dark');
+    root.classList.add('light');
+    try { localStorage.setItem('theme', 'light'); } catch (e) {}
+  } else {
+    root.classList.remove('light');
+    root.classList.add('dark');
+    try { localStorage.setItem('theme', 'dark'); } catch (e) {}
+  }
+  var nowDark = root.classList.contains('dark') ||
+    (!root.classList.contains('light') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   var icon = document.getElementById('themeToggleIcon');
-  if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  if (icon) icon.textContent = nowDark ? 'light_mode' : 'dark_mode';
   clearTimeout(toggleTheme._t);
   toggleTheme._t = setTimeout(function () {
     if (body) body.classList.remove('theme-transition');
@@ -26,7 +37,9 @@ function toggleTheme() {
 }
 
 (function() {
-  var isDark = document.documentElement.classList.contains('dark');
+  var root = document.documentElement;
+  var isDark = root.classList.contains('dark') ||
+    (!root.classList.contains('light') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   var icon = document.getElementById('themeToggleIcon');
   if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
 })();

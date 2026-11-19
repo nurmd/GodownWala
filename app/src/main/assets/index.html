@@ -528,6 +528,10 @@
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (saved === 'dark' || (!saved && prefersDark)) {
           document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else if (saved === 'light') {
+          document.documentElement.classList.add('light');
+          document.documentElement.classList.remove('dark');
         }
       } catch (e) {}
     })();
