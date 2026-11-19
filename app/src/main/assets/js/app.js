@@ -220,8 +220,21 @@ function updateDashboardTelemetry(t) {
   if (stockProdEl) stockProdEl.textContent = activeProducts;
   if (stockSlipEl) stockSlipEl.textContent = slipsCount;
 
+  let totalMt = t.totalMt !== undefined ? Number(t.totalMt) : NaN;
+  if (!isFinite(totalMt)) {
+    const godown = (typeof activeGodown !== 'undefined' && activeGodown) ? activeGodown : 'ALL';
+    const products = (cachedProducts || []).filter(p => (godown === 'ALL' || p.bayLocation === godown) && p.isActive);
+    totalMt = products.reduce((sum, p) => sum + ((Number(p.currentStockBags) || 0) * (Number(p.weightPerBagKg) || 0)) / 1000, 0);
+  }
+
   if (totalEl) totalEl.textContent = Number(totalUnits).toLocaleString('en-IN');
-  if (netMtEl) netMtEl.textContent = `${activeProducts} Products Active`;
+  if (netMtEl) {
+    if (totalMt > 0) {
+      netMtEl.textContent = `${totalMt.toLocaleString('en-IN', { maximumFractionDigits: 2 })} MT · ${activeProducts} Products`;
+    } else {
+      netMtEl.textContent = `${activeProducts} Products Active`;
+    }
+  }
   if (inEl) inEl.textContent = Number(inwardUnits).toLocaleString('en-IN');
   if (outEl) outEl.textContent = Number(dispatchedUnits).toLocaleString('en-IN');
   if (pendEl) pendEl.textContent = slipsCount;
@@ -272,12 +285,12 @@ function renderDashboardActivities() {
         <span class="material-symbols-outlined">${isOut ? 'local_shipping' : 'archive'}</span>
       </div>
       <div class="list-content">
-        <div class="list-title">${escapeHtml(tx.slipNo)} · ${escapeHtml(tx.partyName || 'Walk-in')}</div>
-        <div class="list-sub">${Number(tx.totalBags) || 0} Units · ₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}${tx.customerPhone ? ' · ' + escapeHtml(tx.customerPhone) : ''}</div>
+        <div class="list-title"><span class="list-title-text">${escapeHtml(tx.slipNo)} · ${escapeHtml(tx.partyName || 'Walk-in')}</span><span class="list-badge ${isOut ? 'badge-dispatch' : 'badge-inward'}">${isOut ? 'Dispatched' : 'Stock-In'}</span></div>
+        <div class="list-sub">${Number(tx.totalBags) || 0} Units${tx.customerPhone ? ' · ' + escapeHtml(tx.customerPhone) : ''}</div>
       </div>
       <div class="list-meta">
-        <div class="list-time">${shortDateLabel(tx) ? shortDateLabel(tx) + ' · ' : ''}${escapeHtml(tx.timeStr)}</div>
-        <span class="list-badge ${isOut ? 'badge-dispatch' : 'badge-inward'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
+        <div class="list-amount">₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}</div>
+        <div class="list-time">${shortDateLabel(tx) ? shortDateLabel(tx) + ' · ' : ''}${escapeHtml(tx.timeStr || '')}</div>
       </div>
     `;
     list.appendChild(row);
@@ -285,6 +298,15 @@ function renderDashboardActivities() {
 }
 
 const LEDGER_PILL_LABELS = { ALL: 'All', OUTWARD: 'Dispatched', INWARD: 'Stock-In' };
+
+function updateLedgerPillCounts(counts) {
+  document.querySelectorAll('.ledger-pill').forEach(el => {
+    const type = el.getAttribute('data-type');
+    const label = LEDGER_PILL_LABELS[type] || 'All';
+    const n = counts && counts[type] != null ? counts[type] : 0;
+    el.textContent = `${label} ${n}`;
+  });
+}
 
 /**
  * Opens the Stock tab pre-filtered to a transaction type. Used by the
@@ -296,9 +318,10 @@ function openLedgerFilter(type) {
   ledgerRenderLimit = 300;
   const searchEl = document.getElementById('ledgerSearchInput');
   if (searchEl) searchEl.value = '';
-  const label = LEDGER_PILL_LABELS[type] || 'All';
+  const clearBtn = document.getElementById('ledgerSearchClear');
+  if (clearBtn) clearBtn.classList.add('hidden');
   document.querySelectorAll('.ledger-pill').forEach(el => {
-    el.classList.toggle('pill-active', el.textContent.trim() === label);
+    el.classList.toggle('pill-active', el.getAttribute('data-type') === type);
   });
   switchTab('stock');
   const main = document.querySelector('main');
@@ -317,8 +340,32 @@ function filterLedgerType(type, btn) {
   });
   if (btn) {
     btn.classList.add('pill-active');
+  } else {
+    document.querySelectorAll('.ledger-pill').forEach(el => {
+      if (el.getAttribute('data-type') === type) el.classList.add('pill-active');
+    });
   }
   renderLedger();
+}
+
+function ledgerDayKey(t) {
+  if (t && t.timestamp) {
+    const d = new Date(Number(t.timestamp));
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  }
+  return String((t && t.dateStr) || '');
+}
+
+function ledgerDayLabel(t) {
+  if (t && t.timestamp) {
+    const now = new Date(); now.setHours(0,0,0,0);
+    const d = new Date(Number(t.timestamp)); d.setHours(0,0,0,0);
+    const diff = Math.round((now - d) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  }
+  return String((t && t.dateStr) || 'Earlier');
 }
 
 /**
@@ -331,28 +378,48 @@ function renderLedger() {
 
   const searchInput = document.getElementById('ledgerSearchInput');
   const search = (searchInput ? searchInput.value : '').toLowerCase().trim();
+  const clearBtn = document.getElementById('ledgerSearchClear');
+  if (clearBtn) clearBtn.classList.toggle('hidden', !search);
 
-  const filtered = getFilteredTransactions().filter(t => {
-    if (ledgerFilter !== 'ALL' && t.type !== ledgerFilter) return false;
+  const base = getFilteredTransactions().filter(t => {
     if (search) {
-      const hay = `${t.slipNo} ${t.partyName} ${t.customerPhone || ''} ${t.vehicleNo} ${t.destinationSite}`.toLowerCase();
+      const hay = `${t.slipNo || ''} ${t.partyName || ''} ${t.customerPhone || ''} ${t.vehicleNo || ''} ${t.destinationSite || ''}`.toLowerCase();
       return hay.includes(search);
     }
     return true;
   });
 
+  updateLedgerPillCounts({
+    ALL: base.length,
+    OUTWARD: base.filter(t => t.type === 'OUTWARD').length,
+    INWARD: base.filter(t => t.type === 'INWARD').length
+  });
+
+  const filtered = base.filter(t => ledgerFilter === 'ALL' || t.type === ledgerFilter);
+
   if (filtered.length === 0) {
-    list.innerHTML = '<div class="text-[13px] text-on-surface-variant text-center py-6">No matching transactions found</div>';
+    list.innerHTML = `<div class="text-[13px] text-on-surface-variant text-center py-8">${search ? 'No transactions match your search' : 'No transactions yet'}</div>`;
     return;
   }
 
-  filtered.sort((a,b) => b.timestamp - a.timestamp);
+  filtered.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
   const totalMatches = filtered.length;
   const visible = filtered.slice(0, ledgerRenderLimit);
 
-  visible.forEach((t, i) => {
+  let lastDay = null;
+  let rowIndex = 0;
+  visible.forEach((t) => {
+    const dayKey = ledgerDayKey(t);
+    if (dayKey !== lastDay) {
+      lastDay = dayKey;
+      const header = document.createElement('div');
+      header.className = 'list-section-header';
+      header.textContent = ledgerDayLabel(t);
+      list.appendChild(header);
+      rowIndex = 0;
+    }
     const isOut = t.type === 'OUTWARD';
-    if (i > 0) {
+    if (rowIndex > 0) {
       const div = document.createElement('div');
       div.className = 'list-divider';
       list.appendChild(div);
@@ -367,15 +434,16 @@ function renderLedger() {
         <span class="material-symbols-outlined">${isOut ? 'local_shipping' : 'archive'}</span>
       </div>
       <div class="list-content">
-        <div class="list-title">${escapeHtml(t.slipNo)} · ${escapeHtml(t.partyName || 'Walk-in')}</div>
-        <div class="list-sub">${Number(t.totalBags) || 0} Units · ₹${(Number(t.totalAmount) || 0).toLocaleString('en-IN')}${t.vehicleNo ? ' · ' + escapeHtml(t.vehicleNo) : ''}</div>
+        <div class="list-title"><span class="list-title-text">${escapeHtml(t.slipNo)} · ${escapeHtml(t.partyName || 'Walk-in')}</span><span class="list-badge ${isOut ? 'badge-dispatch' : 'badge-inward'}">${isOut ? 'Dispatched' : 'Stock-In'}</span></div>
+        <div class="list-sub">${Number(t.totalBags) || 0} Units${t.vehicleNo ? ' · ' + escapeHtml(t.vehicleNo) : ''}</div>
       </div>
       <div class="list-meta">
-        <div class="list-time">${shortDateLabel(t) ? shortDateLabel(t) + ' · ' : ''}${escapeHtml(t.timeStr)}</div>
-        <span class="list-badge ${isOut ? 'badge-dispatch' : 'badge-inward'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
+        <div class="list-amount">₹${(Number(t.totalAmount) || 0).toLocaleString('en-IN')}</div>
+        <div class="list-time">${escapeHtml(t.timeStr || '')}</div>
       </div>
     `;
     list.appendChild(row);
+    rowIndex++;
   });
 
   if (totalMatches > visible.length) {
@@ -392,7 +460,17 @@ function renderLedger() {
 
 function debouncedRenderLedger() {
   ledgerRenderLimit = 300;
+  const input = document.getElementById('ledgerSearchInput');
+  const clearBtn = document.getElementById('ledgerSearchClear');
+  if (clearBtn) clearBtn.classList.toggle('hidden', !(input && input.value));
   debounceRender('ledger', renderLedger, 140);
+}
+
+function clearLedgerSearch() {
+  const input = document.getElementById('ledgerSearchInput');
+  if (input) input.value = '';
+  debouncedRenderLedger();
+  if (input) input.focus();
 }
 
 function captureCurrentScreen(tag = null) {
@@ -571,24 +649,27 @@ function changeGodown() {
 
 function recalculateMetrics() {
   const products = (cachedProducts || []).filter(p => activeGodown === 'ALL' || p.bayLocation === activeGodown);
-  const totalUnits = products.filter(p => p.isActive).reduce((sum, p) => sum + (p.currentStockBags || 0), 0);
+  const totalUnits = products.filter(p => p.isActive).reduce((sum, p) => sum + (Number(p.currentStockBags) || 0), 0);
   const activeCount = products.filter(p => p.isActive).length;
-  
+  const totalMt = products.filter(p => p.isActive).reduce((sum, p) => {
+    return sum + ((Number(p.currentStockBags) || 0) * (Number(p.weightPerBagKg) || 0)) / 1000;
+  }, 0);
+
   let inwardUnits = 0;
   let dispatchedUnits = 0;
-  
+
   const now = Date.now();
   const dayStart = now - (24 * 60 * 60 * 1000);
-  
+
   (cachedTransactions || []).forEach(tx => {
     if (tx.timestamp >= dayStart) {
-      const validItems = tx.items.filter(item => {
+      const validItems = (tx.items || []).filter(item => {
         if (activeGodown === 'ALL') return true;
         const p = (cachedProducts || []).find(x => x.id === item.productId);
         return p && p.bayLocation === activeGodown;
       });
-      const itemBags = validItems.reduce((s, item) => s + (item.quantityBags || 0), 0);
-      
+      const itemBags = validItems.reduce((s, item) => s + (Number(item.quantityBags) || 0), 0);
+
       if (tx.type === 'INWARD') {
         inwardUnits += itemBags;
       } else if (tx.type === 'OUTWARD') {
@@ -596,15 +677,16 @@ function recalculateMetrics() {
       }
     }
   });
-  
+
   const pendingSlipsCount = cachedTransactions ? cachedTransactions.length : 0;
-  
+
   updateDashboardTelemetry({
     totalUnits,
     activeProductsCount: activeCount,
     inwardDayUnits: inwardUnits,
     dispatchedUnits: dispatchedUnits,
-    pendingSlipsCount
+    pendingSlipsCount,
+    totalMt
   });
 }
 
@@ -806,3 +888,57 @@ document.addEventListener('focusin', (e) => {
     }
   }, 320);
 });
+
+/**
+ * Android hardware/gesture back: close overlays, step back through views/tabs,
+ * then double-press to exit from the dashboard. Returns true when consumed.
+ */
+window.handleAndroidBack = function () {
+  // If setup/auth/splash is blocking the main app, allow default exit.
+  const splash = document.getElementById('splashScreen');
+  const setup = document.getElementById('setupScreen');
+  const auth = document.getElementById('authOverlay');
+  const splashBlocking = splash && !splash.classList.contains('hidden') && splash.style.display !== 'none';
+  const setupBlocking = setup && !setup.classList.contains('hidden');
+  const authBlocking = auth && !auth.classList.contains('hidden');
+  if (splashBlocking || setupBlocking || authBlocking) return false;
+
+  const modalClosers = [
+    ['updateModal', typeof closeUpdateModal === 'function' ? closeUpdateModal : null],
+    ['syncHealthModal', typeof closeSyncHealthModal === 'function' ? closeSyncHealthModal : null],
+    ['printSettingsModal', typeof closePrintSettingsModal === 'function' ? closePrintSettingsModal : null],
+    ['bluetoothPrinterModal', typeof closeBluetoothModal === 'function' ? closeBluetoothModal : null],
+    ['newCustomerModal', typeof closeNewCustomerModal === 'function' ? closeNewCustomerModal : null],
+    ['stockInModal', typeof closeStockInModal === 'function' ? closeStockInModal : null],
+    ['addItemModal', typeof closeAddItemModal === 'function' ? closeAddItemModal : null],
+    ['editItemModal', typeof closeEditItemModal === 'function' ? closeEditItemModal : null],
+    ['slipPreviewModal', typeof closeSlipPreviewModal === 'function' ? closeSlipPreviewModal : null],
+  ];
+  for (const [id, closer] of modalClosers) {
+    const el = document.getElementById(id);
+    if (el && !el.classList.contains('hidden')) {
+      if (closer) closer(); else el.classList.add('hidden');
+      return true;
+    }
+  }
+
+  if (typeof activeTab !== 'undefined' && activeTab === 'new' && typeof newView !== 'undefined' && newView === 'dispatch') {
+    if (typeof setNewView === 'function') setNewView('quick');
+    return true;
+  }
+
+  if (typeof activeTab !== 'undefined' && activeTab && activeTab !== 'dashboard') {
+    if (typeof switchTab === 'function') switchTab('dashboard');
+    return true;
+  }
+
+  const now = Date.now();
+  if (window._backExitAt && (now - window._backExitAt) < 1800) {
+    window._backExitAt = 0;
+    try { if (bridge() && typeof bridge().finishApp === 'function') bridge().finishApp(); } catch (_) {}
+    return true;
+  }
+  window._backExitAt = now;
+  if (typeof showToast === 'function') showToast('Press back again to exit');
+  return true;
+};

@@ -148,9 +148,17 @@ class MainActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-        } else {
+        try {
+            webView.evaluateJavascript(
+                "(function(){try{return (window.handleAndroidBack&&window.handleAndroidBack())?'true':'false';}catch(e){return 'false';}})()"
+            ) { result ->
+                if (result != "\"true\"" && result != "true") {
+                    runOnUiThread {
+                        if (!isFinishing) super@MainActivity.onBackPressed()
+                    }
+                }
+            }
+        } catch (_: Exception) {
             super.onBackPressed()
         }
     }
@@ -2043,6 +2051,11 @@ class MainActivity : Activity() {
                 }
             }
             return result
+        }
+
+        @JavascriptInterface
+        fun finishApp() {
+            runOnUiThread { finish() }
         }
     }
 }

@@ -673,9 +673,12 @@
         </div>
         <div class="flex flex-col min-w-0">
           <span class="text-[15px] font-bold text-on-surface truncate">GodownWala</span>
-          <select id="topGodownSelector" onchange="changeGodown()" class="text-[11px] font-medium text-on-surface-variant bg-transparent border-0 focus:ring-0 focus:outline-none truncate cursor-pointer p-0" style="max-width:150px;">
-            <option value="ALL">All Godowns</option>
-          </select>
+          <div class="flex items-center gap-0.5 text-on-surface-variant" style="max-width:165px;">
+            <select id="topGodownSelector" onchange="changeGodown()" class="text-[11px] font-medium text-on-surface-variant bg-transparent border-0 focus:ring-0 focus:outline-none truncate cursor-pointer p-0 appearance-none" style="max-width:145px; -webkit-appearance:none; appearance:none;">
+              <option value="ALL">All Godowns</option>
+            </select>
+            <span class="material-symbols-outlined text-[15px] shrink-0 pointer-events-none" style="margin-left:-1px;">expand_more</span>
+          </div>
         </div>
       </div>
 
@@ -824,6 +827,9 @@
         <div class="search-bar">
           <span class="material-symbols-outlined search-icon">search</span>
           <input type="text" id="posSearchInput" oninput="setPosSearch(this.value)" placeholder="Search products..." class="search-input" autocomplete="off"/>
+          <button type="button" id="posSearchClear" onclick="clearPosSearch()" class="search-clear hidden" aria-label="Clear search">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
         <div class="product-grid" id="posProductsGrid"></div>
       </div>
@@ -1096,13 +1102,16 @@
       <div class="search-bar">
         <span class="material-symbols-outlined search-icon">search</span>
         <input type="text" id="ledgerSearchInput" oninput="debouncedRenderLedger()" placeholder="Search slip #, party, or truck..." class="search-input" autocomplete="off"/>
+        <button type="button" id="ledgerSearchClear" onclick="clearLedgerSearch()" class="search-clear hidden" aria-label="Clear search">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
 
       <!-- Filter pills -->
       <div class="filter-pills">
-        <button onclick="filterLedgerType('ALL', this)" class="ledger-pill pill pill-active">All</button>
-        <button onclick="filterLedgerType('OUTWARD', this)" class="ledger-pill pill">Dispatched</button>
-        <button onclick="filterLedgerType('INWARD', this)" class="ledger-pill pill">Stock-In</button>
+        <button onclick="filterLedgerType('ALL', this)" data-type="ALL" class="ledger-pill pill pill-active">All</button>
+        <button onclick="filterLedgerType('OUTWARD', this)" data-type="OUTWARD" class="ledger-pill pill">Dispatched</button>
+        <button onclick="filterLedgerType('INWARD', this)" data-type="INWARD" class="ledger-pill pill">Stock-In</button>
       </div>
 
       <!-- Stock summary -->

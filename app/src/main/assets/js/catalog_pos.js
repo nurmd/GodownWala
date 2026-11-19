@@ -35,86 +35,111 @@ function toggleItemEditMode(id) {
  * Renders product grid on the Quick Dispatch / POS tab.
  * Includes "+ Add Product" tile at the end of the list.
  */
+function setPosSearch(value) {
+  posSearchQuery = value || '';
+  const clearBtn = document.getElementById('posSearchClear');
+  if (clearBtn) clearBtn.classList.toggle('hidden', !posSearchQuery);
+  debounceRender('posSearch', renderPosProducts, 140);
+}
+
+function clearPosSearch() {
+  const input = document.getElementById('posSearchInput');
+  if (input) input.value = '';
+  setPosSearch('');
+  if (input) input.focus();
+}
+
 function renderPosProducts() {
   const grid = document.getElementById('posProductsGrid');
   if (!grid) return;
   grid.innerHTML = '';
 
   const q = (posSearchQuery || '').trim().toLowerCase();
-  cachedProducts.filter(p => (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
-      && (!q || (p.name || '').toLowerCase().includes(q))).forEach(p => {
-    const inCart = posCart[p.id] || 0;
-    const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
-    const tile = document.createElement('div');
-    tile.className = `card product-card media-card select-none ${opacity}`;
-    
-    // Long-press detection for opening item editor
-    let pressTimer;
-    tile.addEventListener('touchstart', (e) => {
-      pressTimer = setTimeout(() => {
-        toggleItemEditMode(p.id);
-      }, 600);
-    });
-    tile.addEventListener('touchend', () => clearTimeout(pressTimer));
-    tile.addEventListener('touchmove', () => clearTimeout(pressTimer));
-    tile.oncontextmenu = (e) => {
-      e.preventDefault();
-      toggleItemEditMode(p.id);
-    };
+  const filtered = (cachedProducts || []).filter(p =>
+    (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
+    && (!q || (p.name || '').toLowerCase().includes(q))
+  );
 
-    if (editModeItemId === p.id) {
-      tile.innerHTML = `
-        <div class="flex-1 flex flex-col items-center justify-center cursor-pointer h-full" data-action="edit-item">
-          <span class="material-symbols-outlined text-[36px] text-primary">edit</span>
-          <span class="text-[11px] font-bold text-primary mt-1 uppercase">EDIT ITEM</span>
-        </div>
-      `;
-      tile.querySelector('[data-action="edit-item"]').addEventListener('click', () => openEditItemModal(p.id));
-    } else {
-      const stockQty = Number(p.currentStockBags) || 0;
-      const outOfStock = stockQty <= 0;
-      const imgHtml = `
-        <div class="product-img">
-          ${(p.imageUrl && p.imageUrl.trim() !== "")
-            ? `<img src="${escapeHtml(p.imageUrl)}" alt="" loading="lazy" decoding="async" />`
-            : `<span class="material-symbols-outlined">inventory_2</span>`
-          }
-          <span class="cart-pill ${inCart > 0 ? '' : 'hidden'}" id="posBadge-${escapeHtml(p.id)}">${inCart}</span>
-        </div>`;
-        
-      tile.innerHTML = `
-        ${imgHtml}
-        <div class="product-media-overlay">
-          <div class="product-name">${escapeHtml(p.name)}</div>
-          <div class="product-meta">
-            <span class="product-stock${outOfStock ? ' stock-empty' : ''}">${stockQty} ${escapeHtml(p.unit || 'Units')}</span>
-            <span class="product-price">₹${p.defaultRatePerBag}</span>
-          </div>
-          <div class="product-actions">
-            ${outOfStock
-              ? `<span class="qty-out">Out of stock</span>`
-              : `<button data-qty="1" class="qty-btn">+1</button>
-                 <button data-qty="5" class="qty-btn">+5</button>
-                 <button data-qty="10" class="qty-btn qty-btn-primary">+10</button>`}
-          </div>
-        </div>
-      `;
-      tile.querySelectorAll('button[data-qty]').forEach(btn => {
-        btn.addEventListener('click', () => addPosItem(p.id, parseInt(btn.dataset.qty, 10)));
+  if (filtered.length === 0 && q) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'grid-column:1/-1;padding:28px 16px;text-align:center;';
+    empty.innerHTML = `
+      <span class="material-symbols-outlined" style="font-size:32px;color:var(--text-tertiary);display:block;margin-bottom:8px;">search_off</span>
+      <div class="text-[14px] font-semibold text-on-surface">No products match</div>
+      <div class="text-[12px] text-on-surface-variant mt-1">“${escapeHtml(q)}”</div>
+    `;
+    grid.appendChild(empty);
+  } else {
+    filtered.forEach(p => {
+      const inCart = posCart[p.id] || 0;
+      const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
+      const tile = document.createElement('div');
+      tile.className = `card product-card media-card select-none ${opacity}`;
+
+      // Long-press detection for opening item editor
+      let pressTimer;
+      tile.addEventListener('touchstart', () => {
+        pressTimer = setTimeout(() => { toggleItemEditMode(p.id); }, 600);
       });
+      tile.addEventListener('touchend', () => clearTimeout(pressTimer));
+      tile.addEventListener('touchmove', () => clearTimeout(pressTimer));
+      tile.oncontextmenu = (e) => { e.preventDefault(); toggleItemEditMode(p.id); };
 
-      // Frosted backdrop: a blurred copy of the product image, baked once and
-      // cached, so no backdrop-filter runs while the grid scrolls.
-      if (typeof applyGlassOverlay === 'function' && p.imageUrl) {
-        applyGlassOverlay(
-          tile.querySelector('.product-media-overlay'),
-          p.imageUrl,
-          tile.querySelector('.product-img img')
-        );
+      if (editModeItemId === p.id) {
+        tile.innerHTML = `
+          <div class="flex-1 flex flex-col items-center justify-center cursor-pointer h-full" data-action="edit-item">
+            <span class="material-symbols-outlined text-[36px] text-primary">edit</span>
+            <span class="text-[11px] font-bold text-primary mt-1 uppercase">EDIT ITEM</span>
+          </div>
+        `;
+        tile.querySelector('[data-action="edit-item"]').addEventListener('click', () => openEditItemModal(p.id));
+      } else {
+        const stockQty = Number(p.currentStockBags) || 0;
+        const outOfStock = stockQty <= 0;
+        const imgHtml = `
+          <div class="product-img">
+            ${(p.imageUrl && p.imageUrl.trim() !== "")
+              ? `<img src="${escapeHtml(p.imageUrl)}" alt="" loading="lazy" decoding="async" />`
+              : `<span class="material-symbols-outlined">inventory_2</span>`
+            }
+            <span class="cart-pill ${inCart > 0 ? '' : 'hidden'}" id="posBadge-${escapeHtml(p.id)}">${inCart}</span>
+          </div>`;
+
+        tile.innerHTML = `
+          ${imgHtml}
+          <div class="product-media-overlay">
+            <div class="product-name">${escapeHtml(p.name)}</div>
+            <div class="product-meta">
+              <span class="product-stock${outOfStock ? ' stock-empty' : ''}">${stockQty} ${escapeHtml(p.unit || 'Units')}</span>
+              <span class="product-price">₹${p.defaultRatePerBag}</span>
+            </div>
+            <div class="product-actions">
+              ${outOfStock
+                ? `<span class="qty-out">Out of stock</span>`
+                : `<button data-qty="1" class="qty-btn">+1</button>
+                   <button data-qty="5" class="qty-btn">+5</button>
+                   <button data-qty="10" class="qty-btn qty-btn-primary">+10</button>`}
+            </div>
+          </div>
+        `;
+        tile.querySelectorAll('button[data-qty]').forEach(btn => {
+          btn.addEventListener('click', () => addPosItem(p.id, parseInt(btn.dataset.qty, 10)));
+        });
+
+        // Frosted backdrop: a blurred copy of the product image, baked once and
+        // cached, so no backdrop-filter runs while the grid scrolls.
+        if (typeof applyGlassOverlay === 'function' && p.imageUrl) {
+          applyGlassOverlay(
+            tile.querySelector('.product-media-overlay'),
+            p.imageUrl,
+            tile.querySelector('.product-img img')
+          );
+        }
       }
-    }
-    grid.appendChild(tile);
-  });
+      grid.appendChild(tile);
+    });
+  }
 
   // "+ Add Product" quick action tile
   const addTile = document.createElement('div');
@@ -166,10 +191,6 @@ function addPosItem(productId, delta) {
 /**
  * Applies a name filter to the POS product grid.
  */
-function setPosSearch(value) {
-  posSearchQuery = value || '';
-  debounceRender('posSearch', renderPosProducts, 140);
-}
 
 /**
  * Returns total count of bags currently added to cart.
