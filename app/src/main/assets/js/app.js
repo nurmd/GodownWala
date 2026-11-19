@@ -73,9 +73,7 @@ function switchTab(tabId) {
   // Highlight bottom navigation bar buttons
   document.querySelectorAll('.nav-btn').forEach(btn => {
     const isSelected = btn.getAttribute('data-tab') === tabId;
-    btn.className = isSelected
-      ? 'nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-primary'
-      : 'nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 text-on-surface-variant';
+    btn.classList.toggle('tab-active', isSelected);
   });
 
   const subtitles = {
@@ -207,12 +205,32 @@ function updateDashboardTelemetry(t) {
   const pendEl = document.getElementById('metricPendingSlips');
   const slipEl = document.getElementById('dashLastSlipNo');
 
+  const stockUnitsEl = document.getElementById('stockTotalUnits');
+  const stockProdEl = document.getElementById('stockProductCount');
+  const stockSlipEl = document.getElementById('stockSlipCount');
+  if (stockUnitsEl) stockUnitsEl.textContent = Number(totalUnits).toLocaleString('en-IN');
+  if (stockProdEl) stockProdEl.textContent = activeProducts;
+  if (stockSlipEl) stockSlipEl.textContent = slipsCount;
+
   if (totalEl) totalEl.textContent = Number(totalUnits).toLocaleString('en-IN');
   if (netMtEl) netMtEl.textContent = `${activeProducts} Products Active`;
   if (inEl) inEl.textContent = Number(inwardUnits).toLocaleString('en-IN');
   if (outEl) outEl.textContent = Number(dispatchedUnits).toLocaleString('en-IN');
   if (pendEl) pendEl.textContent = slipsCount;
   if (slipEl) slipEl.textContent = currentLastSlipNo;
+}
+
+/**
+ * Short date label (dd/mm) for transaction rows.
+ */
+function shortDateLabel(tx) {
+  const d = (tx && tx.dateStr ? String(tx.dateStr) : '').trim();
+  if (!d) return '';
+  const parts = d.split(/[\/\-\.]/);
+  if (parts.length === 3) {
+    return parts[0].length === 4 ? `${parts[2]}/${parts[1]}` : `${parts[0]}/${parts[1]}`;
+  }
+  return d;
 }
 
 /**
@@ -225,34 +243,36 @@ function renderDashboardActivities() {
   const recent = [...getFilteredTransactions()].sort((a,b) => b.timestamp - a.timestamp).slice(0, 4);
 
   if (recent.length === 0) {
-    list.innerHTML = '<div class="text-[12px] text-on-surface-variant text-center py-2">No recent activity</div>';
+    list.innerHTML = '<div class="text-[13px] text-on-surface-variant text-center py-5">No recent activity</div>';
     return;
   }
 
-  recent.forEach(tx => {
+  recent.forEach((tx, i) => {
     const isOut = tx.type === 'OUTWARD';
-    const card = document.createElement('div');
-    card.className = 'bg-surface-container-lowest rounded-xl p-2.5 flex items-center justify-between gap-2 shadow-sm border border-surface-container-high cursor-pointer active:scale-[0.99]';
-    card.onclick = () => viewSlip(tx.slipNo);
-    card.innerHTML = `
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-lg ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'} flex items-center justify-center shrink-0">
-          <span class="material-symbols-outlined text-[20px]">${isOut ? 'local_shipping' : 'archive'}</span>
-        </div>
-        <div class="flex flex-col min-w-0">
-          <div class="flex items-center gap-1.5">
-            <span class="font-mono text-[12px] font-bold text-on-surface">${escapeHtml(tx.slipNo)}</span>
-            <span class="text-[9px] font-bold uppercase px-1 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
-          </div>
-          <span class="text-[11px] text-on-surface-variant truncate">${Number(tx.totalBags) || 0} Units • ${escapeHtml(tx.partyName)}${tx.customerPhone ? ' (' + escapeHtml(tx.customerPhone) + ')' : ''}</span>
-        </div>
+    if (i > 0) {
+      const div = document.createElement('div');
+      div.className = 'list-divider';
+      list.appendChild(div);
+    }
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.onclick = () => viewSlip(tx.slipNo);
+    row.innerHTML = `
+      <div class="list-icon" style="${isOut
+        ? 'background:var(--orange-light);color:var(--orange);'
+        : 'background:var(--green-light);color:var(--green);'}">
+        <span class="material-symbols-outlined">${isOut ? 'local_shipping' : 'archive'}</span>
       </div>
-      <div class="text-right shrink-0">
-        <span class="text-[10px] text-on-surface-variant">${escapeHtml(tx.timeStr)}</span>
-        <span class="block text-[11px] font-bold text-primary">₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}</span>
+      <div class="list-content">
+        <div class="list-title">${escapeHtml(tx.slipNo)} · ${escapeHtml(tx.partyName || 'Walk-in')}</div>
+        <div class="list-sub">${Number(tx.totalBags) || 0} Units · ₹${Number(tx.totalAmount || 0).toLocaleString('en-IN')}${tx.customerPhone ? ' · ' + escapeHtml(tx.customerPhone) : ''}</div>
+      </div>
+      <div class="list-meta">
+        <div class="list-time">${shortDateLabel(tx) ? shortDateLabel(tx) + ' · ' : ''}${escapeHtml(tx.timeStr)}</div>
+        <span class="list-badge ${isOut ? 'badge-dispatch' : 'badge-inward'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
       </div>
     `;
-    list.appendChild(card);
+    list.appendChild(row);
   });
 }
 
@@ -263,10 +283,10 @@ function filterLedgerType(type, btn) {
   vibrate(20);
   ledgerFilter = type;
   document.querySelectorAll('.ledger-pill').forEach(el => {
-    el.className = 'ledger-pill px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-surface-container-lowest text-on-surface-variant border border-surface-container-high shrink-0';
+    el.classList.remove('pill-active');
   });
   if (btn) {
-    btn.className = 'ledger-pill px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-primary-container text-on-primary shadow-sm shrink-0';
+    btn.classList.add('pill-active');
   }
   renderLedger();
 }
@@ -292,32 +312,36 @@ function renderLedger() {
   });
 
   if (filtered.length === 0) {
-    list.innerHTML = '<div class="text-[12px] text-on-surface-variant text-center py-6">No matching transactions found</div>';
+    list.innerHTML = '<div class="text-[13px] text-on-surface-variant text-center py-6">No matching transactions found</div>';
     return;
   }
 
-  filtered.sort((a,b) => b.timestamp - a.timestamp).forEach(t => {
+  filtered.sort((a,b) => b.timestamp - a.timestamp).forEach((t, i) => {
     const isOut = t.type === 'OUTWARD';
-    const card = document.createElement('div');
-    card.className = 'bg-surface-container-lowest rounded-xl p-3 shadow-sm border border-surface-container-high space-y-1.5 cursor-pointer active:scale-[0.99]';
-    card.onclick = () => viewSlip(t.slipNo);
-    card.innerHTML = `
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="font-mono text-[13px] font-bold text-on-surface">${escapeHtml(t.slipNo)}</span>
-          <span class="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${isOut ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-tertiary'}">${isOut ? 'Dispatched' : 'Stock In'}</span>
-        </div>
-        <span class="text-[11px] text-on-surface-variant">${escapeHtml(t.dateStr)} • ${escapeHtml(t.timeStr)}</span>
+    if (i > 0) {
+      const div = document.createElement('div');
+      div.className = 'list-divider';
+      list.appendChild(div);
+    }
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.onclick = () => viewSlip(t.slipNo);
+    row.innerHTML = `
+      <div class="list-icon" style="${isOut
+        ? 'background:var(--orange-light);color:var(--orange);'
+        : 'background:var(--green-light);color:var(--green);'}">
+        <span class="material-symbols-outlined">${isOut ? 'local_shipping' : 'archive'}</span>
       </div>
-      <div class="text-[12px] font-semibold text-on-surface truncate">
-        ${escapeHtml(t.partyName)}${t.customerPhone ? ` <span class="text-[11px] font-normal text-on-surface-variant font-mono">(${escapeHtml(t.customerPhone)})</span>` : ''}
+      <div class="list-content">
+        <div class="list-title">${escapeHtml(t.slipNo)} · ${escapeHtml(t.partyName || 'Walk-in')}</div>
+        <div class="list-sub">${Number(t.totalBags) || 0} Units · ₹${(Number(t.totalAmount) || 0).toLocaleString('en-IN')}${t.vehicleNo ? ' · ' + escapeHtml(t.vehicleNo) : ''}</div>
       </div>
-      <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-surface-container">
-        <span>Vehicle: <b class="text-on-surface">${escapeHtml(t.vehicleNo)}</b></span>
-        <span>Total: <b class="text-primary font-bold">${t.totalBags} Units</b> (₹${(Number(t.totalAmount) || 0).toLocaleString('en-IN')})</span>
+      <div class="list-meta">
+        <div class="list-time">${shortDateLabel(t) ? shortDateLabel(t) + ' · ' : ''}${escapeHtml(t.timeStr)}</div>
+        <span class="list-badge ${isOut ? 'badge-dispatch' : 'badge-inward'}">${isOut ? 'Dispatched' : 'Stock-In'}</span>
       </div>
     `;
-    list.appendChild(card);
+    list.appendChild(row);
   });
 }
 
@@ -391,6 +415,8 @@ function loadInstalledVersion() {
   }
   const badge = document.getElementById('splashVersionBadge');
   if (badge) badge.textContent = 'v' + ver + ' Stable';
+  const about = document.getElementById('aboutVersionLabel');
+  if (about) about.textContent = 'v' + ver + ' · Tap to check updates';
   const curVer = document.getElementById('updateCurrentVer');
   if (curVer) curVer.textContent = 'v' + ver;
   return ver;

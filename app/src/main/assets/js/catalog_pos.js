@@ -11,6 +11,7 @@ let cachedProducts = [];
 let posCart = {}; // productId -> quantity
 let editModeItemId = null;
 let lastToggleTime = 0;
+let posSearchQuery = '';
 
 /**
  * Toggles edit mode for a specific product card.
@@ -39,11 +40,13 @@ function renderPosProducts() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
+  const q = (posSearchQuery || '').trim().toLowerCase();
+  cachedProducts.filter(p => (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
+      && (!q || (p.name || '').toLowerCase().includes(q))).forEach(p => {
     const inCart = posCart[p.id] || 0;
     const opacity = p.isActive === false ? 'opacity-50 grayscale' : '';
     const tile = document.createElement('div');
-    tile.className = `bg-surface-container-lowest rounded-xl p-2 border border-surface-container-high shadow-sm flex flex-col justify-between select-none relative aspect-square ${opacity}`;
+    tile.className = `card product-card media-card select-none ${opacity}`;
     
     // Long-press detection for opening item editor
     let pressTimer;
@@ -69,34 +72,27 @@ function renderPosProducts() {
       tile.querySelector('[data-action="edit-item"]').addEventListener('click', () => openEditItemModal(p.id));
     } else {
       const imgHtml = `
-        <div class="relative w-full h-14 rounded-lg overflow-hidden border border-surface-container bg-surface-container-low shrink-0 flex items-center justify-center">
-          ${(p.imageUrl && p.imageUrl.trim() !== "") 
-            ? `<img src="${escapeHtml(p.imageUrl)}" class="w-full h-full object-cover" />`
-            : `<div class="w-full h-full flex items-center justify-center text-on-surface-variant/40 bg-surface-container/40">
-                 <span class="material-symbols-outlined text-[24px]">inventory_2</span>
-               </div>`
+        <div class="product-img">
+          ${(p.imageUrl && p.imageUrl.trim() !== "")
+            ? `<img src="${escapeHtml(p.imageUrl)}" alt="" />`
+            : `<span class="material-symbols-outlined">inventory_2</span>`
           }
-          <span class="${inCart > 0 ? '' : 'hidden'} absolute top-1 right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary text-on-primary shadow-sm" id="posBadge-${escapeHtml(p.id)}">${inCart} in cart</span>
+          <span class="cart-pill ${inCart > 0 ? '' : 'hidden'}" id="posBadge-${escapeHtml(p.id)}">${inCart}</span>
         </div>`;
         
       tile.innerHTML = `
-        <div class="min-w-0">
-          ${imgHtml}
-          <div class="mt-1 min-w-0">
-            <h4 class="text-[13px] font-black text-on-surface truncate leading-tight">${escapeHtml(p.name)}</h4>
-            <div class="flex items-baseline justify-between mt-0.5">
-              <div class="flex items-baseline gap-1 min-w-0">
-                <span class="text-[16px] font-black text-on-surface tracking-tight">${p.currentStockBags}</span>
-                <span class="text-[10px] font-bold text-on-surface-variant truncate">${escapeHtml(p.unit || 'Units')}</span>
-              </div>
-              <span class="text-[12px] font-black text-primary shrink-0">₹${p.defaultRatePerBag}<span class="text-[8px] font-bold text-on-surface-variant">/${escapeHtml((p.unit || 'Unit').toLowerCase())}</span></span>
-            </div>
+        ${imgHtml}
+        <div class="product-media-overlay">
+          <div class="product-name">${escapeHtml(p.name)}</div>
+          <div class="product-meta">
+            <span class="product-stock">${p.currentStockBags} ${escapeHtml(p.unit || 'Units')}</span>
+            <span class="product-price">₹${p.defaultRatePerBag}</span>
           </div>
-        </div>
-        <div class="mt-1 pt-1 border-t border-surface-container grid grid-cols-3 gap-1">
-          <button data-qty="1" class="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-xs">+1</button>
-          <button data-qty="5" class="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-xs">+5</button>
-          <button data-qty="10" class="h-8 rounded-lg bg-primary text-on-primary text-[11px] font-black active:scale-90 transition-transform flex items-center justify-center shadow-[0_2px_10px_rgba(245,165,36,0.35)]">+10</button>
+          <div class="product-actions">
+            <button data-qty="1" class="qty-btn">+1</button>
+            <button data-qty="5" class="qty-btn">+5</button>
+            <button data-qty="10" class="qty-btn qty-btn-primary">+10</button>
+          </div>
         </div>
       `;
       tile.querySelectorAll('button[data-qty]').forEach(btn => {
@@ -108,11 +104,12 @@ function renderPosProducts() {
 
   // "+ Add Product" quick action tile
   const addTile = document.createElement('div');
-  addTile.className = 'bg-surface-container-lowest rounded-xl p-2 border border-surface-container-high border-dashed shadow-sm flex flex-col justify-center items-center select-none relative cursor-pointer aspect-square active:scale-95 transition-transform';
+  addTile.className = 'card product-card items-center justify-center select-none cursor-pointer active:scale-95 transition-transform';
+  addTile.style.borderStyle = 'dashed';
   addTile.onclick = () => openAddItemModal();
   addTile.innerHTML = `
-    <span class="material-symbols-outlined text-[36px] text-primary/50">add</span>
-    <span class="text-[11px] font-bold text-primary/70 mt-1 uppercase tracking-wide">Add Product</span>
+    <span class="material-symbols-outlined text-primary/60" style="font-size:36px;">add</span>
+    <span class="text-[12px] font-semibold text-primary/80">Add Product</span>
   `;
   grid.appendChild(addTile);
 }
@@ -150,6 +147,14 @@ function addPosItem(productId, delta) {
   }
 
   updatePosCartBar();
+}
+
+/**
+ * Applies a name filter to the POS product grid.
+ */
+function setPosSearch(value) {
+  posSearchQuery = value || '';
+  renderPosProducts();
 }
 
 /**
@@ -542,7 +547,9 @@ function populateProductDropdowns() {
 
   if (dAddSelect) {
     dAddSelect.innerHTML = '';
-    cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
+    const q = (posSearchQuery || '').trim().toLowerCase();
+  cachedProducts.filter(p => (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
+      && (!q || (p.name || '').toLowerCase().includes(q))).forEach(p => {
       if (p.isActive === false) return;
       const opt = document.createElement('option');
       opt.value = p.id;
@@ -554,7 +561,9 @@ function populateProductDropdowns() {
 
   if (dSelect) {
     dSelect.innerHTML = '';
-    cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
+    const q = (posSearchQuery || '').trim().toLowerCase();
+  cachedProducts.filter(p => (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
+      && (!q || (p.name || '').toLowerCase().includes(q))).forEach(p => {
       if (p.isActive === false) return;
       const opt = document.createElement('option');
       opt.value = p.id;
@@ -565,7 +574,9 @@ function populateProductDropdowns() {
 
   if (sSelect) {
     sSelect.innerHTML = '';
-    cachedProducts.filter(p => typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown).forEach(p => {
+    const q = (posSearchQuery || '').trim().toLowerCase();
+  cachedProducts.filter(p => (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
+      && (!q || (p.name || '').toLowerCase().includes(q))).forEach(p => {
       if (p.isActive === false) return;
       const opt2 = document.createElement('option');
       opt2.value = p.id;
