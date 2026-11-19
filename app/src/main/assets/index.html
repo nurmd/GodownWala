@@ -680,23 +680,16 @@
       </div>
 
       <div class="flex items-center gap-0.5 shrink-0">
-        <button onclick="toggleTheme()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all" title="Toggle dark mode">
-          <span class="material-symbols-outlined text-[20px]" id="themeToggleIcon">dark_mode</span>
+        <button onclick="toggleTheme()" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all" title="Toggle dark mode">
+          <span class="material-symbols-outlined text-[22px]" id="themeToggleIcon">dark_mode</span>
         </button>
-        <button id="syncStatusBtn" onclick="openSyncHealthModal()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Cloud sync status">
-          <span class="material-symbols-outlined text-[20px]">cloud_sync</span>
-          <span id="syncStatusDot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-green"></span>
+        <button id="syncStatusBtn" onclick="openSyncHealthModal()" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Cloud sync status">
+          <span class="material-symbols-outlined text-[22px]">cloud_sync</span>
+          <span id="syncStatusDot" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-green"></span>
         </button>
-        <button onclick="openBluetoothModal()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Manage Bluetooth Printer">
-          <span id="headerBtIcon" class="material-symbols-outlined text-[20px]">bluetooth_connected</span>
-          <span id="headerBtDot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary"></span>
-        </button>
-        <button onclick="checkForUpdatesManual()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Check for App Updates">
-          <span class="material-symbols-outlined text-[20px]">system_update</span>
-          <span id="headerUpdateBadge" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-        </button>
-        <button onclick="captureCurrentScreen()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all" title="Capture Screenshot">
-          <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+        <button onclick="openBluetoothModal()" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Manage Bluetooth Printer">
+          <span id="headerBtIcon" class="material-symbols-outlined text-[22px]">bluetooth_connected</span>
+          <span id="headerBtDot" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-tertiary"></span>
         </button>
       </div>
     </div>
@@ -747,27 +740,27 @@
 
       <!-- Bento grid -->
       <div class="bento-grid">
-        <div class="card bento-card">
+        <button onclick="openLedgerFilter('INWARD')" class="card bento-card" title="Open Stock-In entries">
           <div class="bento-icon" style="background:var(--green-light);color:var(--green);">
             <span class="material-symbols-outlined">arrow_downward</span>
           </div>
           <div class="bento-value" style="color:var(--green);" id="metricInwardBags">0</div>
           <div class="bento-label">Inward (Day)</div>
-        </div>
-        <div class="card bento-card">
+        </button>
+        <button onclick="openLedgerFilter('OUTWARD')" class="card bento-card" title="Open dispatched entries">
           <div class="bento-icon" style="background:var(--orange-light);color:var(--orange);">
             <span class="material-symbols-outlined">arrow_upward</span>
           </div>
           <div class="bento-value" style="color:var(--orange);" id="metricDispatchedBags">0</div>
           <div class="bento-label">Dispatched</div>
-        </div>
-        <div class="card bento-card">
+        </button>
+        <button onclick="openLedgerFilter('ALL')" class="card bento-card" title="Open the full ledger">
           <div class="bento-icon" style="background:var(--accent-light);color:var(--accent);">
             <span class="material-symbols-outlined">receipt_long</span>
           </div>
           <div class="bento-value" style="color:var(--accent);" id="metricPendingSlips">0</div>
           <div class="bento-label">Total Slips</div>
-        </div>
+        </button>
       </div>
 
       <!-- Quick actions -->
@@ -978,8 +971,22 @@
             <span class="material-symbols-outlined">info</span>
           </div>
           <div class="settings-content">
-            <div class="settings-title">About GodownWala</div>
+            <div class="settings-title flex items-center gap-1.5">
+              <span>About GodownWala</span>
+              <span id="headerUpdateBadge" class="hidden px-1.5 py-0.5 rounded-full bg-primary text-on-primary text-[9px] font-bold uppercase tracking-wide">Update</span>
+            </div>
             <div class="settings-sub" id="aboutVersionLabel">Version &amp; updates</div>
+          </div>
+          <span class="material-symbols-outlined settings-chevron">chevron_right</span>
+        </button>
+        <div class="settings-divider"></div>
+        <button onclick="captureCurrentScreen()" class="settings-row w-full text-left">
+          <div class="settings-icon" style="background:var(--accent-light);color:var(--accent);">
+            <span class="material-symbols-outlined">photo_camera</span>
+          </div>
+          <div class="settings-content">
+            <div class="settings-title">Capture Screenshot</div>
+            <div class="settings-sub">Save the current screen for support</div>
           </div>
           <span class="material-symbols-outlined settings-chevron">chevron_right</span>
         </button>

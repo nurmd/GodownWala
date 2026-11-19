@@ -71,6 +71,8 @@ function renderPosProducts() {
       `;
       tile.querySelector('[data-action="edit-item"]').addEventListener('click', () => openEditItemModal(p.id));
     } else {
+      const stockQty = Number(p.currentStockBags) || 0;
+      const outOfStock = stockQty <= 0;
       const imgHtml = `
         <div class="product-img">
           ${(p.imageUrl && p.imageUrl.trim() !== "")
@@ -85,13 +87,15 @@ function renderPosProducts() {
         <div class="product-media-overlay">
           <div class="product-name">${escapeHtml(p.name)}</div>
           <div class="product-meta">
-            <span class="product-stock">${p.currentStockBags} ${escapeHtml(p.unit || 'Units')}</span>
+            <span class="product-stock${outOfStock ? ' stock-empty' : ''}">${stockQty} ${escapeHtml(p.unit || 'Units')}</span>
             <span class="product-price">₹${p.defaultRatePerBag}</span>
           </div>
           <div class="product-actions">
-            <button data-qty="1" class="qty-btn">+1</button>
-            <button data-qty="5" class="qty-btn">+5</button>
-            <button data-qty="10" class="qty-btn qty-btn-primary">+10</button>
+            ${outOfStock
+              ? `<span class="qty-out">Out of stock</span>`
+              : `<button data-qty="1" class="qty-btn">+1</button>
+                 <button data-qty="5" class="qty-btn">+5</button>
+                 <button data-qty="10" class="qty-btn qty-btn-primary">+10</button>`}
           </div>
         </div>
       `;

@@ -298,6 +298,15 @@ html.dark , body.dark {
   transition: transform var(--transition-fast);
 }
 
+button.bento-card {
+  font-family: var(--font);
+  color: inherit;
+  width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.bento-card:active { transform: scale(0.97); }
 .bento-card:active .bento-icon { transform: scale(0.9); }
 .bento-icon .material-symbols-outlined { font-size: 20px; }
 
@@ -1236,6 +1245,21 @@ html.dark , body.dark .tab-bar {
   background: rgba(255, 255, 255, 0.34);
 }
 
+.product-media-overlay .product-stock.stock-empty {
+  color: #ff8a80;
+  font-weight: 700;
+}
+.product-media-overlay .qty-out {
+  grid-column: 1 / -1;
+  padding: 5px 0;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 59, 48, 0.34);
+  border: 0.5px solid rgba(255, 255, 255, 0.28);
+}
 .product-media-overlay .qty-btn-primary {
   background: rgba(0, 122, 255, 0.9);
   border-color: rgba(255, 255, 255, 0.32);

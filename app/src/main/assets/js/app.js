@@ -284,6 +284,27 @@ function renderDashboardActivities() {
   });
 }
 
+const LEDGER_PILL_LABELS = { ALL: 'All', OUTWARD: 'Dispatched', INWARD: 'Stock-In' };
+
+/**
+ * Opens the Stock tab pre-filtered to a transaction type. Used by the
+ * dashboard metric cards so a number is never a dead end.
+ */
+function openLedgerFilter(type) {
+  vibrate(20);
+  ledgerFilter = type;
+  ledgerRenderLimit = 300;
+  const searchEl = document.getElementById('ledgerSearchInput');
+  if (searchEl) searchEl.value = '';
+  const label = LEDGER_PILL_LABELS[type] || 'All';
+  document.querySelectorAll('.ledger-pill').forEach(el => {
+    el.classList.toggle('pill-active', el.textContent.trim() === label);
+  });
+  switchTab('stock');
+  const main = document.querySelector('main');
+  if (main) main.scrollTop = 0;
+}
+
 /**
  * Filters ledger records by transaction type (ALL, OUTWARD, INWARD).
  */
@@ -766,3 +787,22 @@ window.onUpdateDownloadProgress = function(percent, downloaded, total, state) {
   }
 };
 
+/**
+ * Android opens the soft keyboard over the lower half of the WebView. When a
+ * text field takes focus, nudge it to the vertical centre so the submit button
+ * below it stays reachable.
+ */
+document.addEventListener('focusin', (e) => {
+  const el = e.target;
+  if (!el || !el.tagName) return;
+  if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA' && el.tagName !== 'SELECT') return;
+  if (el.type === 'checkbox' || el.type === 'radio' || el.type === 'file' || el.type === 'range') return;
+  clearTimeout(document._kbFocusTimer);
+  document._kbFocusTimer = setTimeout(() => {
+    try {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    } catch (_) {
+      try { el.scrollIntoView(); } catch (_) {}
+    }
+  }, 320);
+});
