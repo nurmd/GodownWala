@@ -489,7 +489,6 @@ html.dark , body.dark .badge-inward { background: #1A2E1A; color: #32D74B; }
   background: var(--green);
   box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.2);
   flex-shrink: 0;
-  animation: pulse 2s infinite;
 }
 
 .text-btn {

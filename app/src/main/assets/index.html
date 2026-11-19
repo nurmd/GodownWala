@@ -344,12 +344,30 @@
     .sync-pulse { animation: syncPulse 2s infinite; }
 
 
-    /* Smooth color transitions */
-    body, .card, .bg-surface, .bg-surface-container, .bg-surface-container-low, .bg-surface-container-lowest, .bg-surface-container-high, .bg-surface-container-highest {
-      transition: background-color 0.3s ease, border-color 0.3s ease;
+    /* Theme cross-fade runs only during the toggle (class removed after 320ms),
+       so cards do not carry permanent transition state. */
+    body.theme-transition,
+    body.theme-transition .card,
+    body.theme-transition .bg-surface,
+    body.theme-transition .bg-surface-container,
+    body.theme-transition .bg-surface-container-low,
+    body.theme-transition .bg-surface-container-lowest,
+    body.theme-transition .bg-surface-container-high,
+    body.theme-transition .bg-surface-container-highest,
+    body.theme-transition .text-on-surface,
+    body.theme-transition .text-on-surface-variant,
+    body.theme-transition .text-primary {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
-    .text-on-surface, .text-on-surface-variant, .text-primary {
-      transition: color 0.3s ease;
+
+    /* Respect the OS reduced-motion setting */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
     }
     /* Mockup-aligned overrides for real app Tailwind classes */
     .bg-surface-container-lowest {
@@ -671,7 +689,7 @@
         </button>
         <button onclick="openBluetoothModal()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Manage Bluetooth Printer">
           <span id="headerBtIcon" class="material-symbols-outlined text-[20px]">bluetooth_connected</span>
-          <span id="headerBtDot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+          <span id="headerBtDot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary"></span>
         </button>
         <button onclick="checkForUpdatesManual()" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-90 transition-all relative" title="Check for App Updates">
           <span class="material-symbols-outlined text-[20px]">system_update</span>
@@ -979,7 +997,7 @@
             <div class="min-w-0">
               <div class="flex items-center gap-1">
                 <span id="thermalCardPrinterName" class="text-[13px] font-bold text-on-surface truncate">POS-80C Mobile Thermal</span>
-                <span id="thermalCardBtDot" class="w-2 h-2 rounded-full bg-tertiary animate-pulse shrink-0"></span>
+                <span id="thermalCardBtDot" class="w-2 h-2 rounded-full bg-tertiary shrink-0"></span>
               </div>
               <span id="thermalCardPrinterMac" class="text-[10px] font-bold uppercase text-on-surface-variant font-mono truncate block">ESC/POS Standard • Direct Link</span>
             </div>

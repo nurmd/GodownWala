@@ -12,10 +12,17 @@ window.onerror = function(msg, url, lineNo, columnNo, error) { console.error("[A
  * Toggles between light and dark mode (Apple-inspired).
  */
 function toggleTheme() {
-  var isDark = document.documentElement.classList.toggle('dark');
+  var root = document.documentElement;
+  var body = document.body;
+  if (body) body.classList.add('theme-transition');
+  var isDark = root.classList.toggle('dark');
   try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
   var icon = document.getElementById('themeToggleIcon');
   if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  clearTimeout(toggleTheme._t);
+  toggleTheme._t = setTimeout(function () {
+    if (body) body.classList.remove('theme-transition');
+  }, 320);
 }
 
 (function() {
@@ -27,6 +34,7 @@ let newView = 'quick'; // 'quick' | 'dispatch' — sub-view inside the New tab
 let currentLastSlipNo = '';
 let cachedTransactions = [];
 let ledgerFilter = 'ALL';
+let ledgerRenderLimit = 300;
 
 /**
  * Accessor for the native Android JavascriptInterface bridge.
@@ -282,6 +290,7 @@ function renderDashboardActivities() {
 function filterLedgerType(type, btn) {
   vibrate(20);
   ledgerFilter = type;
+  ledgerRenderLimit = 300;
   document.querySelectorAll('.ledger-pill').forEach(el => {
     el.classList.remove('pill-active');
   });
@@ -318,7 +327,7 @@ function renderLedger() {
 
   filtered.sort((a,b) => b.timestamp - a.timestamp);
   const totalMatches = filtered.length;
-  const visible = filtered.slice(0, 300);
+  const visible = filtered.slice(0, ledgerRenderLimit);
 
   visible.forEach((t, i) => {
     const isOut = t.type === 'OUTWARD';
@@ -349,14 +358,19 @@ function renderLedger() {
   });
 
   if (totalMatches > visible.length) {
-    const more = document.createElement('div');
-    more.className = 'text-[12px] text-on-surface-variant text-center py-3';
-    more.textContent = `Showing latest ${visible.length} of ${totalMatches} — refine your search to narrow it down`;
+    const more = document.createElement('button');
+    more.className = 'text-[13px] font-semibold text-primary text-center py-3 w-full';
+    more.textContent = `Show ${Math.min(300, totalMatches - visible.length)} more · ${totalMatches - visible.length} remaining`;
+    more.onclick = () => {
+      ledgerRenderLimit += 300;
+      renderLedger();
+    };
     list.appendChild(more);
   }
 }
 
 function debouncedRenderLedger() {
+  ledgerRenderLimit = 300;
   debounceRender('ledger', renderLedger, 140);
 }
 
