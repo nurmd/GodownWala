@@ -243,11 +243,11 @@ function renderSyncHealth() {
     return;
   }
   list.innerHTML = h.items.map(t => {
-    const statusColor = t.status === 'done' ? 'text-green-400' :
-      t.status === 'conflict' ? 'text-amber-400' :
-      t.status === 'failed' ? 'text-red-400' : 'text-on-surface-variant';
+    const statusColor = t.status === 'done' ? 'text-green' :
+      t.status === 'conflict' ? 'text-primary' :
+      t.status === 'failed' ? 'text-error' : 'text-on-surface-variant';
     const label = `${t.type.toUpperCase()} · ${t.operation}`;
-    const err = t.lastError ? `<div class="text-[10px] text-red-300 mt-1 break-words">${escapeHtml(t.lastError)}</div>` : '';
+    const err = t.lastError ? `<div class="text-[10px] text-error mt-1 break-words">${escapeHtml(t.lastError)}</div>` : '';
     const actions = (t.status === 'failed' || t.status === 'conflict' || t.status === 'pending')
       ? `<div class="flex gap-1.5 mt-2">
            <button onclick="retrySyncTask('${t.id}')" class="px-2.5 py-1 rounded-lg bg-primary text-on-primary text-[10px] font-black uppercase tracking-wide">Retry</button>
@@ -269,11 +269,11 @@ function updateSyncStatusIndicator() {
   const el = document.getElementById('syncStatusBtn');
   const dot = document.getElementById('syncStatusDot');
   if (!el) return;
-  let color = 'bg-green-500';
+  let color = 'bg-green';
   let label = 'Synced';
-  if (h.conflicts > 0) { color = 'bg-amber-500'; label = 'Conflicts'; }
-  else if (h.failed > 0) { color = 'bg-red-500'; label = 'Failed'; }
-  else if (h.pending > 0) { color = 'bg-blue-400'; label = 'Pending'; }
+  if (h.conflicts > 0) { color = 'bg-primary'; label = 'Conflicts'; }
+  else if (h.failed > 0) { color = 'bg-error'; label = 'Failed'; }
+  else if (h.pending > 0) { color = 'bg-primary'; label = 'Pending'; }
   if (dot) dot.className = `w-2 h-2 rounded-full ${color} ${h.pending > 0 ? 'animate-pulse' : ''}`;
   el.setAttribute('title', `Cloud sync: ${label} (${h.pending} pending, ${h.failed} failed, ${h.conflicts} conflicts)`);
   const lbl = document.getElementById('syncStatusLabel');

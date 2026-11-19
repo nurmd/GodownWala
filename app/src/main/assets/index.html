@@ -60,6 +60,8 @@
       --c-outline-variant: 229 229 234;
       --c-error: 255 59 48;
       --c-error-container: 255 235 238;
+      --c-green: 52 199 89;
+      --c-green-container: 232 245 233;
       --c-inverse-surface: 28 28 30;
       --c-inverse-on-surface: 242 242 247;
     }
@@ -94,6 +96,8 @@
       --c-outline-variant: 44 44 46;
       --c-error: 255 69 58;
       --c-error-container: 46 21 21;
+      --c-green: 50 215 75;
+      --c-green-container: 26 46 26;
       --c-inverse-surface: 242 242 247;
       --c-inverse-on-surface: 28 28 30;
     }
@@ -129,6 +133,8 @@
         --c-outline-variant: 44 44 46;
         --c-error: 255 69 58;
         --c-error-container: 46 21 21;
+        --c-green: 50 215 75;
+        --c-green-container: 26 46 26;
         --c-inverse-surface: 242 242 247;
         --c-inverse-on-surface: 28 28 30;
       }
@@ -385,6 +391,8 @@
             "outline-variant": "rgb(var(--c-outline-variant) / <alpha-value>)",
             "error": "rgb(var(--c-error) / <alpha-value>)",
             "error-container": "rgb(var(--c-error-container) / <alpha-value>)",
+            "green": "rgb(var(--c-green) / <alpha-value>)",
+            "green-container": "rgb(var(--c-green-container) / <alpha-value>)",
             "inverse-surface": "rgb(var(--c-inverse-surface) / <alpha-value>)",
             "inverse-on-surface": "rgb(var(--c-inverse-on-surface) / <alpha-value>)"
           },
@@ -410,6 +418,7 @@
       } catch (e) {}
     })();
   </script>
+  <link rel="stylesheet" href="css/theme-mockup.css"/>
 </head>
 <body class="bg-surface text-on-surface flex flex-col h-screen w-screen overflow-hidden">
   <!-- Startup Splash Screen with Smooth Fluid Animation: Follows Application Theme -->
@@ -427,7 +436,7 @@
     <div class="flex flex-col items-center justify-center text-center space-y-6 my-auto">
       <!-- Animated Logo Container with Glow -->
       <div class="relative group">
-        <div class="absolute -inset-4 bg-gradient-to-tr from-primary/20 via-primary-container/25 to-amber-500/20 rounded-3xl blur-2xl splash-pulse-glow"></div>
+        <div class="absolute -inset-4 bg-gradient-to-tr from-primary/20 via-primary-container/25 to-primary/20 rounded-3xl blur-2xl splash-pulse-glow"></div>
         <div class="relative w-28 h-28 rounded-2xl bg-surface-container-lowest border border-surface-container-high shadow-[0_12px_32px_rgba(150,73,0,0.12)] p-2.5 flex items-center justify-center splash-logo-enter">
           <img src="img/app_logo.png" alt="GodownWala" class="w-full h-full object-contain rounded-xl drop-shadow-sm" />
         </div>
@@ -447,7 +456,7 @@
       <!-- Smooth Progress Indicator in Application Theme -->
       <div class="w-60 space-y-2 pt-2">
         <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden p-0.5 border border-surface-container-highest shadow-inner">
-          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-primary via-primary-container to-amber-500 rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_8px_rgba(150,73,0,0.3)]"></div>
+          <div id="splashProgressBar" class="h-full bg-gradient-to-r from-primary via-primary-container to-primary rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_8px_rgba(0,122,255,0.3)]"></div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-on-surface-variant font-semibold px-1">
           <span id="splashStatusText" class="animate-pulse">Starting engine...</span>
@@ -567,12 +576,12 @@
           <span class="material-symbols-outlined text-[18px]" id="themeToggleIcon">dark_mode</span>
         </button>
         <button id="syncStatusBtn" onclick="openSyncHealthModal()" class="flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-surface-container border border-outline-variant active:scale-95 transition-all" title="Cloud sync status">
-          <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-green-500"></span>
+          <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-green"></span>
           <span id="syncStatusLabel" class="text-[10px] font-black uppercase tracking-wide text-on-surface-variant">Synced</span>
         </button>
         <button onclick="checkForUpdatesManual()" class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 border border-surface-container-high shadow-sm relative" title="Check for App Updates">
           <span class="material-symbols-outlined text-[18px]">system_update</span>
-          <span id="headerUpdateBadge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse border-2 border-surface"></span>
+          <span id="headerUpdateBadge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-primary animate-pulse border-2 border-surface"></span>
         </button>
         <button onclick="openBluetoothModal()" class="flex items-center gap-1 bg-surface-container-low hover:bg-surface-container px-2 py-1 rounded-lg border border-surface-container-high active:scale-95 transition-all" title="Manage Bluetooth Printer">
           <span id="headerBtIcon" class="material-symbols-outlined text-[15px] text-tertiary">bluetooth_connected</span>
@@ -593,15 +602,15 @@
     <!-- ==================== TAB 1: DASHBOARD ==================== -->
     <section id="tab-dashboard" class="tab-page px-4 py-3 space-y-3">
       <!-- App Update Available Banner -->
-      <div id="updateNotificationBanner" class="hidden bg-gradient-to-r from-amber-500/15 via-primary/15 to-amber-500/15 border border-amber-500/40 rounded-xl p-3 flex items-center justify-between shadow-sm">
+      <div id="updateNotificationBanner" class="hidden bg-gradient-to-r from-primary/15 via-primary/15 to-primary/15 border border-primary/40 rounded-xl p-3 flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center shrink-0">
             <span class="material-symbols-outlined text-[20px] animate-bounce">system_update</span>
           </div>
           <div class="min-w-0">
             <div class="text-[12px] font-bold text-on-surface flex items-center gap-1.5 truncate">
               <span>Update Ready:</span>
-              <span id="bannerNewVersion" class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 font-mono text-[10px] font-extrabold">v1.0.5</span>
+              <span id="bannerNewVersion" class="px-1.5 py-0.2 rounded bg-primary/20 text-primary font-mono text-[10px] font-extrabold">v1.0.5</span>
             </div>
             <p class="text-[10px] text-on-surface-variant truncate">Tap to install the latest GodownWala build</p>
           </div>
@@ -1334,12 +1343,12 @@
         </div>
 
         <!-- Bluetooth Status / Permission Warning (Shown if BT off or no permission) -->
-        <div id="btWarningBox" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 text-[11px] text-amber-900 flex items-center justify-between">
+        <div id="btWarningBox" class="hidden bg-primary/10 border border-primary/30 rounded-xl p-2.5 text-[11px] text-primary flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[18px] text-amber-700">bluetooth_disabled</span>
+            <span class="material-symbols-outlined text-[18px] text-primary">bluetooth_disabled</span>
             <span id="btWarningMsg">Bluetooth is turned off</span>
           </div>
-          <button onclick="openSystemBluetoothSettings()" class="px-2 py-1 bg-amber-600 text-white font-bold rounded text-[10px] uppercase">Settings</button>
+          <button onclick="openSystemBluetoothSettings()" class="px-2 py-1 bg-primary text-white font-bold rounded text-[10px] uppercase">Settings</button>
         </div>
 
         <!-- Paired Devices Section -->
@@ -1639,7 +1648,7 @@
           </div>
           <span class="material-symbols-outlined text-primary text-[18px]">arrow_forward</span>
           <div class="text-right">
-            <div class="text-[10px] font-bold text-amber-500 uppercase">Latest Available</div>
+            <div class="text-[10px] font-bold text-primary uppercase">Latest Available</div>
             <div id="updateLatestVer" class="text-[13px] font-mono font-bold text-primary">v1.0.5</div>
           </div>
         </div>
@@ -1648,7 +1657,7 @@
         <div class="space-y-1">
           <div class="flex justify-between items-center">
             <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Release Notes</span>
-            <span id="updateApkSize" class="text-[10px] font-mono text-slate-400 font-semibold"></span>
+            <span id="updateApkSize" class="text-[10px] font-mono text-on-surface-variant font-semibold"></span>
           </div>
           <div id="updateChangelog" class="text-[12px] text-on-surface bg-surface-container-low/60 rounded-lg p-2.5 max-h-32 overflow-y-auto whitespace-pre-wrap border border-surface-container-high/60 font-sans leading-relaxed">
             Bug fixes and performance enhancements.
