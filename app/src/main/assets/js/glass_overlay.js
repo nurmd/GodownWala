@@ -16,12 +16,25 @@
  */
 
 (function () {
-  const CACHE_PREFIX = 'glass:v1:';
-  const INDEX_KEY = 'glass:v1:index';
+  const CACHE_PREFIX = 'glass:v2:';
+  const INDEX_KEY = 'glass:v2:index';
   const MAX_ENTRIES = 80;      // ~7 KB each -> well under the localStorage cap
   const TILE_W = 128;          // logical px; upscaled by background-size: cover
   const TILE_H = 96;
   const BLUR_PX = 11;
+
+  // v1 tiles were baked on a transparent canvas, so every transparent PNG
+  // turned black once the JPEG was encoded. Drop them and re-bake on white.
+  (function purgeLegacyCache() {
+    try {
+      const stale = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('glass:v1:') === 0) stale.push(k);
+      }
+      stale.forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    } catch (e) {}
+  })();
 
   const queue = [];
   const inflight = {};         // key -> true while a bake is queued/running
@@ -92,6 +105,11 @@
       const scale = Math.max(TILE_W / img.naturalWidth, TILE_H / img.naturalHeight);
       const dw = img.naturalWidth * scale;
       const dh = img.naturalHeight * scale;
+
+      // White base: JPEG has no alpha, and a transparent PNG would otherwise
+      // bake to black.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, TILE_W, TILE_H);
 
       if (typeof ctx.filter === 'string') {
         ctx.filter = 'blur(' + BLUR_PX + 'px) saturate(1.3)';

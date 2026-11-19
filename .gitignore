@@ -71,3 +71,6 @@ screenshot.png
 *.jks
 keystore.properties
 *.keystore.properties
+
+# Kotlin build session dir
+.kotlin/
