@@ -217,53 +217,220 @@ function copySlipToClipboard() {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   SLIP PREVIEW — two rendering styles:
+     receipt : paper receipt, data-driven, print-accurate content (default)
+     paper   : exact ESC/POS text on a paper card at true column width
+   --------------------------------------------------------------------------- */
+let slipPreviewStyle = (function () {
+  try { return localStorage.getItem('slipPreviewStyle') === 'paper' ? 'paper' : 'receipt'; } catch (e) { return 'receipt'; }
+})();
+
+function ensureSlipPreviewCss() {
+  if (document.getElementById('slipPreviewProtoCss')) return;
+  const css = `
+.slip-chip{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:var(--surface-tertiary);color:var(--text-secondary);transition:background .15s ease,color .15s ease;}
+html.dark .slip-chip,body.dark .slip-chip{background:rgba(255,255,255,.10);color:rgba(235,235,245,.72);}
+.slip-chip-on{background:var(--accent)!important;color:#fff!important;}
+#slipPreviewContent{background:var(--bg);}
+.slip-stage{display:flex;justify-content:center;align-items:flex-start;min-height:100%;padding:18px 6px 26px;box-sizing:border-box;}
+.slip-paper{position:relative;margin:auto;width:var(--paper-w,420px);max-width:100%;background:var(--paper-bg);color:var(--ink);border-radius:10px;padding:20px 18px 22px;font-family:var(--font);font-size:12px;line-height:1.45;box-shadow:0 1px 1px rgba(0,0,0,.10),0 8px 24px rgba(0,0,0,.16),0 24px 60px rgba(0,0,0,.10);}
+.slip-paper::before,.slip-paper::after{content:"";position:absolute;left:0;right:0;height:7px;pointer-events:none;background-image:radial-gradient(circle at 5px 3.5px,transparent 0 3.5px,var(--paper-bg) 3.6px);background-size:10px 7px;background-repeat:repeat-x;}
+.slip-paper::before{top:-7px;}
+.slip-paper::after{bottom:-7px;}
+.slip-paper{--paper-bg:#FDFCFA;--ink:#111114;--ink-2:rgba(20,20,25,.58);--rule:rgba(20,20,25,.16);}
+html.dark .slip-paper,body.dark .slip-paper{--paper-bg:#151518;--ink:#F5F5F7;--ink-2:rgba(235,235,245,.55);--rule:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.10);box-shadow:0 1px 1px rgba(0,0,0,.6),0 10px 30px rgba(0,0,0,.55);}
+.slip-brand{text-align:center;font-size:15px;font-weight:800;letter-spacing:.09em;line-height:1.2;}
+.slip-sub{text-align:center;font-size:9.5px;color:var(--ink-2);letter-spacing:.11em;margin-top:3px;text-transform:uppercase;}
+.slip-doc{text-align:center;margin-top:13px;font-size:10px;font-weight:800;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+.slip-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:14px;}
+.slip-meta>div{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.slip-meta span{font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);}
+.slip-meta b{font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;}
+.slip-hr{height:1px;background:var(--rule);margin:14px 0;}
+.slip-hr-dash{height:0;border-top:1px dashed var(--rule);background:none;}
+.slip-sec{font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:7px;}
+.slip-kv{display:flex;justify-content:space-between;gap:14px;padding:2.5px 0;font-size:11.5px;line-height:1.4;}
+.slip-kv span{color:var(--ink-2);flex:0 0 auto;}
+.slip-kv b{font-weight:600;text-align:right;word-break:break-word;min-width:0;}
+.slip-thead,.slip-irow{display:grid;grid-template-columns:1fr 38px 58px;gap:8px;align-items:baseline;}
+.slip-thead{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);padding-bottom:6px;border-bottom:1px solid var(--rule);}
+.slip-thead span:nth-child(2),.slip-thead span:nth-child(3){text-align:right;}
+.slip-irow{padding:7px 0;border-bottom:1px dashed var(--rule);}
+.slip-irow:last-child{border-bottom:none;}
+.slip-iname{font-size:12px;font-weight:600;line-height:1.3;word-break:break-word;}
+.slip-isub{font-size:9px;color:var(--ink-2);margin-top:2px;}
+.slip-iqty,.slip-iwt{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;font-variant-numeric:tabular-nums;}
+.slip-total{display:flex;justify-content:space-between;padding:3px 0;font-size:11.5px;}
+.slip-total span{color:var(--ink-2);}
+.slip-total b{font-weight:600;font-variant-numeric:tabular-nums;}
+.slip-grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:1px solid var(--rule);}
+.slip-grand span{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);}
+.slip-grand b{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+.slip-sign{display:flex;justify-content:space-between;gap:18px;margin-top:26px;font-size:9px;color:var(--ink-2);text-align:center;}
+.slip-sign>div{flex:1;border-top:1px solid var(--rule);padding-top:6px;}
+.slip-foot{text-align:center;font-size:8.5px;letter-spacing:.11em;color:var(--ink-2);margin-top:16px;text-transform:uppercase;}
+.slip-pre{margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.2px;line-height:1.5;white-space:pre;overflow-x:auto;color:var(--ink);}
+.slip-note{padding:10px 12px;border-radius:10px;background:var(--surface-secondary);color:var(--text-secondary);font-size:11px;text-align:center;}
+`;
+  const el = document.createElement('style');
+  el.id = 'slipPreviewProtoCss';
+  el.textContent = css;
+  document.head.appendChild(el);
+}
+
+function slipRawText(slipNo) {
+  if (!bridge()) return '';
+  const optJson = JSON.stringify(activePrintOptions);
+  try {
+    if (bridge().getSlipTextWithOptions) {
+      return bridge().getSlipTextWithOptions(slipNo, currentPaperWidth, optJson) || '';
+    }
+    return bridge().getSlipText(slipNo, currentPaperWidth) || '';
+  } catch (e) {
+    console.error(e);
+    return '';
+  }
+}
+
+function slipMoney(n) {
+  const v = Number(n) || 0;
+  return '\u20B9' + v.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+}
+
+function renderReceiptPreview(tx) {
+  const esc = escapeHtml;
+  const isOut = tx.type === 'OUTWARD';
+  const biz = (typeof currentBusiness !== 'undefined' && currentBusiness) ? currentBusiness : {};
+  const bizName = String(biz.name || 'GODOWN MANAGER');
+  const gstin = biz.gstin && String(biz.gstin).toUpperCase() !== 'UNREGISTERED' ? String(biz.gstin) : '';
+  const items = Array.isArray(tx.items) ? tx.items : [];
+
+  const itemRows = items.length ? items.map(it => {
+    const name = it.productName || it.name || 'Item';
+    const qty = Number(it.quantityBags != null ? it.quantityBags : (it.qty || it.bags || 0));
+    const mt = Number(it.metricTons != null ? it.metricTons : 0);
+    const sub = [it.bayLocation, it.batchNo ? 'Batch ' + it.batchNo : ''].filter(Boolean).join(' \u00B7 ');
+    return `<div class="slip-irow">
+        <div><div class="slip-iname">${esc(String(name))}</div>${sub ? `<div class="slip-isub">${esc(sub)}</div>` : ''}</div>
+        <div class="slip-iqty">${qty}</div>
+        <div class="slip-iwt">${mt ? mt.toFixed(2) : '\u2014'}</div>
+      </div>`;
+  }).join('') : `<div class="slip-irow"><div class="slip-iname" style="color:var(--ink-2)">No items on this slip</div></div>`;
+
+  const kv = (label, value) => {
+    const v = value == null ? '' : String(value).trim();
+    if (!v || v === '-' || v === '\u2014') return '';
+    return `<div class="slip-kv"><span>${esc(label)}</span><b>${esc(v)}</b></div>`;
+  };
+
+  const partyRows = [
+    kv(isOut ? 'Customer' : 'Vendor', tx.partyName || 'Walk-in'),
+    kv('Phone', tx.customerPhone),
+    kv('Destination', tx.destinationSite)
+  ].filter(Boolean).join('');
+
+  const transportRows = [
+    kv('Vehicle', tx.vehicleNo),
+    kv('Driver', tx.driverName),
+    kv('Driver Phone', tx.driverPhone),
+    kv('Challan', tx.challanNo),
+    kv('E-Way Bill', tx.ewbNo)
+  ].filter(Boolean).join('');
+
+  const bags = Number(tx.totalBags || 0);
+  const mt = Number(tx.totalMetricTons != null ? tx.totalMetricTons : (tx.totalMt || 0));
+  const amount = Number(tx.totalAmount || 0);
+  const operator = tx.dispatchedBy && tx.dispatchedBy !== '-' ? tx.dispatchedBy : 'Admin';
+  const paperW = currentPaperWidth === 58 ? 340 : 430;
+
+  return `<div class="slip-stage">
+    <div class="slip-paper" style="--paper-w:${paperW}px">
+      <div class="slip-brand">${esc(bizName.toUpperCase())}</div>
+      <div class="slip-sub">Central Depot</div>
+      ${gstin ? `<div class="slip-sub">GSTIN ${esc(gstin)}</div>` : ''}
+      <div class="slip-doc">Gate Pass \u00B7 ${isOut ? 'Outward' : 'Stock-In'}</div>
+
+      <div class="slip-meta">
+        <div><span>Slip No</span><b>${esc(tx.slipNo || '\u2014')}</b></div>
+        <div><span>Date</span><b>${esc(tx.dateStr || '\u2014')}</b></div>
+        <div><span>Time</span><b>${esc(tx.timeStr || '\u2014')}</b></div>
+        <div><span>Operator</span><b>${esc(operator)}</b></div>
+      </div>
+
+      <div class="slip-hr"></div>
+      ${partyRows ? `<div class="slip-sec">Party</div>${partyRows}` : ''}
+      ${transportRows ? `<div class="slip-sec" style="margin-top:12px">Transport</div>${transportRows}` : ''}
+
+      <div class="slip-hr"></div>
+      <div class="slip-thead"><span>Item</span><span>Qty</span><span>Wt</span></div>
+      ${itemRows}
+
+      <div class="slip-hr"></div>
+      <div class="slip-total"><span>Total quantity</span><b>${bags} units</b></div>
+      <div class="slip-total"><span>Total net weight</span><b>${mt.toFixed(2)} MT</b></div>
+      <div class="slip-grand"><span>Total value</span><b>${slipMoney(amount)}</b></div>
+
+      <div class="slip-sign"><div>Driver Signature</div><div>Gate Officer</div></div>
+      <div class="slip-foot">Computer generated slip</div>
+    </div>
+  </div>`;
+}
+
+function renderPaperPreview(raw) {
+  const paperW = currentPaperWidth === 58 ? 340 : 430;
+  const cols = currentPaperWidth === 58 ? 32 : 48;
+  const fs = Math.min(13, (paperW - 38) / (cols * 0.6)).toFixed(2);
+  return `<div class="slip-stage">
+    <div class="slip-paper" style="--paper-w:${paperW}px">
+      <pre class="slip-pre" style="font-size:${fs}px">${escapeHtml(raw || 'No data')}</pre>
+      <div class="slip-foot">${currentPaperWidth} mm \u00B7 ${cols} columns</div>
+    </div>
+  </div>`;
+}
+
+function renderSlipPreviewBody(slipNo) {
+  const previewEl = document.getElementById('slipPreviewContent');
+  if (!previewEl) return;
+  ensureSlipPreviewCss();
+
+  const tx = (typeof cachedTransactions !== 'undefined' ? cachedTransactions : []).find(t => t.slipNo === slipNo);
+  const raw = slipRawText(slipNo);
+
+  if (slipPreviewStyle === 'paper') {
+    previewEl.innerHTML = renderPaperPreview(raw);
+  } else {
+    previewEl.innerHTML = tx
+      ? renderReceiptPreview(tx)
+      : `<div class="slip-note">Slip details not available.</div>`;
+  }
+}
+
+function syncSlipStyleChips() {
+  document.querySelectorAll('#slipPreviewStyleSwitch [data-style]').forEach(b => {
+    b.classList.toggle('slip-chip-on', b.dataset.style === slipPreviewStyle);
+  });
+}
+
+function setSlipPreviewStyle(style) {
+  if (['receipt', 'paper'].indexOf(style) === -1) return;
+  slipPreviewStyle = style;
+  try { localStorage.setItem('slipPreviewStyle', style); } catch (e) {}
+  syncSlipStyleChips();
+  if (currentLastSlipNo) renderSlipPreviewBody(currentLastSlipNo);
+}
+
 function viewSlip(slipNo) {
   currentLastSlipNo = slipNo;
   const modal = document.getElementById('slipPreviewModal');
-  const previewEl = document.getElementById('slipPreviewContent');
   const header = document.getElementById('slipPreviewHeader');
   const editBtn = document.getElementById('slipPreviewEditBtn');
   const printBtn = document.getElementById('slipPreviewPrintBtn');
 
   if (header) header.textContent = 'Slip: ' + slipNo;
 
-  if (bridge()) {
-    const optJson = JSON.stringify(activePrintOptions);
-    let text = '';
-    try {
-      if (bridge().getSlipTextWithOptions) {
-        text = bridge().getSlipTextWithOptions(slipNo, currentPaperWidth, optJson);
-      } else {
-        text = bridge().getSlipText(slipNo, currentPaperWidth);
-      }
-    } catch (e) {
-      console.error(e);
-      text = "";
-    }
-
-    if (previewEl) {
-      text = text || "No data";
-      let formatted = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const parts = formatted.split(/(ITEM(?:\s*\/\s*BATCH)?\s+QTY\s+(?:WEIGHT|WT)[^\n]*\n[-=]+\n)/);
-      if (parts.length >= 3) {
-        const headerPart = parts[0] + parts[1];
-        const rest = parts.slice(2).join('');
-        const endParts = rest.split(/(\n[-=]+\nTOTAL QUANTITY:)/);
-        if (endParts.length >= 2) {
-          const itemLines = endParts[0].split('\n').map(line => {
-            if (line.trim().startsWith('[') || line.trim().startsWith('//') || line.trim() === '') {
-              return line;
-            }
-            return `<strong class="text-[13px] font-black text-on-surface leading-snug">${line}</strong>`;
-          }).join('\n');
-          formatted = headerPart + itemLines + endParts.slice(1).join('');
-        }
-      }
-      formatted = formatted.replace(/(TOTAL QUANTITY:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
-      formatted = formatted.replace(/(TOTAL NET WT:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
-      previewEl.innerHTML = '<pre class="text-[13px] sm:text-[14px] font-mono whitespace-pre-wrap leading-relaxed text-on-surface w-full max-w-none">' + formatted + '</pre>';
-    }
-  }
+  renderSlipPreviewBody(slipNo);
+  syncSlipStyleChips();
 
   if (editBtn) {
     const tx = (typeof cachedTransactions !== 'undefined' ? cachedTransactions : []).find(t => t.slipNo === slipNo);

@@ -1158,19 +1158,26 @@
   <div id="slipPreviewModal" onclick="if(event.target===this) closeSlipPreviewModal()" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
     <div class="bg-surface text-on-surface w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl animate-slide-up flex flex-col h-[92vh] max-h-[92vh]">
       <!-- Header -->
-      <div class="bg-surface-container-low px-4 py-3 flex items-center justify-between border-b border-surface-container-high shrink-0">
-        <h2 class="text-[16px] font-bold text-on-surface" id="slipPreviewHeader">Slip Preview</h2>
-        <div class="flex items-center gap-2">
-          <button id="slipPreviewTrashBtn" onclick="deleteCurrentSlip()" class="px-3 py-1 rounded-lg bg-error-container text-on-error-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all mr-1"><span class="material-symbols-outlined text-[14px]">delete</span> Trash</button> <button id="slipPreviewEditBtn" class="px-3 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all">
-            <span class="material-symbols-outlined text-[14px]">edit</span> Edit
-          </button>
-          <button onclick="closeSlipPreviewModal()" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90 transition-all cursor-pointer z-50">
-            <span class="material-symbols-outlined text-[20px]">close</span>
-          </button>
+      <div class="bg-surface-container-low px-4 py-3 border-b border-surface-container-high shrink-0">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[16px] font-bold text-on-surface" id="slipPreviewHeader">Slip Preview</h2>
+          <div class="flex items-center gap-2">
+            <button id="slipPreviewTrashBtn" onclick="deleteCurrentSlip()" class="px-3 py-1 rounded-lg bg-error-container text-on-error-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all mr-1"><span class="material-symbols-outlined text-[14px]">delete</span> Trash</button> <button id="slipPreviewEditBtn" class="px-3 py-1 rounded-lg bg-secondary-container text-on-secondary-container font-bold text-[11px] uppercase flex items-center gap-1 active:scale-95 transition-all">
+              <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+            </button>
+            <button onclick="closeSlipPreviewModal()" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90 transition-all cursor-pointer z-50">
+              <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+          </div>
+        </div>
+        <!-- Preview style switcher -->
+        <div class="flex items-center gap-1.5 mt-2.5" id="slipPreviewStyleSwitch">
+          <button type="button" data-style="receipt" onclick="setSlipPreviewStyle('receipt')" class="slip-chip">Receipt</button>
+          <button type="button" data-style="paper" onclick="setSlipPreviewStyle('paper')" class="slip-chip">Paper</button>
         </div>
       </div>
       <!-- Body (Thermal Preview) -->
-      <div class="p-2 sm:p-3 overflow-y-auto bg-surface-container-lowest text-on-surface flex-1" id="slipPreviewContent">
+      <div class="p-2 sm:p-3 overflow-y-auto text-on-surface flex-1" id="slipPreviewContent">
         <!-- Preview will be injected here -->
       </div>
       <!-- Footer Actions -->
