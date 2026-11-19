@@ -217,76 +217,6 @@ function copySlipToClipboard() {
   }
 }
 
-function renderSlipDetails(tx) {
-  const isOut = tx.type === 'OUTWARD';
-  const typeLabel = isOut ? 'Dispatched' : 'Stock-In';
-  const typeClass = isOut ? 'badge-dispatch' : 'badge-inward';
-  const dateLine = [tx.dateStr, tx.timeStr].filter(Boolean).join(' · ');
-
-  const items = Array.isArray(tx.items) ? tx.items : [];
-  const itemsHtml = items.length ? items.map(it => {
-    const name = it.productName || it.name || 'Item';
-    const qty = Number(it.quantityBags || it.qty || it.bags || 0);
-    const rate = Number(it.ratePerBag || it.rate || 0);
-    const amt = Number(it.amount != null ? it.amount : (qty * rate));
-    return `
-      <div class="flex items-start justify-between gap-3 py-2.5">
-        <div class="min-w-0 flex-1">
-          <div class="text-[14px] font-semibold text-on-surface truncate">${escapeHtml(String(name))}</div>
-          <div class="text-[12px] text-on-surface-variant mt-0.5">${qty.toLocaleString('en-IN')} × ₹${rate.toLocaleString('en-IN')}</div>
-        </div>
-        <div class="text-[14px] font-bold text-on-surface shrink-0">₹${amt.toLocaleString('en-IN')}</div>
-      </div>`;
-  }).join('<div class="h-px bg-outline-variant/40"></div>') : `<div class="text-[13px] text-on-surface-variant py-3 text-center">No item details</div>`;
-
-  const row = (label, value) => {
-    if (value == null || value === '' || value === '-') return '';
-    return `<div class="flex justify-between gap-3 py-1.5"><span class="text-[12px] text-on-surface-variant shrink-0">${escapeHtml(label)}</span><span class="text-[13px] font-medium text-on-surface text-right break-words">${escapeHtml(String(value))}</span></div>`;
-  };
-
-  const partyBlock = [
-    row(isOut ? 'Customer' : 'Vendor', tx.partyName || 'Walk-in'),
-    row('Phone', tx.customerPhone || ''),
-    row('Destination', tx.destinationSite || ''),
-  ].filter(Boolean).join('');
-
-  const transportBlock = [
-    row('Vehicle', tx.vehicleNo || ''),
-    row('Driver', tx.driverName || ''),
-    row('Driver Phone', tx.driverPhone || ''),
-    row('Challan', tx.challanNo || ''),
-    row('E-Way Bill', tx.ewbNo || tx.ewayBillNo || ''),
-  ].filter(Boolean).join('');
-
-  const totalBags = Number(tx.totalBags || 0);
-  const totalAmt = Number(tx.totalAmount || 0);
-  const totalMt = Number(tx.totalMt || tx.totalNetMt || 0);
-
-  return `
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <span class="list-badge ${typeClass}">${typeLabel}</span>
-        <span class="text-[12px] text-on-surface-variant">${escapeHtml(dateLine)}</span>
-      </div>
-
-      ${partyBlock ? `<div class="card" style="padding:12px 14px;">${partyBlock}</div>` : ''}
-
-      <div>
-        <div class="text-[11px] font-bold uppercase tracking-wide text-on-surface-variant mb-1.5 px-1">Items</div>
-        <div class="card" style="padding:4px 14px;">${itemsHtml}</div>
-      </div>
-
-      <div class="card" style="padding:12px 14px;">
-        <div class="flex justify-between py-1"><span class="text-[13px] text-on-surface-variant">Total Units</span><span class="text-[14px] font-bold text-on-surface">${totalBags.toLocaleString('en-IN')}</span></div>
-        ${totalMt > 0 ? `<div class="flex justify-between py-1"><span class="text-[13px] text-on-surface-variant">Net Weight</span><span class="text-[14px] font-bold text-on-surface">${totalMt.toLocaleString('en-IN', {maximumFractionDigits:2})} MT</span></div>` : ''}
-        <div class="flex justify-between py-1 border-t border-outline-variant/40 mt-1 pt-2"><span class="text-[13px] font-semibold text-on-surface">Total Amount</span><span class="text-[16px] font-bold text-primary">₹${totalAmt.toLocaleString('en-IN')}</span></div>
-      </div>
-
-      ${transportBlock ? `<div><div class="text-[11px] font-bold uppercase tracking-wide text-on-surface-variant mb-1.5 px-1">Transport &amp; References</div><div class="card" style="padding:12px 14px;">${transportBlock}</div></div>` : ''}
-    </div>
-  `;
-}
-
 function viewSlip(slipNo) {
   currentLastSlipNo = slipNo;
   const modal = document.getElementById('slipPreviewModal');
@@ -295,19 +225,48 @@ function viewSlip(slipNo) {
   const editBtn = document.getElementById('slipPreviewEditBtn');
   const printBtn = document.getElementById('slipPreviewPrintBtn');
 
-  if (header) header.textContent = 'Slip · ' + slipNo;
+  if (header) header.textContent = 'Slip: ' + slipNo;
 
-  const tx = (typeof cachedTransactions !== 'undefined' ? cachedTransactions : []).find(t => t.slipNo === slipNo);
+  if (bridge()) {
+    const optJson = JSON.stringify(activePrintOptions);
+    let text = '';
+    try {
+      if (bridge().getSlipTextWithOptions) {
+        text = bridge().getSlipTextWithOptions(slipNo, currentPaperWidth, optJson);
+      } else {
+        text = bridge().getSlipText(slipNo, currentPaperWidth);
+      }
+    } catch (e) {
+      console.error(e);
+      text = "";
+    }
 
-  if (previewEl) {
-    if (tx) {
-      previewEl.innerHTML = renderSlipDetails(tx);
-    } else {
-      previewEl.innerHTML = `<div class="text-center py-10 text-on-surface-variant text-[14px]">Slip details not available.</div>`;
+    if (previewEl) {
+      text = text || "No data";
+      let formatted = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const parts = formatted.split(/(ITEM(?:\s*\/\s*BATCH)?\s+QTY\s+(?:WEIGHT|WT)[^\n]*\n[-=]+\n)/);
+      if (parts.length >= 3) {
+        const headerPart = parts[0] + parts[1];
+        const rest = parts.slice(2).join('');
+        const endParts = rest.split(/(\n[-=]+\nTOTAL QUANTITY:)/);
+        if (endParts.length >= 2) {
+          const itemLines = endParts[0].split('\n').map(line => {
+            if (line.trim().startsWith('[') || line.trim().startsWith('//') || line.trim() === '') {
+              return line;
+            }
+            return `<strong class="text-[13px] font-black text-on-surface leading-snug">${line}</strong>`;
+          }).join('\n');
+          formatted = headerPart + itemLines + endParts.slice(1).join('');
+        }
+      }
+      formatted = formatted.replace(/(TOTAL QUANTITY:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
+      formatted = formatted.replace(/(TOTAL NET WT:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
+      previewEl.innerHTML = '<pre class="text-[13px] sm:text-[14px] font-mono whitespace-pre-wrap leading-relaxed text-on-surface w-full max-w-none">' + formatted + '</pre>';
     }
   }
 
   if (editBtn) {
+    const tx = (typeof cachedTransactions !== 'undefined' ? cachedTransactions : []).find(t => t.slipNo === slipNo);
     const canEdit = !!(tx && tx.type === 'OUTWARD');
     editBtn.classList.toggle('hidden', !canEdit);
     editBtn.onclick = () => {
