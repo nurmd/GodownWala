@@ -535,8 +535,12 @@ class MainActivity : Activity() {
                 var dispatchedUnits = 0
                 var inwardMt = 0.0
                 var dispatchedMt = 0.0
-                val now = System.currentTimeMillis()
-                val dayStart = now - (24 * 60 * 60 * 1000)
+                val dayCal = java.util.Calendar.getInstance()
+                dayCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                dayCal.set(java.util.Calendar.MINUTE, 0)
+                dayCal.set(java.util.Calendar.SECOND, 0)
+                dayCal.set(java.util.Calendar.MILLISECOND, 0)
+                val dayStart = dayCal.timeInMillis
                 for (tx in txs) {
                     if (tx.timestamp >= dayStart) {
                         if (tx.type == com.example.bhpos.domain.model.TransactionType.INWARD) {

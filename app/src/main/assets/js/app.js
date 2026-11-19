@@ -671,8 +671,9 @@ function recalculateMetrics() {
   let inwardUnits = 0;
   let dispatchedUnits = 0;
 
-  const now = Date.now();
-  const dayStart = now - (24 * 60 * 60 * 1000);
+  const dayStartDate = new Date();
+  dayStartDate.setHours(0, 0, 0, 0);
+  const dayStart = dayStartDate.getTime();
 
   (cachedTransactions || []).forEach(tx => {
     if (tx.timestamp >= dayStart) {
