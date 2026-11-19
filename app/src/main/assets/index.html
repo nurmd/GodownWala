@@ -356,6 +356,10 @@
 
       <!-- Thermal Status Chip & Screenshot Trigger & App Update -->
       <div class="flex items-center gap-1.5 shrink-0">
+        <button id="syncStatusBtn" onclick="openSyncHealthModal()" class="flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-surface-container border border-outline-variant active:scale-95 transition-all" title="Cloud sync status">
+          <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-green-500"></span>
+          <span id="syncStatusLabel" class="text-[10px] font-black uppercase tracking-wide text-on-surface-variant">Synced</span>
+        </button>
         <button onclick="checkForUpdatesManual()" class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 border border-surface-container-high shadow-sm relative" title="Check for App Updates">
           <span class="material-symbols-outlined text-[18px]">system_update</span>
           <span id="headerUpdateBadge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse border-2 border-surface"></span>
@@ -1349,6 +1353,29 @@
   </div>
 
 
+  <!-- Sync Health Modal -->
+  <div id="syncHealthModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
+      <div class="p-4 border-b border-outline-variant flex items-center justify-between bg-surface-container/60">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">cloud_sync</span>
+          <h3 class="text-[14px] font-black uppercase tracking-wide text-on-surface">Sync Health</h3>
+        </div>
+        <button onclick="closeSyncHealthModal()" class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant active:scale-90">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="p-4 border-b border-outline-variant">
+        <p id="syncHealthSummary" class="text-[12px] font-bold text-on-surface-variant">0 pending · 0 failed · 0 conflicts</p>
+        <div class="flex gap-2 mt-3">
+          <button onclick="retryAllFailedSync()" class="flex-1 py-2 rounded-xl bg-primary text-on-primary font-black text-[11px] uppercase tracking-wide active:scale-95 shadow-[0_2px_10px_rgba(245,165,36,0.3)]">Retry All</button>
+          <button onclick="clearDoneSync(); renderSyncHealth();" class="flex-1 py-2 rounded-xl bg-surface-container text-on-surface-variant font-black text-[11px] uppercase tracking-wide active:scale-95 border border-outline-variant">Clear Done</button>
+        </div>
+      </div>
+      <div id="syncHealthList" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+    </div>
+  </div>
+
   <!-- Bottom Navigation Bar (Fixed 4 Items) -->
   <nav class="fixed bottom-0 w-full z-40 pb-safe bg-surface/95 backdrop-blur-xl border-t border-outline-variant shadow-[0_-2px_12px_rgba(0,0,0,0.05)]">
     <div class="flex justify-around items-center h-16 px-1">
@@ -1450,5 +1477,6 @@
   <script src="js/dispatch.js"></script>
   <script src="js/thermal_printer.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/sync_queue.js"></script>
 </body>
 </html>

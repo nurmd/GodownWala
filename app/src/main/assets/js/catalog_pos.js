@@ -388,28 +388,9 @@ async function saveNewItem() {
     }
   }
 
-  // 3. Asynchronously sync to Supabase database
-  try {
-    if (currentBusiness && currentBusiness.id) {
-      await sFetch(`products`, {
-        method: 'POST',
-        body: JSON.stringify({
-          id: id,
-          business_id: currentBusiness.id,
-          name: name,
-          grade: unit,
-          unit: unit,
-          default_rate_per_bag: rate,
-          current_stock_bags: stock,
-          weight_per_bag_kg: weightPerBagKg,
-          bay_location: bayLoc,
-          image_url: image,
-          is_active: true
-        })
-      });
-    }
-  } catch (e) {
-    console.error("[Catalog] Cloud save failed:", e);
+  // 3. Queue cloud sync in the background (local-first; UI never waits)
+  if (currentBusiness && currentBusiness.id) {
+    enqueueSync({ type: 'product', operation: 'upsert', payload: newProduct });
   }
 }
 
@@ -544,24 +525,10 @@ async function saveEditItem() {
     }
   }
 
-  // 3. Sync to Supabase
-  try {
-    if (currentBusiness && currentBusiness.id) {
-      await sFetch(`products?id=eq.${id}&business_id=eq.${currentBusiness.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          name: name,
-          grade: unit,
-          unit: unit,
-          default_rate_per_bag: rate,
-          image_url: image,
-          is_active: isActive,
-          weight_per_bag_kg: weightPerBagKg
-        })
-      });
-    }
-  } catch (e) {
-    console.error("[Catalog] Cloud edit failed:", e);
+  // 3. Queue cloud sync in the background (local-first)
+  if (currentBusiness && currentBusiness.id) {
+    const updatedProduct = (pIdx !== -1) ? cachedProducts[pIdx] : { id, name, unit, grade: unit, defaultRatePerBag: rate, imageUrl: image, isActive, weightPerBagKg };
+    enqueueSync({ type: 'product', operation: 'upsert', payload: updatedProduct });
   }
 }
 

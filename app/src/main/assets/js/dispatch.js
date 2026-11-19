@@ -57,25 +57,13 @@ async function submitNewCustomer() {
   
   const newId = 'party_' + Date.now();
   const partyType = (targetId === 'stockInVendorSelect') ? 'vendor' : 'customer';
-  try {
-    if (currentBusiness && currentBusiness.id) {
-      await sFetch(`parties`, {
-        method: 'POST',
-        body: JSON.stringify({
-          id: newId,
-          business_id: currentBusiness.id,
-          type: partyType,
-          name: name,
-          phone: phone,
-          is_active: true
-        })
-      });
-    }
-  } catch (e) {
-    console.error("[Dispatch] Cloud party creation failed:", e);
+  const newParty = { id: newId, name: name, phone: phone, type: partyType, defaultDestination: '', accountNo: 'ACC-000', gstin: 'UNREGISTERED' };
+
+  // Queue cloud sync in the background (local-first)
+  if (currentBusiness && currentBusiness.id) {
+    enqueueSync({ type: 'party', operation: 'upsert', payload: newParty });
   }
-  
-  const newParty = { id: newId, name: name, phone: phone };
+
   cachedParties.push(newParty);
   populatePartyDropdowns();
   
@@ -515,14 +503,7 @@ async function submitFullDispatch() {
             p.currentStockMt = (newStock * (p.weightPerBagKg || 50)) / 1000.0;
 
             if (currentBusiness && currentBusiness.id) {
-              try {
-                await sFetch(`products?id=eq.${pId}&business_id=eq.${currentBusiness.id}`, {
-                  method: 'PATCH',
-                  body: JSON.stringify({ current_stock_bags: newStock })
-                });
-              } catch(e) {
-                console.error("[Dispatch] Cloud stock update failed:", e);
-              }
+              enqueueSync({ type: 'stock', operation: 'patch', payload: { id: pId, currentStockBags: newStock } });
             }
 
             if (bridge() && bridge().updateProduct) {
@@ -542,8 +523,7 @@ async function submitFullDispatch() {
       renderPosProducts();
       updatePosCartBar();
       clearDispatchForm();
-
-      await syncFromCloud();
+      setTimeout(syncFromCloud, 1500);
       
       switchTab('stock');
       
@@ -600,19 +580,14 @@ async function submitStockIn() {
       }];
       
       if (currentBusiness && currentBusiness.id && p) {
-        try {
-          const newStock = p.currentStockBags + bags;
-          await sFetch(`products?id=eq.${pId}&business_id=eq.${currentBusiness.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ current_stock_bags: newStock })
-          });
-        } catch(e) {}
+        const newStock = p.currentStockBags + bags;
+        enqueueSync({ type: 'stock', operation: 'patch', payload: { id: pId, currentStockBags: newStock } });
       }
 
       await cloudRecordTx('INWARD', res.slipNo, vendor, "-", "-", "-", "-", "-", bay, items, { bags: bags, mt: mt, amount: amt });
       
       closeStockInModal();
-      await syncFromCloud();
+      setTimeout(syncFromCloud, 1500);
       showToast(`Stock In +${bags} ${p ? (p.unit || 'units') : 'units'} recorded!`);
     } else {
       alert(res.error || "Stock in failed");

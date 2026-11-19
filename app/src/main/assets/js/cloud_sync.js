@@ -46,17 +46,12 @@ async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, dri
     payload.date_str = dateStr;
     payload.time_str = timeStr;
   }
-  
-  try {
-    if (isUpdate) {
-      await sFetch(`transactions?slip_no=eq.${slipNo}`, { method: 'PATCH', body: JSON.stringify(payload) });
-    } else {
-      await sFetch(`transactions`, { method: 'POST', body: JSON.stringify(payload) });
-    }
-  } catch (e) {
-    console.error("[CloudSync] Transaction sync failed (offline):", e);
+
+  // Queue cloud sync in the background (local-first; UI never waits)
+  if (currentBusiness && currentBusiness.id) {
+    enqueueSync({ type: 'transaction', operation: isUpdate ? 'update' : 'insert', payload: payload, slipNo: slipNo });
   }
-  
+
   return payload;
 }
 
@@ -250,15 +245,9 @@ async function deleteCurrentSlip() {
     showToast("Error reverting stock. Inventory may be out of sync.");
   }
   
-  // 2. Delete transaction from Cloud
-  try {
-    if (currentBusiness && currentBusiness.id) {
-      await sFetch(`transactions?slip_no=eq.${slipNo}&business_id=eq.${currentBusiness.id}`, {
-        method: 'DELETE'
-      });
-    }
-  } catch (e) {
-    console.error("Error deleting slip from cloud:", e);
+  // 2. Queue cloud delete in the background (local-first)
+  if (currentBusiness && currentBusiness.id) {
+    enqueueSync({ type: 'transaction', operation: 'delete', payload: { slipNo: slipNo } });
   }
 
   // 2b. Remove from native (Room) repository so local state stays consistent
