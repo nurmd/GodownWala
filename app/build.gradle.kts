@@ -8,8 +8,8 @@ android {
     namespace = "com.example.bhpos"
     compileSdk = 35
 
-    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 15
-    val vName = System.getenv("VERSION_NAME") ?: "1.1.8"
+    val vCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 16
+    val vName = System.getenv("VERSION_NAME") ?: "1.1.9"
 
     defaultConfig {
         applicationId = "com.example.bhpos"

@@ -100,7 +100,7 @@ function renderPosProducts() {
         const imgHtml = `
           <div class="product-img">
             ${(p.imageUrl && p.imageUrl.trim() !== "")
-              ? `<img src="${escapeHtml(p.imageUrl)}" alt="" loading="lazy" decoding="async" />`
+              ? `<img alt="" decoding="async" />`
               : `<span class="material-symbols-outlined">inventory_2</span>`
             }
             <span class="cart-pill ${inCart > 0 ? '' : 'hidden'}" id="posBadge-${escapeHtml(p.id)}">${inCart}</span>
@@ -127,14 +127,23 @@ function renderPosProducts() {
           btn.addEventListener('click', () => addPosItem(p.id, parseInt(btn.dataset.qty, 10)));
         });
 
-        // Frosted backdrop: a blurred copy of the product image, baked once and
-        // cached, so no backdrop-filter runs while the grid scrolls.
-        if (typeof applyGlassOverlay === 'function' && p.imageUrl) {
-          applyGlassOverlay(
-            tile.querySelector('.product-media-overlay'),
-            p.imageUrl,
-            tile.querySelector('.product-img img')
-          );
+        // Images with a transparent or black background are normalised to a
+        // white base first, then the frosted backdrop is baked from that copy.
+        const imgEl = tile.querySelector('.product-img img');
+        const overlayEl = tile.querySelector('.product-media-overlay');
+        const rawSrc = (p.imageUrl || '').trim();
+        if (rawSrc) {
+          const paint = (finalSrc) => {
+            if (imgEl) imgEl.src = finalSrc;
+            if (typeof applyGlassOverlay === 'function') {
+              applyGlassOverlay(overlayEl, finalSrc, imgEl, rawSrc);
+            }
+          };
+          if (imgEl && typeof normalizeProductImage === 'function') {
+            normalizeProductImage(rawSrc).then(paint).catch(() => paint(rawSrc));
+          } else {
+            paint(rawSrc);
+          }
         }
       }
       grid.appendChild(tile);

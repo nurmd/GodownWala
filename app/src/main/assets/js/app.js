@@ -255,6 +255,40 @@ function updateDashboardTelemetry(t) {
 }
 
 /**
+ * Transactions dated today (local midnight -> now), newest first, deduped by
+ * slip number. Single source of truth for the Home day metrics and the
+ * Today's Activity list, so the numbers always match the rows on screen.
+ */
+function todayTransactions() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const startMs = start.getTime();
+  const seen = Object.create(null);
+  const source = (typeof getFilteredTransactions === 'function')
+    ? getFilteredTransactions()
+    : (cachedTransactions || []);
+
+  return (source || [])
+    .filter(tx => {
+      if (!tx || !tx.slipNo) return false;
+      if (seen[tx.slipNo]) return false;
+      if (!(Number(tx.timestamp) >= startMs)) return false;
+      seen[tx.slipNo] = 1;
+      return true;
+    })
+    .sort((a, b) => Number(b.timestamp) - Number(a.timestamp));
+}
+
+/** Bags on a slip: sum of its line items, falling back to the stored total. */
+function slipBags(tx) {
+  const items = (tx && tx.items) || [];
+  if (items.length) {
+    return items.reduce((sum, it) => sum + (Number(it.quantityBags) || 0), 0);
+  }
+  return Number(tx && tx.totalBags) || 0;
+}
+
+/**
  * Short date label (dd/mm) for transaction rows.
  */
 function shortDateLabel(tx) {
@@ -274,10 +308,10 @@ function renderDashboardActivities() {
   const list = document.getElementById('dashActivityList');
   if (!list) return;
   list.innerHTML = '';
-  const recent = [...getFilteredTransactions()].sort((a,b) => b.timestamp - a.timestamp).slice(0, 4);
+  const recent = todayTransactions();
 
   if (recent.length === 0) {
-    list.innerHTML = '<div class="text-[13px] text-on-surface-variant text-center py-5">No recent activity</div>';
+    list.innerHTML = '<div class="text-[13px] text-on-surface-variant text-center py-5">No activity today</div>';
     return;
   }
 
@@ -671,28 +705,24 @@ function recalculateMetrics() {
   let inwardUnits = 0;
   let dispatchedUnits = 0;
 
-  const dayStartDate = new Date();
-  dayStartDate.setHours(0, 0, 0, 0);
-  const dayStart = dayStartDate.getTime();
+  todayTransactions().forEach(tx => {
+    const validItems = (tx.items || []).filter(item => {
+      if (activeGodown === 'ALL') return true;
+      const p = (cachedProducts || []).find(x => x.id === item.productId);
+      return p && p.bayLocation === activeGodown;
+    });
+    const itemBags = validItems.length
+      ? validItems.reduce((s, item) => s + (Number(item.quantityBags) || 0), 0)
+      : (activeGodown === 'ALL' ? slipBags(tx) : 0);
 
-  (cachedTransactions || []).forEach(tx => {
-    if (tx.timestamp >= dayStart) {
-      const validItems = (tx.items || []).filter(item => {
-        if (activeGodown === 'ALL') return true;
-        const p = (cachedProducts || []).find(x => x.id === item.productId);
-        return p && p.bayLocation === activeGodown;
-      });
-      const itemBags = validItems.reduce((s, item) => s + (Number(item.quantityBags) || 0), 0);
-
-      if (tx.type === 'INWARD') {
-        inwardUnits += itemBags;
-      } else if (tx.type === 'OUTWARD') {
-        dispatchedUnits += itemBags;
-      }
+    if (tx.type === 'INWARD') {
+      inwardUnits += itemBags;
+    } else if (tx.type === 'OUTWARD') {
+      dispatchedUnits += itemBags;
     }
   });
 
-  const pendingSlipsCount = cachedTransactions ? cachedTransactions.length : 0;
+  const pendingSlipsCount = (cachedTransactions || []).filter(tx => tx.type === 'OUTWARD').length;
 
   updateDashboardTelemetry({
     totalUnits,

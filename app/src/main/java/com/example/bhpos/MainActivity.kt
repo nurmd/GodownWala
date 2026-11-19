@@ -541,15 +541,20 @@ class MainActivity : Activity() {
                 dayCal.set(java.util.Calendar.SECOND, 0)
                 dayCal.set(java.util.Calendar.MILLISECOND, 0)
                 val dayStart = dayCal.timeInMillis
+                // One row per slip: duplicated sync rows must not inflate the day
+                // totals, and the quantity comes from the slip lines (the same
+                // numbers the ledger shows), not from a stored total.
+                val seenSlips = HashSet<String>()
                 for (tx in txs) {
-                    if (tx.timestamp >= dayStart) {
-                        if (tx.type == com.example.bhpos.domain.model.TransactionType.INWARD) {
-                            inwardUnits += tx.totalBags
-                            inwardMt += tx.totalMetricTons
-                        } else if (tx.type == com.example.bhpos.domain.model.TransactionType.OUTWARD) {
-                            dispatchedUnits += tx.totalBags
-                            dispatchedMt += tx.totalMetricTons
-                        }
+                    if (!seenSlips.add(tx.slipNo)) continue
+                    if (tx.timestamp < dayStart) continue
+                    val bags = if (tx.items.isNotEmpty()) tx.items.sumOf { it.quantityBags } else tx.totalBags
+                    if (tx.type == com.example.bhpos.domain.model.TransactionType.INWARD) {
+                        inwardUnits += bags
+                        inwardMt += tx.totalMetricTons
+                    } else if (tx.type == com.example.bhpos.domain.model.TransactionType.OUTWARD) {
+                        dispatchedUnits += bags
+                        dispatchedMt += tx.totalMetricTons
                     }
                 }
                 // No demo fallbacks: report real zeros when there is no data

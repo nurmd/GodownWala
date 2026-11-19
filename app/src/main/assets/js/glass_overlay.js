@@ -166,13 +166,13 @@
    * Applies the cached glass backdrop to a card overlay, queueing a bake when
    * this image has not been seen before.
    */
-  window.applyGlassOverlay = function (overlayEl, imageUrl, imgEl) {
+  window.applyGlassOverlay = function (overlayEl, imageUrl, imgEl, cacheUrl) {
     if (!overlayEl || !imageUrl) return;
     if (overlayEl.dataset.glassSrc === imageUrl && overlayEl.dataset.glassDone === '1') return;
 
     overlayEl.dataset.glassSrc = imageUrl;
 
-    const key = CACHE_PREFIX + hashKey(imageUrl + '|' + TILE_W + 'x' + TILE_H);
+    const key = CACHE_PREFIX + hashKey((cacheUrl || imageUrl) + '|' + TILE_W + 'x' + TILE_H);
     const cached = readCache(key);
     if (cached) {
       applyData(overlayEl, cached);
