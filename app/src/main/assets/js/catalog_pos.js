@@ -102,6 +102,16 @@ function renderPosProducts() {
       tile.querySelectorAll('button[data-qty]').forEach(btn => {
         btn.addEventListener('click', () => addPosItem(p.id, parseInt(btn.dataset.qty, 10)));
       });
+
+      // Frosted backdrop: a blurred copy of the product image, baked once and
+      // cached, so no backdrop-filter runs while the grid scrolls.
+      if (typeof applyGlassOverlay === 'function' && p.imageUrl) {
+        applyGlassOverlay(
+          tile.querySelector('.product-media-overlay'),
+          p.imageUrl,
+          tile.querySelector('.product-img img')
+        );
+      }
     }
     grid.appendChild(tile);
   });

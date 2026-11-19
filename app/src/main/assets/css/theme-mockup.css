@@ -1190,6 +1190,9 @@ html.dark , body.dark .tab-bar {
     rgba(18, 18, 20, 0.74) 55%,
     rgba(18, 18, 20, 0.58) 100%
   );
+  /* Replaced at runtime by a baked blurred copy of the product image. */
+  background-size: cover;
+  background-position: center;
   contain: paint;
   border-top: 0.5px solid rgba(255, 255, 255, 0.22);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
