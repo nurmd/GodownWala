@@ -343,8 +343,6 @@
     @keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .sync-pulse { animation: syncPulse 2s infinite; }
 
-    /* Backdrop blur for nav */
-    .nav-blur { backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
 
     /* Smooth color transitions */
     body, .card, .bg-surface, .bg-surface-container, .bg-surface-container-low, .bg-surface-container-lowest, .bg-surface-container-high, .bg-surface-container-highest {
@@ -403,11 +401,6 @@
       border-radius: 9999px !important;
     }
 
-    /* Tab bar backdrop blur */
-    nav.fixed {
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-    }
 
     /* Header styling */
     header {
@@ -1077,7 +1070,7 @@
       <!-- Search -->
       <div class="search-bar">
         <span class="material-symbols-outlined search-icon">search</span>
-        <input type="text" id="ledgerSearchInput" oninput="renderLedger()" placeholder="Search slip #, party, or truck..." class="search-input" autocomplete="off"/>
+        <input type="text" id="ledgerSearchInput" oninput="debouncedRenderLedger()" placeholder="Search slip #, party, or truck..." class="search-input" autocomplete="off"/>
       </div>
 
       <!-- Filter pills -->

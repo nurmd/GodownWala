@@ -316,7 +316,11 @@ function renderLedger() {
     return;
   }
 
-  filtered.sort((a,b) => b.timestamp - a.timestamp).forEach((t, i) => {
+  filtered.sort((a,b) => b.timestamp - a.timestamp);
+  const totalMatches = filtered.length;
+  const visible = filtered.slice(0, 300);
+
+  visible.forEach((t, i) => {
     const isOut = t.type === 'OUTWARD';
     if (i > 0) {
       const div = document.createElement('div');
@@ -343,6 +347,17 @@ function renderLedger() {
     `;
     list.appendChild(row);
   });
+
+  if (totalMatches > visible.length) {
+    const more = document.createElement('div');
+    more.className = 'text-[12px] text-on-surface-variant text-center py-3';
+    more.textContent = `Showing latest ${visible.length} of ${totalMatches} — refine your search to narrow it down`;
+    list.appendChild(more);
+  }
+}
+
+function debouncedRenderLedger() {
+  debounceRender('ledger', renderLedger, 140);
 }
 
 function captureCurrentScreen(tag = null) {

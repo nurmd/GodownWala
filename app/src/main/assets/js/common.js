@@ -17,3 +17,13 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+/**
+ * Debounces a render so typing in a search box does not rebuild the DOM on
+ * every keystroke (each rebuild also triggers Tailwind's runtime scan).
+ */
+var _renderTimers = _renderTimers || {};
+function debounceRender(key, fn, ms) {
+  clearTimeout(_renderTimers[key]);
+  _renderTimers[key] = setTimeout(fn, ms || 120);
+}

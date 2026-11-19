@@ -74,7 +74,7 @@ function renderPosProducts() {
       const imgHtml = `
         <div class="product-img">
           ${(p.imageUrl && p.imageUrl.trim() !== "")
-            ? `<img src="${escapeHtml(p.imageUrl)}" alt="" />`
+            ? `<img src="${escapeHtml(p.imageUrl)}" alt="" loading="lazy" decoding="async" />`
             : `<span class="material-symbols-outlined">inventory_2</span>`
           }
           <span class="cart-pill ${inCart > 0 ? '' : 'hidden'}" id="posBadge-${escapeHtml(p.id)}">${inCart}</span>
@@ -154,7 +154,7 @@ function addPosItem(productId, delta) {
  */
 function setPosSearch(value) {
   posSearchQuery = value || '';
-  renderPosProducts();
+  debounceRender('posSearch', renderPosProducts, 140);
 }
 
 /**
