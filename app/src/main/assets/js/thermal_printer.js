@@ -254,14 +254,14 @@ function viewSlip(slipNo) {
             if (line.trim().startsWith('[') || line.trim().startsWith('//') || line.trim() === '') {
               return line;
             }
-            return `<strong class="text-[13px] font-black text-black leading-snug">${line}</strong>`;
+            return `<strong class="text-[13px] font-black text-on-surface leading-snug">${line}</strong>`;
           }).join('\n');
           formatted = headerPart + itemLines + endParts.slice(1).join('');
         }
       }
       formatted = formatted.replace(/(TOTAL QUANTITY:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
       formatted = formatted.replace(/(TOTAL NET WT:[^\n]+)/g, '<strong class="text-[13px] font-black text-primary">$1</strong>');
-      previewEl.innerHTML = '<pre class="text-[12px] font-mono whitespace-pre-wrap leading-relaxed">' + formatted + '</pre>';
+      previewEl.innerHTML = '<pre class="text-[12px] font-mono whitespace-pre-wrap leading-relaxed text-on-surface">' + formatted + '</pre>';
     }
   }
   
