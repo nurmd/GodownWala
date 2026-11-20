@@ -211,7 +211,8 @@ class CementStockRepositoryImpl constructor() : CementStockRepository {
         productId: String,
         bags: Int,
         batchNo: String,
-        bayLocation: String
+        bayLocation: String,
+        timestampMs: Long
     ): Result<String> {
         if (bags <= 0) {
             return Result.failure(IllegalArgumentException("Stock-in quantity must be positive"))
@@ -244,12 +245,14 @@ class CementStockRepositoryImpl constructor() : CementStockRepository {
             _products.value = currentList
 
             val updatedProduct = currentList[index]
-            val newSlipNo = "GRN-${System.currentTimeMillis()}"
+            val nowMs = System.currentTimeMillis()
+            val slipTs = if (timestampMs > 0L) timestampMs else nowMs
+            val newSlipNo = "GRN-$nowMs"
             val newTx = StockTransaction(
-                id = "tx_${System.currentTimeMillis()}_${(0..9999).random()}",
+                id = "tx_${nowMs}_${(0..9999).random()}",
                 slipNo = newSlipNo,
                 type = TransactionType.INWARD,
-                timestamp = System.currentTimeMillis(),
+                timestamp = slipTs,
                 partyName = "${updatedProduct.name} Factory Delivery",
                 vehicleNo = "FACTORY-UNLOAD",
                 driverName = "Depot Inward",

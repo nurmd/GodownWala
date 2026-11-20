@@ -915,7 +915,8 @@ class MainActivity : Activity() {
                 site = site,
                 challanNo = challanNo,
                 ewbNo = ewbNo,
-                itemsJson = itemsJson
+                itemsJson = itemsJson,
+                timestampMs = 0.0
             )
         }
 
@@ -930,7 +931,8 @@ class MainActivity : Activity() {
             site: String,
             challanNo: String,
             ewbNo: String,
-            itemsJson: String
+            itemsJson: String,
+            timestampMs: Double
         ): String {
             val response = JSONObject()
             try {
@@ -992,7 +994,11 @@ class MainActivity : Activity() {
                 val existingPhone = if (customerPhone.isNotBlank()) customerPhone else existingTx.customerPhone
                 val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName, existingPhone)
 
+                // A blank/zero timestamp keeps the original slip date.
+                val slipTs = if (timestampMs > 0) timestampMs.toLong() else existingTx.timestamp
+
                 val tx = existingTx.copy(
+                    timestamp = slipTs,
                     partyName = resolvedParty,
                     customerPhone = resolvedCustPhone,
                     vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
@@ -1043,7 +1049,8 @@ class MainActivity : Activity() {
                 site = site,
                 challanNo = challanNo,
                 ewbNo = ewbNo,
-                itemsJson = itemsJson
+                itemsJson = itemsJson,
+                timestampMs = 0.0
             )
         }
 
@@ -1057,7 +1064,8 @@ class MainActivity : Activity() {
             site: String,
             challanNo: String,
             ewbNo: String,
-            itemsJson: String
+            itemsJson: String,
+            timestampMs: Double
         ): String {
             val response = JSONObject()
             try {
@@ -1118,12 +1126,16 @@ class MainActivity : Activity() {
 
                 val (resolvedParty, resolvedCustPhone) = parsePartyAndPhone(partyName, customerPhone)
 
-                val slipNo = "GP-${System.currentTimeMillis()}"
+                // Slip number follows creation order; the slip date can be
+                // back-dated from the picker, so it is stored separately.
+                val nowMs = System.currentTimeMillis()
+                val slipTs = if (timestampMs > 0) timestampMs.toLong() else nowMs
+                val slipNo = "GP-$nowMs"
                 val tx = StockTransaction(
-                    id = "tx_${System.currentTimeMillis()}_${(0..9999).random()}",
+                    id = "tx_${nowMs}_${(0..9999).random()}",
                     slipNo = slipNo,
                     type = TransactionType.OUTWARD,
-                    timestamp = System.currentTimeMillis(),
+                    timestamp = slipTs,
                     partyName = resolvedParty,
                     vehicleNo = if (vehicleNo.isNotBlank()) vehicleNo else "-",
                     driverName = if (driverName.isNotBlank()) driverName else "-",
@@ -1156,7 +1168,7 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
-        fun recordStockIn(productId: String, bags: Int, batchNo: String, bayLocation: String): String {
+        fun recordStockIn(productId: String, bags: Int, batchNo: String, bayLocation: String, timestampMs: Double): String {
             val response = JSONObject()
             try {
                 if (bags <= 0) {
@@ -1165,7 +1177,12 @@ class MainActivity : Activity() {
                     return response.toString()
                 }
 
-                val result = runBlocking { repository.recordStockIn(productId, bags, batchNo, bayLocation) }
+                val result = runBlocking {
+                    repository.recordStockIn(
+                        productId, bags, batchNo, bayLocation,
+                        if (timestampMs > 0) timestampMs.toLong() else 0L
+                    )
+                }
                 if (result.isSuccess) {
                     response.put("success", true)
                     response.put("slipNo", result.getOrNull())

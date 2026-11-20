@@ -12,6 +12,65 @@ let cachedParties = [];
  * Handles party selector dropdown change.
  * If '+ Add New Customer' is selected, triggers modal.
  */
+/**
+ * Local date / time strings for the slip date pickers.
+ */
+function isoDateInput(ts) {
+  const d = ts ? new Date(Number(ts)) : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function isoTimeInput(ts) {
+  const d = ts ? new Date(Number(ts)) : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/**
+ * Epoch millis for a slip date + time pair. Blank fields fall back to now so a
+ * slip always carries a full timestamp, and the picked date drives the day
+ * metrics, the ledger grouping and the printed slip.
+ */
+function slipTimestamp(dateValue, timeValue) {
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth();
+  let day = now.getDate();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+
+  if (dateValue) {
+    const parts = String(dateValue).split('-').map(Number);
+    if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+      year = parts[0]; month = parts[1] - 1; day = parts[2];
+    }
+  }
+  if (timeValue) {
+    const parts = String(timeValue).split(':').map(Number);
+    if (parts.length >= 2 && isFinite(parts[0]) && isFinite(parts[1])) {
+      hours = parts[0]; minutes = parts[1];
+    }
+  }
+
+  // Keep the exact current second when the picker still points at "now", so a
+  // fresh slip sorts correctly; back-dated slips land on a clean minute.
+  const isNow = year === now.getFullYear() && month === now.getMonth() && day === now.getDate()
+    && hours === now.getHours() && minutes === now.getMinutes();
+  return new Date(
+    year, month, day, hours, minutes,
+    isNow ? now.getSeconds() : 0,
+    isNow ? now.getMilliseconds() : 0
+  ).getTime();
+}
+
+function resetSlipDateTime(dateId, timeId) {
+  const dateEl = document.getElementById(dateId);
+  const timeEl = document.getElementById(timeId);
+  if (dateEl) dateEl.value = isoDateInput();
+  if (timeEl) timeEl.value = isoTimeInput();
+}
+
 function handlePartyChange(select) {
   if (select.value === '__NEW__') {
     document.getElementById('newCustomerTargetSelect').value = select.id;
@@ -335,6 +394,8 @@ function clearDispatchForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+
+  resetSlipDateTime('dispatchDate', 'dispatchTime');
   
   dispatchCartItems = {};
   renderDispatchItems();
@@ -378,6 +439,11 @@ function openEditDispatch(slipNo) {
   document.getElementById('dispatchPhone').value = tx.driverPhone || '';
   document.getElementById('dispatchChallan').value = tx.challanNo || '';
   document.getElementById('dispatchEwb').value = tx.ewbNo || '';
+
+  const editDateEl = document.getElementById('dispatchDate');
+  const editTimeEl = document.getElementById('dispatchTime');
+  if (editDateEl) editDateEl.value = isoDateInput(tx.timestamp);
+  if (editTimeEl) editTimeEl.value = isoTimeInput(tx.timestamp);
   
   dispatchCartItems = {};
   if (tx.items) {
@@ -406,6 +472,10 @@ async function submitFullDispatch() {
   const phone = document.getElementById('dispatchPhone').value.trim();
   const challan = document.getElementById('dispatchChallan').value.trim();
   const ewb = document.getElementById('dispatchEwb').value.trim();
+
+  const slipDateEl = document.getElementById('dispatchDate');
+  const slipTimeEl = document.getElementById('dispatchTime');
+  const slipTs = slipTimestamp(slipDateEl ? slipDateEl.value : '', slipTimeEl ? slipTimeEl.value : '');
 
   const pIds = Object.keys(dispatchCartItems);
   if (pIds.length === 0) {
@@ -452,7 +522,7 @@ async function submitFullDispatch() {
     let resStr;
     if (editingSlipNo) {
       if (bridge().updateDispatchWithCustomer) {
-        resStr = bridge().updateDispatchWithCustomer(editingSlipNo, party, customerPhone, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
+        resStr = bridge().updateDispatchWithCustomer(editingSlipNo, party, customerPhone, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items), slipTs);
       } else if (bridge().updateDispatch) {
         resStr = bridge().updateDispatch(editingSlipNo, party, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
       } else {
@@ -461,7 +531,7 @@ async function submitFullDispatch() {
       }
     } else {
       if (bridge().recordDispatchWithCustomer) {
-        resStr = bridge().recordDispatchWithCustomer(party, customerPhone, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
+        resStr = bridge().recordDispatchWithCustomer(party, customerPhone, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items), slipTs);
       } else {
         resStr = bridge().recordDispatch(party, vehicle, driver, phone, site, challan, ewb, JSON.stringify(items));
       }
@@ -515,7 +585,7 @@ async function submitFullDispatch() {
         }
       }
 
-      await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false, customerPhone);
+      await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false, customerPhone, slipTs);
 
       const wasEditing = !!editingSlipNo;
       dispatchCartItems = {};
@@ -540,6 +610,10 @@ async function submitFullDispatch() {
  */
 function openStockInModal() {
   vibrate(25);
+  const dateEl = document.getElementById('stockInDate');
+  const timeEl = document.getElementById('stockInTime');
+  if (dateEl && !dateEl.value) dateEl.value = isoDateInput();
+  if (timeEl && !timeEl.value) timeEl.value = isoTimeInput();
   document.getElementById('stockInModal').classList.remove('hidden');
 }
 
@@ -558,6 +632,9 @@ async function submitStockIn() {
   const bags = parseInt(document.getElementById('stockInBags').value, 10) || 0;
   const bay = document.getElementById('stockInBay').value.trim();
   const batch = document.getElementById('stockInBatch').value.trim();
+  const inDateEl = document.getElementById('stockInDate');
+  const inTimeEl = document.getElementById('stockInTime');
+  const inTs = slipTimestamp(inDateEl ? inDateEl.value : '', inTimeEl ? inTimeEl.value : '');
 
   if (bags <= 0) {
     alert("Stock in quantity must be greater than zero");
@@ -565,7 +642,7 @@ async function submitStockIn() {
   }
 
   if (bridge()) {
-    const resStr = bridge().recordStockIn(pId, bags, batch, bay);
+    const resStr = bridge().recordStockIn(pId, bags, batch, bay, inTs);
     const res = JSON.parse(resStr);
     if (res.success) {
       const p = cachedProducts.find(x => x.id === pId);
@@ -584,9 +661,10 @@ async function submitStockIn() {
         enqueueSync({ type: 'stock', operation: 'patch', payload: { id: pId, currentStockBags: newStock } });
       }
 
-      await cloudRecordTx('INWARD', res.slipNo, vendor, "-", "-", "-", "-", "-", bay, items, { bags: bags, mt: mt, amount: amt });
+      await cloudRecordTx('INWARD', res.slipNo, vendor, "-", "-", "-", "-", "-", bay, items, { bags: bags, mt: mt, amount: amt }, false, "", inTs);
       
       closeStockInModal();
+      resetSlipDateTime('stockInDate', 'stockInTime');
       setTimeout(syncFromCloud, 1500);
       showToast(`Stock In +${bags} ${p ? (p.unit || 'units') : 'units'} recorded!`);
     } else {
@@ -594,3 +672,10 @@ async function submitStockIn() {
     }
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dateEl = document.getElementById('dispatchDate');
+  const timeEl = document.getElementById('dispatchTime');
+  if (dateEl && !dateEl.value) dateEl.value = isoDateInput();
+  if (timeEl && !timeEl.value) timeEl.value = isoTimeInput();
+});

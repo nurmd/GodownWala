@@ -864,6 +864,17 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
+              <label class="form-label">Slip Date</label>
+              <input type="date" id="dispatchDate" class="form-input w-full"/>
+            </div>
+            <div>
+              <label class="form-label">Slip Time</label>
+              <input type="time" id="dispatchTime" class="form-input w-full"/>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
               <label class="form-label">Vehicle No</label>
               <input type="text" id="dispatchVehicle" value="" class="form-input w-full uppercase"/>
             </div>
@@ -1387,6 +1398,13 @@
           <div>
             <label class="block font-bold text-on-surface-variant mb-1">Bay Location</label>
             <input type="text" id="stockInBay" value="Bay A1-A4" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Slip Date &amp; Time</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="date" id="stockInDate" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
+            <input type="time" id="stockInTime" class="w-full bg-surface-container-low border border-surface-container-high rounded-lg p-2 text-on-surface font-semibold"/>
           </div>
         </div>
         <div>

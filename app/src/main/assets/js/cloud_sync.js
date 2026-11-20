@@ -10,13 +10,14 @@
  * Records a transaction (OUTWARD dispatch or INWARD stock-in) to Supabase.
  * Fails gracefully without interrupting the user if offline.
  */
-async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, driverPhone, challanNo, ewbNo, destinationSite, items, totals, isUpdate = false, customerPhone = "") {
+async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, driverPhone, challanNo, ewbNo, destinationSite, items, totals, isUpdate = false, customerPhone = "", slipTimestamp = 0) {
   if (!currentBusiness || !currentBusiness.id) return;
 
   const id = 'tx_' + Date.now();
-  const ts = Date.now();
-  const dateStr = new Date().toLocaleDateString();
-  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // The slip date picked by the user wins; otherwise the row is stamped now.
+  const ts = Number(slipTimestamp) > 0 ? Number(slipTimestamp) : Date.now();
+  const dateStr = new Date(ts).toLocaleDateString();
+  const timeStr = new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
   const combinedParty = (customerPhone && customerPhone.trim())
     ? `${partyName.trim()}, ${customerPhone.trim()}`
@@ -40,11 +41,13 @@ async function cloudRecordTx(type, slipNo, partyName, vehicleNo, driverName, dri
     items: items
   };
   
+  // Date fields travel with edits too, so changing the slip date on an
+  // existing slip reaches the cloud instead of keeping the original stamp.
+  payload.timestamp = ts;
+  payload.date_str = dateStr;
+  payload.time_str = timeStr;
   if (!isUpdate) {
     payload.id = id;
-    payload.timestamp = ts;
-    payload.date_str = dateStr;
-    payload.time_str = timeStr;
   }
 
   // Queue cloud sync in the background (local-first; UI never waits)
