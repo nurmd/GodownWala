@@ -14,6 +14,28 @@ let lastToggleTime = 0;
 let posSearchQuery = '';
 
 /**
+ * Outward bags per product across the cached ledger, used to rank the POS
+ * tiles. Rebuilt per render; the ledger is small enough that this stays cheap
+ * and avoids keeping a running tally in sync.
+ */
+function getOutwardBagsByProduct() {
+  const totals = Object.create(null);
+  const txs = (typeof cachedTransactions !== 'undefined' && Array.isArray(cachedTransactions))
+    ? cachedTransactions
+    : [];
+
+  txs.forEach(tx => {
+    if (!tx || tx.type !== 'OUTWARD') return;
+    (tx.items || []).forEach(item => {
+      if (!item || !item.productId) return;
+      totals[item.productId] = (totals[item.productId] || 0) + (Number(item.quantityBags) || 0);
+    });
+  });
+
+  return totals;
+}
+
+/**
  * Toggles edit mode for a specific product card.
  * Triggered by long-press (600ms) or right-click.
  */
@@ -59,6 +81,21 @@ function renderPosProducts() {
     (typeof activeGodown === "undefined" || activeGodown === "ALL" || p.bayLocation === activeGodown)
     && (!q || (p.name || '').toLowerCase().includes(q))
   );
+
+  // Tiles follow how much the shop actually dispatches: the most outward
+  // product first, then the rest by quantity, then alphabetically. Disabled
+  // products always sink to the bottom so they never sit in the way.
+  const outwardBags = getOutwardBagsByProduct();
+  filtered.sort((a, b) => {
+    const aDisabled = a.isActive === false ? 1 : 0;
+    const bDisabled = b.isActive === false ? 1 : 0;
+    if (aDisabled !== bDisabled) return aDisabled - bDisabled;
+
+    const byVolume = (outwardBags[b.id] || 0) - (outwardBags[a.id] || 0);
+    if (byVolume !== 0) return byVolume;
+
+    return (a.name || '').localeCompare(b.name || '');
+  });
 
   if (filtered.length === 0 && q) {
     const empty = document.createElement('div');
