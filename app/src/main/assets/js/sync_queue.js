@@ -16,8 +16,16 @@ let syncListeners = [];
 let syncTimer = null;
 
 function loadSyncQueue() {
-  try { return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]'); }
-  catch (e) { return []; }
+  try {
+    const list = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]');
+    if (!Array.isArray(list)) return [];
+    // A task saved as 'running' means the app was killed mid-flight. Nothing
+    // is draining it any more, so put it back in the queue instead of leaving
+    // it stuck on the health screen forever.
+    return list.map(t => (t && t.status === 'running')
+      ? Object.assign({}, t, { status: 'pending', nextRunAt: Date.now() })
+      : t);
+  } catch (e) { return []; }
 }
 function saveSyncQueue() {
   try { localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue)); } catch (e) {}
@@ -71,7 +79,8 @@ async function cloudWriteProduct(p) {
     headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify({
       id: p.id, business_id: currentBusiness.id, name: p.name,
-      grade: p.unit || p.grade || 'Units', unit: p.unit || 'Units',
+      // 'products' has no 'unit' column; the unit lives in 'grade'.
+      grade: p.unit || p.grade || 'Units',
       weight_per_bag_kg: p.weightPerBagKg, default_rate_per_bag: p.defaultRatePerBag,
       bay_location: p.bayLocation, current_stock_bags: p.currentStockBags,
       batch_no: p.batchNo, image_url: p.imageUrl, is_active: p.isActive !== false
