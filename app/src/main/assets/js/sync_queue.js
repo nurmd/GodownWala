@@ -22,9 +22,26 @@ function loadSyncQueue() {
     // A task saved as 'running' means the app was killed mid-flight. Nothing
     // is draining it any more, so put it back in the queue instead of leaving
     // it stuck on the health screen forever.
-    return list.map(t => (t && t.status === 'running')
-      ? Object.assign({}, t, { status: 'pending', nextRunAt: Date.now() })
-      : t);
+    return list.map(t => {
+      if (!t) return t;
+      const next = Object.assign({}, t);
+      // A task saved as 'running' means the app was killed mid-flight. Nothing
+      // is draining it any more, so put it back in the queue instead of leaving
+      // it stuck on the health screen forever.
+      if (next.status === 'running') {
+        next.status = 'pending';
+        next.nextRunAt = Date.now();
+      }
+      // 'No business' means the queue ran before the tenant was restored, not
+      // that the task is bad. Give those entries a clean slate.
+      if (next.lastError === 'No business') {
+        next.status = 'pending';
+        next.attempts = 0;
+        next.lastError = null;
+        next.nextRunAt = Date.now();
+      }
+      return next;
+    });
   } catch (e) { return []; }
 }
 function saveSyncQueue() {
@@ -137,6 +154,9 @@ async function runSyncTask(task) {
 async function processSyncQueue() {
   if (syncProcessing) return;
   if (!navigator.onLine) return;
+  // Cloud writers need the tenant. Draining before login just burns retries and
+  // paints every task with a red 'No business' error.
+  if (typeof currentBusiness === 'undefined' || !currentBusiness || !currentBusiness.id) return;
   syncProcessing = true;
   try {
     const now = Date.now();

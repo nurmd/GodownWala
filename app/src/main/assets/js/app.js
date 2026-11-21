@@ -202,6 +202,8 @@ function refreshData() {
       refreshBluetoothPrinters();
       if (typeof initRealtimeSync === 'function') initRealtimeSync();
       syncFromCloud();
+      // Tenant is known now, so anything queued while logged out can drain.
+      if (typeof scheduleSync === 'function') scheduleSync();
     }
   } catch (e) {
     console.error("[App] Error refreshing data:", e);
