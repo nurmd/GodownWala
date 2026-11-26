@@ -100,7 +100,7 @@ async function syncFromCloud() {
 
     // 2. Sync Transactions & History
     if (Array.isArray(cloudTx)) {
-      cachedTransactions = cloudTx.map(t => {
+      const cloudMapped = cloudTx.map(t => {
         let pName = t.party_name || "Direct Walk-in Contractor";
         let cPhone = t.customer_phone || "";
 
@@ -141,6 +141,11 @@ async function syncFromCloud() {
           items: Array.isArray(t.items) ? t.items : []
         };
       });
+      // Slips recorded on this device that have not reached the cloud yet
+      // must survive the refresh instead of vanishing from the ledger.
+      const cloudSlips = new Set(cloudTx.map(t => t && t.slip_no).filter(Boolean));
+      const localOnly = (cachedTransactions || []).filter(t => t && t.slipNo && !cloudSlips.has(t.slipNo));
+      cachedTransactions = cloudMapped.concat(localOnly);
       if (bridge() && bridge().setTransactions) {
         bridge().setTransactions(JSON.stringify(cachedTransactions));
       }

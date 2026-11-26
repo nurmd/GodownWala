@@ -389,12 +389,36 @@ function renderPaperPreview(raw) {
   </div>`;
 }
 
+/**
+ * Slip for preview. The JS cache is authoritative once synced, but a slip
+ * created seconds ago is not in it yet; the local database always has it.
+ */
+function findSlipTx(slipNo) {
+  const list = (typeof cachedTransactions !== 'undefined' && Array.isArray(cachedTransactions))
+    ? cachedTransactions : [];
+  let tx = list.find(t => t && t.slipNo === slipNo);
+  if (tx) return tx;
+
+  try {
+    if (bridge() && bridge().getTransactions) {
+      const all = JSON.parse(bridge().getTransactions() || '[]');
+      if (Array.isArray(all)) {
+        tx = all.find(t => t && t.slipNo === slipNo);
+        if (tx) cachedTransactions = list.filter(t => t && t.slipNo !== slipNo).concat([tx]);
+      }
+    }
+  } catch (e) {
+    console.warn('[Slip] local lookup failed', e);
+  }
+  return tx || null;
+}
+
 function renderSlipPreviewBody(slipNo) {
   const previewEl = document.getElementById('slipPreviewContent');
   if (!previewEl) return;
   ensureSlipPreviewCss();
 
-  const tx = (typeof cachedTransactions !== 'undefined' ? cachedTransactions : []).find(t => t.slipNo === slipNo);
+  const tx = findSlipTx(slipNo);
   const raw = slipRawText(slipNo);
 
   if (slipPreviewStyle === 'paper') {
@@ -429,11 +453,14 @@ function viewSlip(slipNo) {
 
   if (header) header.textContent = 'Slip: ' + slipNo;
 
-  renderSlipPreviewBody(slipNo);
-  syncSlipStyleChips();
+  // Show the dialog first; a rendering error must never swallow it.
+  if (modal) modal.classList.remove('hidden');
+
+  try { renderSlipPreviewBody(slipNo); } catch (e) { console.error('[Slip] preview render failed', e); }
+  try { syncSlipStyleChips(); } catch (e) { console.error('[Slip] chip sync failed', e); }
 
   if (editBtn) {
-    const tx = (typeof cachedTransactions !== 'undefined' ? cachedTransactions : []).find(t => t.slipNo === slipNo);
+    const tx = findSlipTx(slipNo);
     const canEdit = !!(tx && tx.type === 'OUTWARD');
     editBtn.classList.toggle('hidden', !canEdit);
     editBtn.onclick = () => {
@@ -449,7 +476,6 @@ function viewSlip(slipNo) {
     };
   }
 
-  if (modal) modal.classList.remove('hidden');
 }
 
 function closeSlipPreviewModal() {

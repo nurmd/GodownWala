@@ -26,7 +26,8 @@ function getOutwardBagsByProduct() {
 
   txs.forEach(tx => {
     if (!tx || tx.type !== 'OUTWARD') return;
-    (tx.items || []).forEach(item => {
+    const items = Array.isArray(tx.items) ? tx.items : [];
+    items.forEach(item => {
       if (!item || !item.productId) return;
       totals[item.productId] = (totals[item.productId] || 0) + (Number(item.quantityBags) || 0);
     });

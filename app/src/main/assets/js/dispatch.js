@@ -588,17 +588,30 @@ async function submitFullDispatch() {
       await cloudRecordTx('OUTWARD', res.slipNo, party, vehicle, driver, phone, challan, ewb, site, detailedItems, { bags: totalBags, mt: totalMt, amount: totalAmount }, editingSlipNo ? true : false, customerPhone, slipTs);
 
       const wasEditing = !!editingSlipNo;
+      const slipNo = res.slipNo;
       dispatchCartItems = {};
       posCart = {};
-      renderPosProducts();
-      updatePosCartBar();
-      clearDispatchForm();
-      setTimeout(syncFromCloud, 1500);
-      
-      switchTab('stock');
-      
-      viewSlip(res.slipNo);
-      showToast(wasEditing ? `Gate Pass ${res.slipNo} Updated!` : `Gate Pass ${res.slipNo} Created!`);
+      try { clearDispatchForm(); } catch (e) { console.error('[Dispatch] form reset error', e); }
+      try { switchTab('stock'); } catch (e) { console.error('[Dispatch] tab error', e); }
+
+      // Open the preview first: nothing before it may skip the slip.
+      if (typeof viewSlip === 'function') { try { viewSlip(slipNo); } catch (e) { console.error('[Dispatch] preview error', e); } }
+
+      try { renderPosProducts(); } catch (e) { console.error('[Dispatch] render error', e); }
+      try { updatePosCartBar(); } catch (e) { console.error('[Dispatch] cart bar error', e); }
+      showToast(wasEditing ? `Gate Pass ${slipNo} Updated!` : `Gate Pass ${slipNo} Created!`);
+
+      // Cloud sync replaces the cache; refresh the preview once it settles.
+      setTimeout(() => {
+        syncFromCloud()
+          .then(() => {
+            if (typeof renderSlipPreviewBody === 'function' &&
+                typeof currentLastSlipNo !== 'undefined' && currentLastSlipNo === slipNo) {
+              renderSlipPreviewBody(slipNo);
+            }
+          })
+          .catch(() => {});
+      }, 1500);
     } else {
       alert(res.error || "Dispatch failed");
     }
